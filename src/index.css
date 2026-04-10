@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f8f9fb;
+  --color-tertiary-fixed: #ffdbcf;
+  --color-tertiary-container: #a93802;
+  --color-on-tertiary-fixed-variant: #812800;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-error-container: #ffdad6;
+  --color-surface: #f8f9fb;
+  --color-error: #ba1a1a;
+  --color-primary: #0040a1;
+  --color-on-secondary-fixed-variant: #005227;
+  --color-on-primary-container: #ccd8ff;
+  --color-inverse-surface: #2d3133;
+  --color-secondary-fixed-dim: #66dd8b;
+  --color-surface-bright: #f8f9fb;
+  --color-inverse-on-surface: #eff1f3;
+  --color-on-secondary-fixed: #00210c;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container-high: #e6e8ea;
+  --color-primary-fixed-dim: #b2c5ff;
+  --color-secondary: #006d36;
+  --color-tertiary: #822800;
+  --color-on-surface: #191c1e;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container: #eceef0;
+  --color-outline: #737785;
+  --color-on-surface-variant: #424654;
+  --color-secondary-fixed: #83fba5;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #001847;
+  --color-on-tertiary-container: #ffcebd;
+  --color-tertiary-fixed-dim: #ffb59b;
+  --color-secondary-container: #83fba5;
+  --color-inverse-primary: #b2c5ff;
+  --color-on-secondary-container: #00743a;
+  --color-on-secondary: #ffffff;
+  --color-surface-variant: #e0e3e5;
+  --color-outline-variant: #c3c6d6;
+  --color-on-primary-fixed-variant: #0040a1;
+  --color-on-error: #ffffff;
+  --color-on-background: #191c1e;
+  --color-surface-container-highest: #e0e3e5;
+  --color-surface-tint: #0056d2;
+  --color-on-tertiary-fixed: #380d00;
+  --color-primary-container: #0056d2;
+  --color-surface-dim: #d8dadc;
+  --color-primary-fixed: #dae2ff;
+
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-body antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.tonal-layering-over-surface {
+  background-color: rgba(230, 232, 234, 0.8);
+  backdrop-filter: blur(32px);
+}
+
+.tonal-shift-no-border {
+  background-color: rgba(248, 249, 251, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #0040a1 0%, #0056d2 100%);
+}

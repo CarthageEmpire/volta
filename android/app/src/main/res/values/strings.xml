@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Volta</string>
+    <string name="title_activity_main">Volta</string>
+    <string name="package_name">com.kineticsanctuary.app</string>
+    <string name="custom_url_scheme">com.kineticsanctuary.app</string>
+</resources>
