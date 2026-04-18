@@ -1,137 +1,276 @@
-import { Screen } from '../types';
 import TopAppBar from '../components/TopAppBar';
+import TicketQrCode from '../components/TicketQrCode';
+import { useVolta } from '../context/VoltaContext';
+import { formatDateTime, formatTnd } from '../services/formatters';
+import { Screen } from '../types';
 
 interface ExploreScreenProps {
   navigate: (screen: Screen) => void;
 }
 
 export default function ExploreScreen({ navigate }: ExploreScreenProps) {
+  const { currentUser, state, toggleNearbyLocation } = useVolta();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const bookings = state.bookings.filter((booking) => booking.passengerUserId === currentUser.id);
+  const upcoming = bookings.filter((booking) =>
+    ['confirmed', 'awaiting_passenger_confirmation'].includes(booking.status),
+  );
+  const activeTicket = state.tickets.find(
+    (ticket) => ticket.userId === currentUser.id && ticket.status === 'active',
+  );
+  const favorites = state.favorites.filter((favorite) => favorite.userId === currentUser.id);
+
   return (
-    <div className="bg-background text-on-background min-h-screen pb-32">
-      <TopAppBar title="Volta" onBack={() => navigate('welcome')} />
+    <div className="min-h-screen bg-background pb-32">
+      <TopAppBar title="Volta" subtitle="Tableau de bord passager" />
 
-      <main className="px-6 py-8 max-w-2xl mx-auto">
-        <section className="mb-12">
-          <h2 className="text-[3.5rem] leading-none font-extrabold tracking-tighter mb-8 text-on-surface">
-            Where to <span className="text-primary-container">next?</span>
-          </h2>
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-outline">search</span>
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-8">
+        <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-[2.2rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#0056d2_60%,_#7fb7ff_150%)] p-8 text-white shadow-[0_24px_70px_rgba(0,64,161,0.24)]">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70">
+              Bonjour {currentUser.fullName.split(' ')[0]}
+            </p>
+            <h2 className="mt-4 font-headline text-4xl font-extrabold tracking-tight md:text-5xl">
+              Tous vos transports
+              <br />
+              tunisiens en un seul
+              <br />
+              tableau de bord.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-white/75">
+              Recherchez un trajet, suivez les lignes live, retrouvez votre ticket QR et
+              reservez un louage sans sortir de l’application.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('search')}
+                className="rounded-full bg-white px-5 py-3 text-sm font-bold text-primary"
+              >
+                Recherche intelligente
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('line-details')}
+                className="rounded-full bg-white/10 px-5 py-3 text-sm font-bold text-white"
+              >
+                Lignes live
+              </button>
             </div>
-            <input 
-              className="w-full bg-surface-container-high border-none rounded-full py-5 pl-14 pr-6 text-lg focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-on-surface-variant/50" 
-              placeholder="Enter your destination..." 
-              type="text" 
-            />
+          </div>
+
+          <div className="rounded-[2.2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Ticket actif</p>
+            {activeTicket ? (
+              <div className="mt-4 flex flex-col items-center gap-4">
+                <TicketQrCode payload={activeTicket.qrPayload} />
+                <div className="w-full rounded-[1.5rem] bg-slate-50 p-4">
+                  <p className="font-headline text-xl font-extrabold text-slate-950">
+                    {activeTicket.title}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Valide jusqu&apos;a {formatDateTime(activeTicket.validUntil, state.locale)}
+                  </p>
+                  <p className="mt-3 text-sm font-semibold text-slate-700">
+                    {formatTnd(activeTicket.priceTnd, state.locale)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
+                Aucun ticket actif pour le moment.
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="mb-12">
-          <div className="grid grid-cols-2 gap-4">
-            <button 
-              onClick={() => navigate('line-details')}
-              className="col-span-2 relative h-48 rounded-[1.5rem] overflow-hidden group active:scale-95 transition-transform duration-300"
-            >
-              <img 
-                className="absolute inset-0 w-full h-full object-cover brightness-50 group-hover:scale-110 transition-transform duration-700" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDdr-F7h-k0iIlohmO5DnTCrIEFwYFBuIgMr7_qL2Yct1F0vTNZJWgYEjjU_XLNBv41gLLUcjihIfKasNh-Az757B0rWtaMRqTlion2vCKcgv6JpDI0dBQ7WYSzXp-l6IQFhe7XBYEeHssYlTrH-sARsEF1MLBGPDBDVMaiH4opUdiadtUxQHppVaaafZBFmgAqkMxKdzYsvngQq7a_x3tNx-z2vylg3SuzZOBIOoaZZbLAE3HjgtD4zMsAcE6ge7qQtRUjwT00Fpc" 
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
-              <div className="absolute bottom-6 left-6 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-                  <span className="material-symbols-outlined">subway</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-white font-bold text-xl leading-tight">Metro</p>
-                  <p className="text-white/70 text-xs font-medium uppercase tracking-widest">Every 4 mins</p>
-                </div>
-              </div>
-            </button>
+        <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline text-2xl font-extrabold text-slate-950">
+                Reservations a venir
+              </h3>
+              <button
+                type="button"
+                onClick={() => navigate('louage')}
+                className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"
+              >
+                Voir louage
+              </button>
+            </div>
 
-            <button className="relative h-40 rounded-[1.5rem] overflow-hidden group active:scale-95 transition-transform duration-300 text-left">
-              <div className="absolute inset-0 bg-surface-container-low group-hover:bg-surface-container-high transition-colors"></div>
-              <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
-                  <span className="material-symbols-outlined">directions_bus</span>
+            <div className="mt-5 space-y-4">
+              {upcoming.length > 0 ? (
+                upcoming.map((booking) => (
+                  <div key={booking.id} className="rounded-[1.5rem] bg-slate-50 p-4">
+                    <p className="font-bold text-slate-900">
+                      {booking.origin} -&gt; {booking.destination}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      {formatDateTime(booking.departureAt, state.locale)}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-slate-700">
+                      {booking.mode} - {formatTnd(booking.amountTnd, state.locale)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
+                  Aucune reservation a venir.
                 </div>
-                <div>
-                  <p className="font-bold text-lg text-on-surface">Bus</p>
-                  <p className="text-on-surface-variant text-xs">88 active lines</p>
-                </div>
-              </div>
-            </button>
+              )}
+            </div>
+          </div>
 
-            <button 
-              onClick={() => navigate('louage')}
-              className="relative h-40 rounded-[1.5rem] overflow-hidden group active:scale-95 transition-transform duration-300 text-left"
-            >
-              <div className="absolute inset-0 bg-secondary-container/10 group-hover:bg-secondary-container/20 transition-colors"></div>
-              <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-                  <span className="material-symbols-outlined">directions_car</span>
+          <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <div className="flex items-center justify-between">
+              <h3 className="font-headline text-2xl font-extrabold text-slate-950">
+                A proximite
+              </h3>
+              <button
+                type="button"
+                onClick={toggleNearbyLocation}
+                className={`rounded-full px-4 py-2 text-sm font-bold ${
+                  state.locationEnabled ? 'bg-secondary text-white' : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                {state.locationEnabled ? 'Geo activee' : 'Activer'}
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {state.locationEnabled ? (
+                state.nearbyTransport.map((item) => (
+                  <div key={item.id} className="rounded-[1.5rem] bg-slate-50 p-4">
+                    <p className="font-bold text-slate-900">{item.title}</p>
+                    <p className="mt-1 text-sm text-slate-500">{item.subtitle}</p>
+                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                      {item.distanceMeters} m - {item.mode}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
+                  Activez la geolocalisation pour voir les transports a moins de 500 m.
                 </div>
-                <div>
-                  <p className="font-bold text-lg text-on-surface">Louage</p>
-                  <p className="text-on-surface-variant text-xs">Shared inter-city</p>
-                </div>
-              </div>
-            </button>
+              )}
+            </div>
           </div>
         </section>
 
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold tracking-tight text-on-surface">Quick access</h3>
-            <button className="text-primary font-semibold text-sm hover:underline">Edit</button>
+        <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] lg:col-span-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
+                  Modes de transport
+                </p>
+                <h3 className="mt-2 font-headline text-2xl font-extrabold text-slate-950">
+                  Accedez a Louage, Bus et Metro avec le meme parcours
+                </h3>
+              </div>
+              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
+                3 sections coherentes
+              </span>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {[
+                {
+                  screen: 'louage' as const,
+                  title: 'Louage',
+                  subtitle: 'Interurbain, conducteur, places et regles',
+                  icon: 'route',
+                  accent: 'bg-[rgba(0,109,54,0.12)] text-[#006d36]',
+                },
+                {
+                  screen: 'bus' as const,
+                  title: 'Bus',
+                  subtitle: 'Numero, arrets, frequence et billet',
+                  icon: 'directions_bus',
+                  accent: 'bg-[rgba(0,64,161,0.12)] text-[#0040a1]',
+                },
+                {
+                  screen: 'metro' as const,
+                  title: 'Metro',
+                  subtitle: 'Ligne, stations, direction et horaires',
+                  icon: 'tram',
+                  accent: 'bg-[rgba(15,118,110,0.12)] text-[#0f766e]',
+                },
+              ].map((item) => (
+                <button
+                  key={item.screen}
+                  type="button"
+                  onClick={() => navigate(item.screen)}
+                  className="rounded-[1.6rem] bg-slate-50 p-5 text-left"
+                >
+                  <span className={`flex h-12 w-12 items-center justify-center rounded-[1.1rem] ${item.accent}`}>
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </span>
+                  <p className="mt-4 font-headline text-2xl font-extrabold text-slate-950">
+                    {item.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">{item.subtitle}</p>
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="space-y-6">
-            <div className="flex items-center gap-5 group cursor-pointer">
-              <div className="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary">home</span>
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-on-surface group-hover:text-primary transition-colors">Home</p>
-                <p className="text-on-surface-variant text-sm">Avenue Habib Bourguiba, 1001</p>
-              </div>
-              <div className="text-right">
-                <span className="text-secondary font-bold text-sm">12 min</span>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-5 group cursor-pointer">
-              <div className="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
-                <span className="material-symbols-outlined text-outline group-hover:text-primary">work</span>
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-on-surface group-hover:text-primary transition-colors">Digital Hub Office</p>
-                <p className="text-on-surface-variant text-sm">Lac II, Tunis</p>
-              </div>
-              <div className="text-right">
-                <span className="text-on-surface-variant font-bold text-sm">24 min</span>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-[1.5rem] bg-surface-container-lowest shadow-[0_8px_24px_rgba(25,28,30,0.04)] border border-outline-variant/10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <span className="font-bold text-on-surface">Line TGM</span>
+          <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Favoris</p>
+            <div className="mt-4 grid gap-3">
+              {favorites.map((favorite) => (
+                <div key={favorite.id} className="rounded-[1.4rem] bg-slate-50 p-4">
+                  <p className="font-bold text-slate-900">{favorite.label}</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {favorite.city} - {favorite.hint}
+                  </p>
                 </div>
-                <span className="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">On Time</span>
-              </div>
-              <p className="text-on-surface-variant text-sm leading-relaxed">
-                Tunis Marine — La Marsa. Next train arrives in <span className="text-on-surface font-bold">5 mins</span>.
-              </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
+              Acces rapide
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => navigate('search')}
+                className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
+              >
+                Comparer metro, bus et louage
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('line-details')}
+                className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
+              >
+                Suivre les lignes en temps reel
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('louage')}
+                className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
+              >
+                Reserver un louage interurbain
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('tickets')}
+                className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
+              >
+                Afficher mes QR codes
+              </button>
             </div>
           </div>
         </section>
       </main>
-
-      <button className="fixed bottom-28 right-6 w-16 h-16 rounded-full shadow-2xl bg-gradient-to-br from-primary to-primary-container text-white flex items-center justify-center active:scale-95 transition-transform">
-        <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>map</span>
-      </button>
     </div>
   );
 }

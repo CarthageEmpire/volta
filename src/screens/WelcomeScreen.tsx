@@ -1,138 +1,316 @@
+import { FormEvent, useState } from 'react';
+import { TUNISIAN_CITIES } from '../constants';
+import { useVolta } from '../context/VoltaContext';
 import { Screen } from '../types';
 
 interface WelcomeScreenProps {
-  onLogin: () => void;
-  onRoleChange: (role: 'passenger' | 'driver') => void;
-  currentRole: 'passenger' | 'driver';
+  navigate: (screen: Screen) => void;
 }
 
-export default function WelcomeScreen({ onLogin, onRoleChange, currentRole }: WelcomeScreenProps) {
+export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProps) {
+  const { loginWithEmail, signupAccount, resetDemo } = useVolta();
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: '',
+  });
+  const [signupForm, setSignupForm] = useState({
+    role: 'passenger' as 'passenger' | 'driver',
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    city: 'Tunis',
+  });
+
+  const fillDemoAccount = (email: string, password: string) => {
+    setMode('login');
+    setFeedback('');
+    setLoginForm({ email, password });
+  };
+
+  const submitLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await loginWithEmail(loginForm);
+    if (!result.ok) {
+      setFeedback(result.message ?? '');
+      setIsSubmitting(false);
+      return;
+    }
+    setFeedback('');
+    setIsSubmitting(false);
+  };
+
+  const submitSignup = async (event: FormEvent) => {
+    event.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await signupAccount(signupForm);
+    if (!result.ok) {
+      setFeedback(result.message ?? '');
+      setIsSubmitting(false);
+      return;
+    }
+    setFeedback(
+      signupForm.role === 'driver'
+        ? 'Compte cree. Finalisez la verification conducteur.'
+        : 'Compte cree avec succes.',
+    );
+    setIsSubmitting(false);
+  };
+
   return (
-    <div className="bg-background font-body text-on-background min-h-screen flex flex-col items-center">
-      <header className="w-full sticky top-0 z-50 bg-[#f8f9fb]/70 backdrop-blur-xl flex items-center justify-between px-6 py-4 tonal-shift-no-border">
-        <div className="flex items-center gap-2">
-          <span className="text-[#0056D2] font-black tracking-tighter text-2xl font-headline">Volta</span>
-        </div>
-        <div className="hidden md:flex items-center gap-6">
-          <a className="text-slate-500 font-medium hover:text-[#0056D2] transition-colors" href="#">Help Center</a>
-          <button className="bg-primary-container text-white px-6 py-2 rounded-full font-bold transition-all active:scale-95">Support</button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(0,64,161,0.12),_transparent_28%),linear-gradient(180deg,_#f8f9fb_0%,_#ffffff_48%,_#eef5ff_100%)] px-6 py-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+        <section className="max-w-xl">
+          <span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.3em] text-primary shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+            Volta Tunisie
+          </span>
+          <h1 className="mt-6 font-headline text-5xl font-extrabold tracking-tight text-slate-950 md:text-7xl">
+            Transport tunisien
+            <br />
+            dans une app
+            <br />
+            <span className="text-primary">simple et role-aware.</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-lg leading-8 text-slate-500">
+            Authentification, verification conducteur, louage, tickets QR, paiement et
+            suivi metro/bus dans un seul flux coherent.
+          </p>
 
-      <main className="w-full max-w-7xl mx-auto px-6 py-8 md:py-16 flex flex-col md:flex-row items-center gap-12 justify-center lg:gap-16">
-        <div className="w-full order-2 md:order-1 space-y-10 md:w-5/12">
-          <div className="space-y-4">
-            <span className="text-primary font-bold tracking-widest text-xs uppercase block">The Future of Transit</span>
-            <h1 className="text-5xl lg:text-7xl font-headline font-extrabold tracking-tight text-on-surface leading-[1.1]">
-              Your journey, <span className="text-primary">redefined.</span>
-            </h1>
-            <p className="text-on-surface-variant text-lg lg:text-xl max-w-md leading-relaxed">
-              The simplest way to move through your city.
-            </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-[1.5rem] bg-white p-5 shadow-[0_16px_45px_rgba(15,23,42,0.08)]">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Metro / Bus</p>
+              <p className="mt-3 font-bold text-slate-900">Suivi live</p>
+            </div>
+            <div className="rounded-[1.5rem] bg-white p-5 shadow-[0_16px_45px_rgba(15,23,42,0.08)]">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Louage</p>
+              <p className="mt-3 font-bold text-slate-900">Paiement retenu</p>
+            </div>
+            <div className="rounded-[1.5rem] bg-white p-5 shadow-[0_16px_45px_rgba(15,23,42,0.08)]">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Conducteurs</p>
+              <p className="mt-3 font-bold text-slate-900">Verification admin</p>
+            </div>
           </div>
 
-          <div className="bg-surface-container-low p-2 rounded-2xl flex flex-col gap-2">
-            <div className="grid grid-cols-2 gap-2">
-              <button 
-                onClick={() => onRoleChange('passenger')}
-                className={`flex items-center justify-center gap-3 p-4 rounded-xl transition-all ${currentRole === 'passenger' ? 'bg-surface-container-lowest text-on-surface shadow-[0_8px_24px_rgba(25,28,30,0.06)] border-2 border-primary/10' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+          <div className="mt-8 rounded-[2rem] bg-slate-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50">Comptes demo</p>
+            <div className="mt-4 space-y-3 text-sm">
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('imen@volta.tn', 'volta123')}
+                className="block text-left text-white/85"
               >
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: currentRole === 'passenger' ? "'FILL' 1" : undefined }}>person</span>
-                <span className="font-bold">Passenger</span>
+                Passager demo: imen@volta.tn / volta123
               </button>
-              <button 
-                onClick={() => onRoleChange('driver')}
-                className={`flex items-center justify-center gap-3 p-4 rounded-xl transition-all ${currentRole === 'driver' ? 'bg-surface-container-lowest text-on-surface shadow-[0_8px_24px_rgba(25,28,30,0.06)] border-2 border-primary/10' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('hamed@volta.tn', 'volta123')}
+                className="block text-left text-white/85"
               >
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: currentRole === 'driver' ? "'FILL' 1" : undefined }}>directions_car</span>
-                <span className="font-bold">Driver</span>
+                Conducteur demo: hamed@volta.tn / volta123
               </button>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <label className="block">
-                <span className="text-sm font-semibold text-on-surface-variant ml-2 mb-1 block">Email Address</span>
-                <input 
-                  className="w-full bg-surface-container-high border-none rounded-2xl p-4 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline" 
-                  placeholder="name@example.com" 
-                  type="email" 
-                />
-              </label>
-              <label className="block">
-                <span className="text-sm font-semibold text-on-surface-variant ml-2 mb-1 block">Password</span>
-                <input 
-                  className="w-full bg-surface-container-high border-none rounded-2xl p-4 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all placeholder:text-outline" 
-                  placeholder="••••••••" 
-                  type="password" 
-                />
-              </label>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button 
-                onClick={onLogin}
-                className="flex-1 hero-gradient text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 active:scale-[0.98] transition-transform"
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('admin@volta.tn', 'admin123')}
+                className="block text-left text-white/85"
               >
-                Sign In
-              </button>
-              <button className="flex-1 bg-secondary-container text-on-secondary-container py-4 rounded-2xl font-bold text-lg active:scale-[0.98] transition-transform">
-                Create Account
+                Admin demo: admin@volta.tn / admin123
               </button>
             </div>
-
-            <div className="flex items-center gap-4 py-2">
-              <div className="h-[1px] flex-1 bg-outline-variant/30"></div>
-              <span className="text-xs font-bold text-outline uppercase tracking-widest">Or continue with</span>
-              <div className="h-[1px] flex-1 bg-outline-variant/30"></div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <button className="bg-surface-container-high p-4 rounded-2xl flex justify-center hover:bg-surface-container-highest transition-colors">
-                <img alt="Google" className="w-6 h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcoNqS_r5lqA3NQ09cPm9h7pGxkXDgg17saFwgaH7-6o2H3fWyhHMY4YeJ3y1jYFLG62_kihG1pVa0yQipGoqP3iCR2qumDrPQTaR0NFGdOXp21YCwjOc8uq5ErTZobLHs8lyjU_IYYuIQfKKGKHLBm1iYRZGaBK43-HHpaag5PrAY8QRLO9Jv9QYKGBcmCRuSzCgJzP5EHqHnMp7s5OKLfLDBCrWEml2CaUesONN9KJzVNqpFVXEpfMQbwnLYSPVgI0BPvDL45ASz" referrerPolicy="no-referrer" />
-              </button>
-              <button className="bg-surface-container-high p-4 rounded-2xl flex justify-center hover:bg-surface-container-highest transition-colors">
-                <span className="material-symbols-outlined text-[#1877F2]">social_leaderboard</span>
-              </button>
-              <button className="bg-surface-container-high p-4 rounded-2xl flex justify-center hover:bg-surface-container-highest transition-colors">
-                <span className="material-symbols-outlined text-on-surface">ios</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full order-1 md:order-2 md:w-5/12">
-          <div className="relative w-full rounded-[3rem] overflow-hidden shadow-2xl aspect-square max-w-md mx-auto">
-            <div className="absolute inset-0 bg-primary/10 mix-blend-overlay z-10"></div>
-            <img 
-              className="w-full h-full object-cover" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfgy2gPmbdl7aj76UBIyD9O1LFt0rrvK0-yW1mUT1T-9vX84KbZ69LaVOIajWTFtEmoI65SRUJb0DAXM4hLlISYbatYQaKT4YhIQV-g5LXPs65i2LAe5h_Ez66rbqweTno-v5hBZ9kUDiCkXDaPoXEzMJKSdqytkFCbzT7-5wH5OQ_R4jd6T8wTiGp-wvhMBRr7tm2vI6z5mze1u7pP4M5W8d_QyKTtn8LPxBi18L9buhEpKYZT2yww2ujpyNZZaXLKqanL38Doz83" 
-              referrerPolicy="no-referrer"
-            />
-          </div>
-        </div>
-      </main>
-
-      <footer className="w-full mt-auto py-12 px-6 bg-surface-container-high border-t border-transparent">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="text-[#0056D2] font-black tracking-tighter text-xl font-headline">Volta</span>
-            <p className="text-on-surface-variant text-sm">© 2024 Volta Urban Transport Systems.</p>
-          </div>
-          <nav className="flex gap-8">
-            <a className="text-on-surface-variant text-sm font-medium hover:text-primary" href="#">Privacy</a>
-            <a className="text-on-surface-variant text-sm font-medium hover:text-primary" href="#">Terms</a>
-            <a className="text-on-surface-variant text-sm font-medium hover:text-primary" href="#">Safety</a>
-            <a className="text-on-surface-variant text-sm font-medium hover:text-primary" href="#">Accessibility</a>
-          </nav>
-          <div className="flex gap-4">
-            <button className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-all">
-              <span className="material-symbols-outlined text-lg">language</span>
+            <button
+              type="button"
+              onClick={resetDemo}
+              className="mt-5 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-900"
+            >
+              Reinitialiser la demo
             </button>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        <section className="w-full max-w-xl rounded-[2.4rem] bg-white p-6 shadow-[0_30px_100px_rgba(15,23,42,0.12)] md:p-8">
+          <div className="inline-flex rounded-full bg-slate-100 p-1.5">
+            <button
+              type="button"
+              onClick={() => setMode('login')}
+              className={`rounded-full px-5 py-2 text-sm font-bold ${
+                mode === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Connexion
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('signup')}
+              className={`rounded-full px-5 py-2 text-sm font-bold ${
+                mode === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Inscription
+            </button>
+          </div>
+
+          <h2 className="mt-8 font-headline text-3xl font-extrabold tracking-tight text-slate-950">
+            {mode === 'login' ? 'Connexion email + mot de passe' : 'Inscription rapide'}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            {mode === 'login'
+              ? 'Connexion simplifiee, sans support/help center inutile sur cette page.'
+              : 'Inscription par email ou telephone avec choix du role passager ou conducteur.'}
+          </p>
+
+          {feedback && (
+            <div className="mt-6 rounded-[1.4rem] bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+              {feedback}
+            </div>
+          )}
+
+          {mode === 'login' ? (
+            <form className="mt-8 space-y-4" onSubmit={submitLogin}>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Email</span>
+                <input
+                  value={loginForm.email}
+                  onChange={(event) =>
+                    setLoginForm((current) => ({ ...current, email: event.target.value }))
+                  }
+                  className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                  placeholder="Email"
+                  type="email"
+                  autoComplete="email"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Mot de passe</span>
+                <input
+                  value={loginForm.password}
+                  onChange={(event) =>
+                    setLoginForm((current) => ({ ...current, password: event.target.value }))
+                  }
+                  className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                  placeholder="Mot de passe"
+                  type="password"
+                  autoComplete="current-password"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-[1.5rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#0056d2_100%)] py-4 font-headline text-lg font-extrabold text-white"
+              >
+                {isSubmitting ? 'Connexion...' : 'Se connecter'}
+              </button>
+            </form>
+          ) : (
+            <form className="mt-8 space-y-4" onSubmit={submitSignup}>
+              <div className="grid grid-cols-2 gap-3 rounded-[1.4rem] bg-slate-100 p-1.5">
+                {(['passenger', 'driver'] as const).map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setSignupForm((current) => ({ ...current, role }))}
+                    className={`rounded-[1.1rem] px-4 py-3 text-sm font-bold ${
+                      signupForm.role === role ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+                    }`}
+                  >
+                    {role === 'passenger' ? 'Passager' : 'Conducteur'}
+                  </button>
+                ))}
+              </div>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Nom complet</span>
+                <input
+                  value={signupForm.fullName}
+                  onChange={(event) =>
+                    setSignupForm((current) => ({ ...current, fullName: event.target.value }))
+                  }
+                  className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                  placeholder="Nom complet"
+                  type="text"
+                  autoComplete="name"
+                />
+              </label>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-slate-600">Email</span>
+                  <input
+                    value={signupForm.email}
+                    onChange={(event) =>
+                      setSignupForm((current) => ({ ...current, email: event.target.value }))
+                    }
+                    className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                    placeholder="Email"
+                    type="email"
+                    autoComplete="email"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-slate-600">Telephone</span>
+                  <input
+                    value={signupForm.phone}
+                    onChange={(event) =>
+                      setSignupForm((current) => ({ ...current, phone: event.target.value }))
+                    }
+                    className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                    placeholder="Telephone"
+                    type="tel"
+                    autoComplete="tel"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-slate-600">Ville</span>
+                  <select
+                    value={signupForm.city}
+                    onChange={(event) =>
+                      setSignupForm((current) => ({ ...current, city: event.target.value }))
+                    }
+                    className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                  >
+                    {TUNISIAN_CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-slate-600">Mot de passe</span>
+                  <input
+                    value={signupForm.password}
+                    onChange={(event) =>
+                      setSignupForm((current) => ({ ...current, password: event.target.value }))
+                    }
+                    className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                    placeholder="Mot de passe"
+                    type="password"
+                    autoComplete="new-password"
+                  />
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-[1.5rem] bg-[linear-gradient(135deg,_#006d36_0%,_#0f9d58_100%)] py-4 font-headline text-lg font-extrabold text-white"
+              >
+                {isSubmitting ? 'Creation...' : 'Creer mon compte'}
+              </button>
+            </form>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

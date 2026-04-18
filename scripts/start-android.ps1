@@ -22,6 +22,24 @@ function Resolve-JavaHome {
   return $null
 }
 
+function Get-BootCompleted {
+  param(
+    [string]$AdbPath
+  )
+
+  try {
+    $output = & $AdbPath shell getprop sys.boot_completed 2>$null
+    if ($null -eq $output) {
+      return ''
+    }
+
+    return ($output | Out-String).Trim()
+  }
+  catch {
+    return ''
+  }
+}
+
 $sdkRoot = if ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { Join-Path $env:LOCALAPPDATA 'Android\Sdk' }
 if (-not (Test-Path $sdkRoot)) {
   throw "Android SDK not found at $sdkRoot"
@@ -63,7 +81,9 @@ Write-Host 'Waiting for emulator device...'
 & $adbExe wait-for-device | Out-Null
 
 Write-Host 'Waiting for Android boot completion...'
-while ((& $adbExe shell getprop sys.boot_completed).Trim() -ne '1') {}
+while ((Get-BootCompleted -AdbPath $adbExe) -ne '1') {
+  Start-Sleep -Seconds 3
+}
 
 if ($BootOnly) {
   Write-Host 'Emulator is ready.'

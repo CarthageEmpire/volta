@@ -1,168 +1,213 @@
-import { Screen } from '../types';
+import { useMemo, useState } from 'react';
 import TopAppBar from '../components/TopAppBar';
-import { DRIVERS } from '../constants';
+import TransportSectionTabs from '../components/TransportSectionTabs';
+import { useVolta } from '../context/VoltaContext';
+import { formatDateTime, formatTnd } from '../services/formatters';
+import { Screen } from '../types';
 
 interface LouageScreenProps {
   navigate: (screen: Screen) => void;
 }
 
 export default function LouageScreen({ navigate }: LouageScreenProps) {
+  const { state, startLouagePayment } = useVolta();
+  const [filters, setFilters] = useState({
+    departure: 'Tunis',
+    destination: '',
+    date: new Date().toISOString().slice(0, 10),
+  });
+
+  const rides = useMemo(
+    () =>
+      state.louageRides.filter((ride) => {
+        const departureMatch =
+          filters.departure.length === 0 ||
+          ride.departureCity.toLowerCase().includes(filters.departure.toLowerCase());
+        const destinationMatch =
+          filters.destination.length === 0 ||
+          ride.destinationCity.toLowerCase().includes(filters.destination.toLowerCase());
+        const dateMatch = filters.date.length === 0 || ride.departureAt.slice(0, 10) === filters.date;
+        return ride.status === 'scheduled' && departureMatch && destinationMatch && dateMatch;
+      }),
+    [filters, state.louageRides],
+  );
+
   return (
-    <div className="bg-background text-on-surface font-body min-h-screen pb-32">
-      <TopAppBar title="Volta" onBack={() => navigate('explore')} />
+    <div className="min-h-screen bg-background pb-32">
+      <TopAppBar
+        title="Louage Tunisie"
+        subtitle="Reservation interurbaine avec paiement et regles metier"
+        onBack={() => navigate('explore')}
+      />
 
-      <main className="max-w-5xl mx-auto px-6 pt-8">
-        <section className="mb-12">
-          <h2 className="font-headline font-extrabold text-5xl md:text-7xl text-on-surface tracking-tighter mb-4">
-            The City's <span className="text-primary italic">Pulse.</span>
-          </h2>
-          <p className="text-on-surface-variant text-lg max-w-xl mb-8">
-            Seamless louage connections across the urban sanctuary. Find your ride, reserve your seat, move with intention.
-          </p>
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-8">
+        <TransportSectionTabs current="louage" navigate={navigate} />
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-surface-container-low p-4 rounded-[2rem]">
-            <div className="md:col-span-1 bg-surface-container-lowest p-4 rounded-xl shadow-sm">
-              <span className="font-label text-xs uppercase tracking-widest text-outline mb-2 block font-bold">Origin</span>
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">location_on</span>
-                <input 
-                  className="w-full bg-transparent border-none focus:ring-0 font-semibold p-0 text-on-surface" 
-                  type="text" 
-                  defaultValue="Tunis Marine" 
-                />
-              </div>
+        <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <div className="grid gap-4 md:grid-cols-4">
+            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
+              <span>Ville depart</span>
+              <input
+                value={filters.departure}
+                onChange={(event) =>
+                  setFilters((current) => ({ ...current, departure: event.target.value }))
+                }
+                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                placeholder="Ville depart"
+                type="text"
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
+              <span>Ville destination</span>
+              <input
+                value={filters.destination}
+                onChange={(event) =>
+                  setFilters((current) => ({ ...current, destination: event.target.value }))
+                }
+                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                placeholder="Ville destination"
+                type="text"
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
+              <span>Date depart</span>
+              <input
+                value={filters.date}
+                onChange={(event) =>
+                  setFilters((current) => ({ ...current, date: event.target.value }))
+                }
+                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                type="date"
+              />
+            </label>
+            <div className="flex flex-col justify-end">
+              <button
+                type="button"
+                className="rounded-[1.4rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] px-5 py-4 text-sm font-bold text-white"
+              >
+                Rechercher
+              </button>
             </div>
-            <div className="md:col-span-1 bg-surface-container-lowest p-4 rounded-xl shadow-sm">
-              <span className="font-label text-xs uppercase tracking-widest text-outline mb-2 block font-bold">Destination</span>
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-secondary">near_me</span>
-                <input 
-                  className="w-full bg-transparent border-none focus:ring-0 font-semibold p-0 text-on-surface" 
-                  placeholder="Where to?" 
-                  type="text" 
-                />
-              </div>
-            </div>
-            <div className="md:col-span-1 bg-surface-container-lowest p-4 rounded-xl shadow-sm">
-              <span className="font-label text-xs uppercase tracking-widest text-outline mb-2 block font-bold">Departure Date</span>
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary">calendar_today</span>
-                <input 
-                  className="w-full bg-transparent border-none focus:ring-0 font-semibold p-0 text-on-surface" 
-                  type="text" 
-                  defaultValue="Today, 24 Oct" 
-                />
-              </div>
-            </div>
-            <button className="md:col-span-1 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 duration-150 py-4 md:py-0">
-              <span className="material-symbols-outlined">search</span>
-              Find Rides
-            </button>
           </div>
         </section>
 
-        <div className="flex items-baseline justify-between mb-8">
-          <h3 className="font-headline font-bold text-2xl">Available Louages</h3>
-          <span className="font-label text-sm text-outline">14 results found</span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          {DRIVERS.map((driver) => (
-            <div 
-              key={driver.id} 
-              className={`bg-surface-container-lowest p-6 rounded-[1.5rem] shadow-[0_8px_24px_rgba(25,28,30,0.04)] hover:shadow-[0_12px_32px_rgba(25,28,30,0.08)] transition-shadow group ${driver.availability === 0 ? 'opacity-75' : ''}`}
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden ${driver.availability === 0 ? 'bg-surface-variant grayscale' : 'bg-secondary-container'}`}>
-                    <img 
-                      className="w-full h-full object-cover" 
-                      src={driver.avatar} 
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-lg">{driver.name}</span>
-                      {driver.isPro && (
-                        <span className="bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                          PRO
-                        </span>
-                      )}
-                      {driver.rating && (
-                        <span className="bg-surface-variant text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                          {driver.rating} ({driver.reviews})
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-on-surface-variant text-sm flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">directions_car</span>
-                      {driver.vehicle}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-8">
-                  <div className="text-center md:text-left">
-                    <span className="block text-outline text-[10px] uppercase tracking-widest font-bold mb-1">Departs</span>
-                    <span className={`text-2xl font-black ${driver.availability === 0 ? 'text-outline' : 'text-primary'}`}>{driver.departs}</span>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <span className="block text-outline text-[10px] uppercase tracking-widest font-bold mb-1">Price</span>
-                    <span className="text-2xl font-black text-on-surface">{driver.price}</span>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <span className="block text-outline text-[10px] uppercase tracking-widest font-bold mb-1">Availability</span>
-                    {driver.availability > 0 ? (
-                      <div className="flex gap-1 items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <div key={i} className={`w-2 h-6 rounded-full ${i < driver.availability ? 'bg-secondary' : 'bg-outline-variant'}`}></div>
-                        ))}
-                        <span className={`ml-2 font-bold ${driver.availability === 1 ? 'text-error' : 'text-secondary'}`}>
-                          {driver.availability} left
-                        </span>
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-4">
+            {rides.length > 0 ? (
+              rides.map((ride) => {
+                const driver = state.users.find((user) => user.id === ride.driverUserId);
+                return (
+                  <article
+                    key={ride.id}
+                    className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
+                  >
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="rounded-full bg-[rgba(0,109,54,0.12)] px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-[#006d36]">
+                            Louage
+                          </span>
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+                            {ride.availableSeats}/{ride.totalSeats} places
+                          </span>
+                        </div>
+                        <h3 className="mt-4 font-headline text-2xl font-extrabold text-slate-950">
+                          {ride.departureCity} -&gt; {ride.destinationCity}
+                        </h3>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Conducteur: {driver?.fullName ?? 'Conducteur Volta'}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {ride.vehicleModel} - {ride.plateNumber}
+                        </p>
+                        <div className="mt-5 grid gap-3 md:grid-cols-3">
+                          <div className="rounded-[1.4rem] bg-slate-50 p-4">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+                              Depart
+                            </p>
+                            <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
+                              {formatDateTime(ride.departureAt)}
+                            </p>
+                          </div>
+                          <div className="rounded-[1.4rem] bg-slate-50 p-4">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+                              Vehicule
+                            </p>
+                            <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
+                              {ride.vehicleModel}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-500">{ride.plateNumber}</p>
+                          </div>
+                          <div className="rounded-[1.4rem] bg-slate-50 p-4">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+                              Disponibilite
+                            </p>
+                            <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
+                              {ride.availableSeats} places
+                            </p>
+                            <p className="mt-1 text-sm text-slate-500">Paiement retenu jusqu&apos;a confirmation</p>
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      <span className="font-bold text-outline uppercase tracking-widest text-xs">Full Capacity</span>
-                    )}
-                  </div>
-                </div>
 
-                <button 
-                  disabled={driver.availability === 0}
-                  className={`px-8 py-4 rounded-xl font-bold transition-all active:scale-90 flex items-center gap-2 ${driver.availability === 0 ? 'bg-surface-container-low text-outline-variant cursor-not-allowed' : 'bg-surface-container-high hover:bg-primary hover:text-white text-on-primary-fixed-variant'}`}
-                >
-                  {driver.availability === 0 ? 'Sold Out' : (
-                    <>
-                      Book Seat
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </>
-                  )}
-                </button>
+                      <div className="flex flex-col items-start gap-3 lg:items-end">
+                        <p className="font-headline text-3xl font-extrabold text-slate-950">
+                          {formatTnd(ride.priceTnd)}
+                        </p>
+                        <button
+                          type="button"
+                          disabled={ride.availableSeats < 1}
+                          onClick={() => {
+                            const result = startLouagePayment(ride.id);
+                            if (result.ok) {
+                              navigate('payment');
+                            }
+                          }}
+                          className="rounded-full bg-[linear-gradient(135deg,_#006d36_0%,_#0f9d58_100%)] px-5 py-3 text-sm font-bold text-white disabled:bg-slate-300"
+                        >
+                          Reserver
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+            ) : (
+              <section className="rounded-[2rem] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+                <h2 className="font-headline text-2xl font-extrabold text-slate-950">
+                  Aucun trajet louage trouve
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Changez la ville de depart, la destination ou la date pour afficher de nouvelles
+                  options interurbaines.
+                </p>
+              </section>
+            )}
+          </div>
+
+          <aside className="space-y-6">
+            <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Regles</p>
+              <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
+                <p>Annulation passager remboursable jusqu’a 2 h avant depart.</p>
+                <p>Annulation conducteur sous 1 h: remboursement total + penalite 10%.</p>
+                <p>Payout conducteur retenu jusqu’a confirmation du trajet.</p>
+                <p>No-show passager: paiement possible seulement avec preuve live.</p>
               </div>
-            </div>
-          ))}
-        </div>
+            </section>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 bg-primary p-12 rounded-[2.5rem] text-white flex flex-col justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <h4 className="font-headline font-bold text-4xl mb-6 leading-tight">Priority Boarding<br/>With Louage Pro.</h4>
-              <p className="text-primary-fixed-dim text-lg max-w-md">Skip the queue and secure the front seat on any journey. Volta premium members get 15% off all inter-city routes.</p>
-            </div>
-            <div className="relative z-10 mt-8">
-              <button className="bg-white text-primary px-6 py-3 rounded-full font-bold hover:bg-primary-fixed-dim transition-colors">Upgrade Now</button>
-            </div>
-            <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-primary-container rounded-full opacity-20 blur-3xl"></div>
-          </div>
-          <div className="bg-surface-container-high p-8 rounded-[2rem] flex flex-col justify-center items-center text-center">
-            <span className="material-symbols-outlined text-5xl text-secondary mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-            <h5 className="font-bold text-xl mb-2">Sustainable City</h5>
-            <p className="text-on-surface-variant text-sm">Sharing your ride today saved 4.2kg of CO2 compared to a solo drive. Thank you for moving mindfully.</p>
-          </div>
-        </div>
+            <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Routes populaires</p>
+              <div className="mt-4 grid gap-3">
+                {['Tunis -> Sousse', 'Sousse -> Sfax', 'Tunis -> Nabeul', 'Monastir -> Sfax'].map((route) => (
+                  <div key={route} className="rounded-[1.4rem] bg-slate-50 px-4 py-3 font-semibold text-slate-700">
+                    {route}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </aside>
+        </section>
       </main>
     </div>
   );
