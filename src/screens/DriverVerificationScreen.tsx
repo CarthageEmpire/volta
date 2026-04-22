@@ -16,10 +16,10 @@ export default function DriverVerificationScreen({ navigate }: DriverVerificatio
   const [phoneVerified, setPhoneVerified] = useState(Boolean(currentUser?.phoneVerified));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [documents, setDocuments] = useState({
-    driving_license: '',
-    national_id: '',
-    vehicle_insurance: '',
-    vehicle_registration: '',
+    driving_license: { name: '', file: null as File | null },
+    national_id: { name: '', file: null as File | null },
+    vehicle_insurance: { name: '', file: null as File | null },
+    vehicle_registration: { name: '', file: null as File | null },
   });
   const [form, setForm] = useState({
     fullName: currentUser?.fullName ?? '',
@@ -50,23 +50,24 @@ export default function DriverVerificationScreen({ navigate }: DriverVerificatio
     setFeedback('Code incorrect.');
   };
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (isSubmitting) {
       return;
     }
 
     setIsSubmitting(true);
-    const result = submitVerification({
+    const result = await submitVerification({
       ...form,
       gender: form.gender as 'femme' | 'homme' | 'autre',
       phoneVerified,
       documents: Object.entries(documents)
-        .filter(([, name]) => Boolean(name))
-        .map(([type, name]) => ({
+        .filter(([, document]) => Boolean((document as { name: string }).name))
+        .map(([type, document]) => ({
           type: type as keyof typeof documents,
-          name,
+          name: (document as { name: string }).name,
           uploadedAt: new Date().toISOString(),
+          file: (document as { file: File | null }).file,
         })),
     });
 
@@ -226,13 +227,16 @@ export default function DriverVerificationScreen({ navigate }: DriverVerificatio
                     onChange={(event) =>
                       setDocuments((current) => ({
                         ...current,
-                        [type]: event.target.files?.[0]?.name ?? '',
+                        [type]: {
+                          name: event.target.files?.[0]?.name ?? '',
+                          file: event.target.files?.[0] ?? null,
+                        },
                       }))
                     }
                   />
-                  {documents[type as keyof typeof documents] && (
+                  {documents[type as keyof typeof documents].name && (
                     <p className="mt-2 text-xs text-slate-500">
-                      Fichier: {documents[type as keyof typeof documents]}
+                      Fichier: {documents[type as keyof typeof documents].name}
                     </p>
                   )}
                 </label>

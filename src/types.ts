@@ -60,6 +60,9 @@ export interface VerificationDocument {
   type: DocumentType;
   name: string;
   uploadedAt: string;
+  storagePath?: string;
+  downloadURL?: string;
+  file?: File | null;
 }
 
 export interface DriverVerificationRequest {
@@ -72,6 +75,9 @@ export interface DriverVerificationRequest {
   rejectionReason?: string;
   cityOfResidence: string;
   documents: VerificationDocument[];
+  applicantName?: string;
+  applicantEmail?: string;
+  applicantPhone?: string;
 }
 
 export interface LineStop {
@@ -95,6 +101,10 @@ export interface TransportLine {
   intervalMinutes: number;
   routeLabel: string;
   stops: LineStop[];
+  operatorName?: string;
+  servicePattern?: string;
+  verificationNotes?: string;
+  sourceLabel?: string;
 }
 
 export interface LiveVehicle {
@@ -112,6 +122,7 @@ export interface LiveVehicle {
 export interface LouageRide {
   id: string;
   driverUserId: string;
+  driverName?: string;
   departureCity: string;
   destinationCity: string;
   departureAt: string;
@@ -121,8 +132,11 @@ export interface LouageRide {
   vehicleModel: string;
   plateNumber: string;
   vehiclePhotoName?: string;
+  vehiclePhotoPath?: string;
+  vehiclePhotoUrl?: string;
   status: RideStatus;
   liveProofEnabled: boolean;
+  createdAt?: string;
 }
 
 export interface Booking {
@@ -165,6 +179,7 @@ export interface Ticket {
 export interface Payment {
   id: string;
   userId: string;
+  driverUserId?: string;
   bookingId: string;
   provider: PaymentProvider;
   amountTnd: number;
@@ -278,4 +293,5 @@ export interface CreateRideInput {
   vehicleModel: string;
   plateNumber: string;
   vehiclePhotoName?: string;
+  vehiclePhoto?: File | null;
 }

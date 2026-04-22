@@ -32,8 +32,8 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
     .filter((payment) => bookings.some((booking) => booking.paymentId === payment.id))
     .reduce((sum, payment) => sum + payment.amountTnd, 0);
 
-  const updateLive = (enabled: boolean) => {
-    const result = toggleLiveSharing(enabled);
+  const updateLive = async (enabled: boolean) => {
+    const result = await toggleLiveSharing(enabled);
     setFeedback(result.message ?? (result.ok ? 'Statut live mis a jour.' : ''));
   };
 
@@ -141,8 +141,8 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                     </span>
                     <button
                       type="button"
-                      onClick={() => {
-                        const result = cancelRide(ride.id);
+                      onClick={async () => {
+                        const result = await cancelRide(ride.id);
                         setFeedback(result.message ?? '');
                       }}
                       className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
@@ -173,7 +173,10 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                     {booking.status === 'confirmed' && (
                       <button
                         type="button"
-                        onClick={() => markBookingAwaitingConfirmation(booking.id)}
+                        onClick={async () => {
+                          const result = await markBookingAwaitingConfirmation(booking.id);
+                          setFeedback(result.message ?? '');
+                        }}
                         className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
                       >
                         Marquer arrive
@@ -181,8 +184,8 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                     )}
                     <button
                       type="button"
-                      onClick={() => {
-                        const result = reportBookingNoShow(booking.id);
+                      onClick={async () => {
+                        const result = await reportBookingNoShow(booking.id);
                         setFeedback(result.message ?? '');
                       }}
                       className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"

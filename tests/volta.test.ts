@@ -120,7 +120,7 @@ test('loadState falls back to a valid state when storage is corrupted', () => {
   const state = loadState();
 
   assert.equal(state.users.length, createInitialState().users.length);
-  assert.equal(state.selectedLineId, 'metro-m4');
+  assert.equal(state.selectedLineId, createInitialState().selectedLineId);
 });
 
 test('non-admin users cannot review driver verification requests', () => {

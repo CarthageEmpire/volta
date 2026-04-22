@@ -1,0 +1,76 @@
+const frenchCollator = new Intl.Collator('fr', { sensitivity: 'base' });
+
+function sortAlphabetically(values: readonly string[]) {
+  return [...values].sort((left, right) => frenchCollator.compare(left, right));
+}
+
+export const TUNISIAN_CITIES = sortAlphabetically([
+  'Ariana',
+  'Béja',
+  'Ben Arous',
+  'Bizerte',
+  'Gabès',
+  'Gafsa',
+  'Hammamet',
+  'Houmt Souk',
+  'Jendouba',
+  'Kairouan',
+  'Kasserine',
+  'Kébili',
+  'La Manouba',
+  'Le Kef',
+  'Mahdia',
+  'Médenine',
+  'Monastir',
+  'Nabeul',
+  'Sfax',
+  'Sidi Bouzid',
+  'Siliana',
+  'Sousse',
+  'Tataouine',
+  'Tozeur',
+  'Tunis',
+  'Zaghouan',
+  'Zarzis',
+]);
+
+export const TUNIS_METRO_STATIONS = sortAlphabetically([
+  'Ariana',
+  'Bab Alioua',
+  'Bab El Khadra',
+  'Bab Laassal',
+  'Bab Saadoun',
+  'Bardo',
+  'Ben Arous',
+  'Bouchoucha',
+  'Campus Universitaire El Manar',
+  'Cité des Sciences',
+  'Cité El Intilaka',
+  'Cité El Khadhra',
+  'Cité Sportive',
+  'Den Den',
+  'El Mourouj 1',
+  'El Mourouj 2',
+  'El Mourouj 3',
+  'El Mourouj 4',
+  'Ettahrir',
+  'Farhat Hached',
+  'Ibn Khaldoun',
+  'Indépendance',
+  'Khaznadar',
+  'Khaireddine',
+  'La Jeunesse',
+  'Les Jasmins',
+  'Mohamed V',
+  'Nelson Mandela',
+  'Palestine',
+  'Place Barcelone Nord',
+  'Place Barcelone Sud',
+  'Place de la République',
+  'Tunis Marine',
+  'Tunis Marine Nord',
+]);
+
+export const SMART_SEARCH_LOCATIONS = sortAlphabetically(
+  Array.from(new Set([...TUNISIAN_CITIES, ...TUNIS_METRO_STATIONS])),
+);

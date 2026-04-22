@@ -32,13 +32,13 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
     );
   }
 
-  const submitPayment = () => {
+  const submitPayment = async () => {
     if (isSubmitting) {
       return;
     }
 
     setIsSubmitting(true);
-    const result = confirmCheckoutPayment(method);
+    const result = await confirmCheckoutPayment(method);
     setFeedback(result.message ?? '');
     setIsSubmitting(false);
     if (result.ok) {

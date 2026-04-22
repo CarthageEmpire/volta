@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createEmptyState } from '../constants';
 import {
   AppState,
   CheckoutIntent,
@@ -10,310 +11,529 @@ import {
   Screen,
   SearchFilters,
   SignupInput,
+  UserAccount,
 } from '../types';
+import { getSearchResults } from '../services/voltaService';
 import {
-  advanceLiveVehicles,
-  cancelDriverRide,
-  cancelPassengerBooking,
-  confirmPayment,
-  confirmRideCompletion,
-  createLineCheckout,
-  createRide,
-  createRideCheckout,
-  getCurrentUser,
-  getSearchResults,
-  loadState,
-  login,
-  logout,
-  markRideAwaitingConfirmation,
-  reportNoShow,
-  resetState,
-  reviewVerification,
-  saveState,
-  setLocale,
-  setSelectedLine,
-  signup,
-  submitDriverVerification,
-  toggleDriverLiveSharing,
-  toggleLocation,
-} from '../services/voltaService';
+  cancelDriverRideRemote,
+  cancelPassengerBookingRemote,
+  confirmCheckout,
+  confirmRideCompletionRemote,
+  createCheckoutForLine,
+  createCheckoutForRide,
+  createRideListing,
+  fetchUserProfileOnce,
+  loginWithFirebase,
+  logoutFromFirebase,
+  markBookingAwaitingConfirmationRemote,
+  reportNoShowRemote,
+  reviewVerificationRequest,
+  signupWithFirebase,
+  submitVerificationRequest,
+  subscribeToAllUsersForAdmin,
+  subscribeToBookings,
+  subscribeToFavorites,
+  subscribeToLines,
+  subscribeToLiveVehicles,
+  subscribeToNearbyTransport,
+  subscribeToPayments,
+  subscribeToRides,
+  subscribeToSession,
+  subscribeToTickets,
+  subscribeToUserProfile,
+  subscribeToVerificationRequests,
+  toggleLiveSharing as toggleLiveSharingRemote,
+  updateLocalePreference,
+} from '../services/firebaseVoltaService';
+import {
+  validateCreateRideInput,
+  validateDriverVerificationInput,
+  validateLoginInput,
+  validateSignupInput,
+} from '../services/validationService';
+
+const SELECTED_LINE_STORAGE_KEY = 'volta-selected-line-id';
+const LOCATION_STORAGE_KEY = 'volta-location-enabled';
+
+function hasWindow() {
+  return typeof window !== 'undefined';
+}
+
+function loadStoredLineId() {
+  if (!hasWindow()) {
+    return 'metro-m1';
+  }
+
+  return window.localStorage.getItem(SELECTED_LINE_STORAGE_KEY) ?? 'metro-m1';
+}
+
+function loadStoredLocationEnabled() {
+  if (!hasWindow()) {
+    return true;
+  }
+
+  const value = window.localStorage.getItem(LOCATION_STORAGE_KEY);
+  return value === null ? true : value === 'true';
+}
 
 interface VoltaContextValue {
   state: AppState;
-  currentUser: ReturnType<typeof getCurrentUser>;
+  currentUser: UserAccount | null;
   checkout: CheckoutIntent | null;
   setCheckout: (checkout: CheckoutIntent | null) => void;
   loginWithEmail: (input: LoginInput) => Promise<{ ok: boolean; message?: string; nextScreen?: Screen }>;
   signupAccount: (input: SignupInput) => Promise<{ ok: boolean; message?: string; nextScreen?: Screen }>;
   logoutSession: () => void;
   resetDemo: () => void;
-  submitVerification: (input: DriverVerificationInput) => { ok: boolean; message?: string };
+  submitVerification: (input: DriverVerificationInput) => Promise<{ ok: boolean; message?: string }>;
   reviewDriverRequest: (
     requestId: string,
     decision: 'approved' | 'rejected',
     rejectionReason?: string,
-  ) => { ok: boolean; message?: string };
+  ) => Promise<{ ok: boolean; message?: string }>;
   setLine: (lineId: string) => void;
   setAppLocale: (locale: Locale) => void;
   toggleNearbyLocation: () => void;
-  toggleLiveSharing: (enabled: boolean) => { ok: boolean; message?: string };
-  createDriverRide: (input: CreateRideInput) => { ok: boolean; message?: string };
-  startLinePayment: (lineId: string) => { ok: boolean; message?: string };
-  startLouagePayment: (rideId: string) => { ok: boolean; message?: string };
-  confirmCheckoutPayment: (provider: PaymentProvider) => { ok: boolean; message?: string };
+  toggleLiveSharing: (enabled: boolean) => Promise<{ ok: boolean; message?: string }>;
+  createDriverRide: (input: CreateRideInput) => Promise<{ ok: boolean; message?: string }>;
+  startLinePayment: (lineId: string) => Promise<{ ok: boolean; message?: string }>;
+  startLouagePayment: (rideId: string) => Promise<{ ok: boolean; message?: string }>;
+  confirmCheckoutPayment: (provider: PaymentProvider) => Promise<{ ok: boolean; message?: string }>;
   searchTransport: (filters: SearchFilters) => ReturnType<typeof getSearchResults>;
-  cancelBooking: (bookingId: string) => { ok: boolean; message?: string };
-  cancelRide: (rideId: string) => { ok: boolean; message?: string };
-  markBookingAwaitingConfirmation: (bookingId: string) => void;
-  confirmBookingCompletion: (bookingId: string) => void;
-  reportBookingNoShow: (bookingId: string) => { ok: boolean; message?: string };
+  cancelBooking: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
+  cancelRide: (rideId: string) => Promise<{ ok: boolean; message?: string }>;
+  markBookingAwaitingConfirmation: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
+  confirmBookingCompletion: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
+  reportBookingNoShow: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
 }
 
 const VoltaContext = createContext<VoltaContextValue | undefined>(undefined);
 
 export function VoltaProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AppState>(() => loadState());
+  const [sessionUserId, setSessionUserId] = useState<string | null>(null);
+  const [selfUser, setSelfUser] = useState<UserAccount | null>(null);
+  const [adminUsers, setAdminUsers] = useState<UserAccount[]>([]);
+  const [verificationRequests, setVerificationRequests] = useState<AppState['verificationRequests']>([]);
+  const [lines, setLines] = useState<AppState['lines']>([]);
+  const [liveVehicles, setLiveVehicles] = useState<AppState['liveVehicles']>([]);
+  const [louageRides, setLouageRides] = useState<AppState['louageRides']>([]);
+  const [bookings, setBookings] = useState<AppState['bookings']>([]);
+  const [tickets, setTickets] = useState<AppState['tickets']>([]);
+  const [payments, setPayments] = useState<AppState['payments']>([]);
+  const [favorites, setFavorites] = useState<AppState['favorites']>([]);
+  const [nearbyTransport, setNearbyTransport] = useState<AppState['nearbyTransport']>([]);
+  const [selectedLineId, setSelectedLineId] = useState(loadStoredLineId);
+  const [locationEnabled, setLocationEnabled] = useState(loadStoredLocationEnabled);
   const [checkout, setCheckout] = useState<CheckoutIntent | null>(null);
-  const advancedRef = useRef(false);
 
   useEffect(() => {
-    saveState(state);
-  }, [state]);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setState((current) => advanceLiveVehicles(current));
-    }, 12000);
-
-    return () => window.clearInterval(interval);
+    return subscribeToSession((user) => {
+      setSessionUserId(user?.uid ?? null);
+    });
   }, []);
 
   useEffect(() => {
-    if (advancedRef.current) {
+    if (!sessionUserId) {
+      setSelfUser(null);
+      setAdminUsers([]);
+      setVerificationRequests([]);
+      setBookings([]);
+      setTickets([]);
+      setPayments([]);
+      setFavorites([]);
       return;
     }
 
-    const demoState = loadState();
-    if (
-      demoState.bookings.length === 0 &&
-      demoState.tickets.length === 0 &&
-      demoState.payments.length === 0
-    ) {
-      const lineCheckout = createLineCheckout(demoState, 'passenger-1', 'metro-m4');
-      if (lineCheckout) {
-        const lineResult = confirmPayment(demoState, lineCheckout, 'bank_card');
-        if ('state' in lineResult) {
-          const louageCheckout = createRideCheckout(lineResult.state, 'passenger-1', 'ride-1');
-          if (louageCheckout) {
-            const louageResult = confirmPayment(lineResult.state, louageCheckout, 'konnect');
-            if ('state' in louageResult) {
-              const marked = markRideAwaitingConfirmation(
-                louageResult.state,
-                louageResult.bookingId,
-                'driver-1',
-              );
-              setState('state' in marked ? marked.state : louageResult.state);
-              advancedRef.current = true;
-              return;
-            }
-          }
-          setState(lineResult.state);
-        }
-      }
-    }
-    advancedRef.current = true;
-  }, []);
+    return subscribeToUserProfile(sessionUserId, setSelfUser);
+  }, [sessionUserId]);
 
-  const currentUser = getCurrentUser(state);
+  useEffect(() => {
+    if (selfUser?.role !== 'admin') {
+      setAdminUsers([]);
+      return;
+    }
+
+    return subscribeToAllUsersForAdmin((users) => {
+      setAdminUsers(users);
+    });
+  }, [selfUser?.role]);
+
+  useEffect(() => {
+    if (!sessionUserId) {
+      setLines([]);
+      setLiveVehicles([]);
+      setLouageRides([]);
+      setNearbyTransport([]);
+      return;
+    }
+
+    const unsubscribers = [
+      subscribeToLines(setLines),
+      subscribeToLiveVehicles(setLiveVehicles),
+      subscribeToRides(setLouageRides),
+      subscribeToNearbyTransport(setNearbyTransport),
+    ];
+
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [sessionUserId]);
+
+  useEffect(() => {
+    if (!sessionUserId || !selfUser) {
+      setVerificationRequests([]);
+      setBookings([]);
+      setTickets([]);
+      setPayments([]);
+      setFavorites([]);
+      return;
+    }
+
+    const unsubscribers = [
+      subscribeToVerificationRequests(sessionUserId, selfUser.role, setVerificationRequests),
+      subscribeToBookings(sessionUserId, selfUser.role, setBookings),
+      subscribeToTickets(sessionUserId, setTickets),
+      subscribeToPayments(sessionUserId, selfUser.role, setPayments),
+      subscribeToFavorites(sessionUserId, setFavorites),
+    ];
+
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [sessionUserId, selfUser]);
+
+  useEffect(() => {
+    if (!hasWindow()) {
+      return;
+    }
+
+    window.localStorage.setItem(SELECTED_LINE_STORAGE_KEY, selectedLineId);
+  }, [selectedLineId]);
+
+  useEffect(() => {
+    if (!hasWindow()) {
+      return;
+    }
+
+    window.localStorage.setItem(LOCATION_STORAGE_KEY, String(locationEnabled));
+  }, [locationEnabled]);
+
+  const users = useMemo(() => {
+    if (!selfUser) {
+      return [];
+    }
+
+    if (selfUser.role !== 'admin') {
+      return [selfUser];
+    }
+
+    const unique = new Map<string, UserAccount>();
+    for (const user of [selfUser, ...adminUsers]) {
+      unique.set(user.id, user);
+    }
+
+    return Array.from(unique.values());
+  }, [adminUsers, selfUser]);
+
+  const state = useMemo<AppState>(
+    () => ({
+      ...createEmptyState(),
+      users,
+      sessionUserId,
+      verificationRequests,
+      lines,
+      liveVehicles,
+      louageRides,
+      bookings,
+      tickets,
+      payments,
+      favorites,
+      nearbyTransport,
+      selectedLineId,
+      locationEnabled,
+      locale: selfUser?.locale ?? 'fr-TN',
+    }),
+    [
+      bookings,
+      favorites,
+      lines,
+      liveVehicles,
+      locationEnabled,
+      louageRides,
+      nearbyTransport,
+      payments,
+      selectedLineId,
+      selfUser?.locale,
+      sessionUserId,
+      tickets,
+      users,
+      verificationRequests,
+    ],
+  );
 
   const value: VoltaContextValue = {
     state,
-    currentUser,
+    currentUser: selfUser,
     checkout,
     setCheckout,
     async loginWithEmail(input) {
-      try {
-        const result = await login(state, input);
-        if (!result.state || !result.user) {
-          return { ok: false, message: result.error };
-        }
-        setState(result.state);
-        return {
-          ok: true,
-          nextScreen:
-            result.user.role === 'driver'
-              ? 'driver-dashboard'
-              : result.user.role === 'admin'
-                ? 'admin-review'
-                : 'explore',
-        };
-      } catch {
-        return { ok: false, message: 'Impossible de se connecter pour le moment.' };
+      const validationError = validateLoginInput(input);
+      if (validationError) {
+        return { ok: false, message: validationError };
       }
+
+      const result = await loginWithFirebase(input);
+      if (!result.ok) {
+        return result;
+      }
+
+      const profile = result.userId ? await fetchUserProfileOnce(result.userId) : null;
+      const role = profile?.role;
+      return {
+        ok: true,
+        nextScreen:
+          role === 'driver' ? 'driver-dashboard' : role === 'admin' ? 'admin-review' : 'explore',
+      };
     },
     async signupAccount(input) {
-      try {
-        const result = await signup(state, input);
-        if (!result.state || !result.user) {
-          return { ok: false, message: result.error };
-        }
-        setState(result.state);
-        return {
-          ok: true,
-          nextScreen: result.user.role === 'driver' ? 'driver-verification' : 'explore',
-        };
-      } catch {
-        return { ok: false, message: 'Impossible de creer le compte pour le moment.' };
+      const validationError = validateSignupInput(input);
+      if (validationError) {
+        return { ok: false, message: validationError };
       }
+
+      const result = await signupWithFirebase(input);
+      if (!result.ok) {
+        return result;
+      }
+
+      return {
+        ok: true,
+        nextScreen: input.role === 'driver' ? 'driver-verification' : 'explore',
+      };
     },
     logoutSession() {
       setCheckout(null);
-      setState((current) => logout(current));
+      void logoutFromFirebase();
     },
     resetDemo() {
       setCheckout(null);
-      setState(resetState());
+      setSelectedLineId('metro-m1');
+      setLocationEnabled(true);
+      if (hasWindow()) {
+        window.localStorage.removeItem(SELECTED_LINE_STORAGE_KEY);
+        window.localStorage.removeItem(LOCATION_STORAGE_KEY);
+      }
+      void logoutFromFirebase();
     },
-    submitVerification(input) {
-      if (!currentUser) {
+    async submitVerification(input) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = submitDriverVerification(state, currentUser.id, input);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      const validationError = validateDriverVerificationInput(input);
+      if (validationError) {
+        return { ok: false, message: validationError };
       }
-      setState(result.state);
-      return { ok: true, message: 'Dossier envoye a l’equipe de verification.' };
+
+      try {
+        await submitVerificationRequest(selfUser.id, input);
+        return { ok: true, message: 'Dossier envoye a l equipe de verification.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible d envoyer le dossier.',
+        };
+      }
     },
-    reviewDriverRequest(requestId, decision, rejectionReason) {
-      if (!currentUser) {
+    async reviewDriverRequest(requestId, decision, rejectionReason) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion admin requise.' };
       }
-      const result = reviewVerification(state, requestId, currentUser.id, decision, rejectionReason);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      try {
+        await reviewVerificationRequest(requestId, decision, rejectionReason);
+        return {
+          ok: true,
+          message: `Dossier ${decision === 'approved' ? 'approuve' : 'rejete'}.`,
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de revoir ce dossier.',
+        };
       }
-      setState(result.state);
-      return { ok: true, message: `Dossier ${decision === 'approved' ? 'approuve' : 'rejete'}.` };
     },
     setLine(lineId) {
-      setState((current) => setSelectedLine(current, lineId));
+      setSelectedLineId(lineId);
     },
     setAppLocale(locale) {
-      setState((current) => setLocale(current, locale));
+      if (!selfUser) {
+        return;
+      }
+
+      setSelfUser({ ...selfUser, locale });
+      void updateLocalePreference(locale).catch(() => {
+        setSelfUser(selfUser);
+      });
     },
     toggleNearbyLocation() {
-      setState((current) => toggleLocation(current));
+      setLocationEnabled((current) => !current);
     },
-    toggleLiveSharing(enabled) {
-      if (!currentUser) {
+    async toggleLiveSharing(enabled) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = toggleDriverLiveSharing(state, currentUser.id, enabled);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      try {
+        await toggleLiveSharingRemote(enabled);
+        return { ok: true, message: 'Statut live mis a jour.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de mettre a jour le live.',
+        };
       }
-      setState(result.state);
-      return { ok: true };
     },
-    createDriverRide(input) {
-      if (!currentUser) {
+    async createDriverRide(input) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = createRide(state, currentUser.id, input);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      const validationError = validateCreateRideInput(input);
+      if (validationError) {
+        return { ok: false, message: validationError };
       }
-      setState(result.state);
-      return { ok: true, message: 'Annonce louage publiee.' };
+
+      try {
+        await createRideListing(selfUser.id, input);
+        return { ok: true, message: 'Annonce louage publiee.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de publier ce trajet.',
+        };
+      }
     },
-    startLinePayment(lineId) {
-      if (!currentUser) {
+    async startLinePayment(lineId) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise pour acheter un ticket.' };
       }
-      const nextCheckout = createLineCheckout(state, currentUser.id, lineId);
-      if (!nextCheckout) {
-        return { ok: false, message: 'Ligne introuvable.' };
+
+      try {
+        const nextCheckout = await createCheckoutForLine(lineId);
+        setCheckout(nextCheckout);
+        return { ok: true };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Ligne introuvable.',
+        };
       }
-      setCheckout(nextCheckout);
-      return { ok: true };
     },
-    startLouagePayment(rideId) {
-      if (!currentUser) {
+    async startLouagePayment(rideId) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise pour reserver.' };
       }
-      const nextCheckout = createRideCheckout(state, currentUser.id, rideId);
-      if (!nextCheckout) {
-        return { ok: false, message: 'Trajet indisponible.' };
+
+      try {
+        const nextCheckout = await createCheckoutForRide(rideId);
+        setCheckout(nextCheckout);
+        return { ok: true };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Trajet indisponible.',
+        };
       }
-      setCheckout(nextCheckout);
-      return { ok: true };
     },
-    confirmCheckoutPayment(provider) {
+    async confirmCheckoutPayment(provider) {
       if (!checkout) {
         return { ok: false, message: 'Aucune commande en cours.' };
       }
-      const result = confirmPayment(state, checkout, provider);
-      if (!('state' in result)) {
-        return { ok: false, message: result.error };
+
+      try {
+        await confirmCheckout(checkout, provider);
+        setCheckout(null);
+        return { ok: true, message: 'Paiement confirme et ticket genere.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de confirmer le paiement.',
+        };
       }
-      setState(result.state);
-      setCheckout(null);
-      return { ok: true, message: 'Paiement confirme et ticket genere.' };
     },
     searchTransport(filters) {
       return getSearchResults(state, filters);
     },
-    cancelBooking(bookingId) {
-      if (!currentUser) {
+    async cancelBooking(bookingId) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = cancelPassengerBooking(state, bookingId, currentUser.id);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      try {
+        await cancelPassengerBookingRemote(bookingId);
+        return { ok: true, message: 'Reservation mise a jour.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible d annuler cette reservation.',
+        };
       }
-      setState(result.state);
-      return { ok: true, message: 'Reservation mise a jour.' };
     },
-    cancelRide(rideId) {
-      if (!currentUser) {
+    async cancelRide(rideId) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = cancelDriverRide(state, rideId, currentUser.id);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      try {
+        await cancelDriverRideRemote(rideId);
+        return { ok: true, message: 'Annonce annulee et remboursements appliques.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible d annuler cette annonce.',
+        };
       }
-      setState(result.state);
-      return { ok: true, message: 'Annonce annulee et remboursements appliques.' };
     },
-    markBookingAwaitingConfirmation(bookingId) {
-      if (!currentUser) {
-        return;
+    async markBookingAwaitingConfirmation(bookingId) {
+      try {
+        await markBookingAwaitingConfirmationRemote(bookingId);
+        return { ok: true, message: 'Reservation en attente de confirmation passager.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Impossible de mettre a jour le statut de cette reservation.',
+        };
       }
-      setState((current) => {
-        const result = markRideAwaitingConfirmation(current, bookingId, currentUser.id);
-        return 'state' in result ? result.state : current;
-      });
     },
-    confirmBookingCompletion(bookingId) {
-      if (!currentUser) {
-        return;
+    async confirmBookingCompletion(bookingId) {
+      try {
+        await confirmRideCompletionRemote(bookingId);
+        return { ok: true, message: 'Trajet confirme.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de confirmer ce trajet.',
+        };
       }
-      setState((current) => {
-        const result = confirmRideCompletion(current, bookingId, currentUser.id);
-        return 'state' in result ? result.state : current;
-      });
     },
-    reportBookingNoShow(bookingId) {
-      if (!currentUser) {
+    async reportBookingNoShow(bookingId) {
+      if (!selfUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
-      const result = reportNoShow(state, bookingId, currentUser.id);
-      if (!result.state) {
-        return { ok: false, message: result.error };
+
+      try {
+        await reportNoShowRemote(bookingId);
+        return { ok: true, message: 'Absence signalee avec statut de preuve mis a jour.' };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : 'Impossible de signaler ce no-show.',
+        };
       }
-      setState(result.state);
-      return { ok: true, message: 'Absence signalee avec statut de preuve mis a jour.' };
     },
   };
 

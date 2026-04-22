@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react';
+import LocationSelect from '../components/LocationSelect';
 import TopAppBar from '../components/TopAppBar';
 import TransportSectionTabs from '../components/TransportSectionTabs';
 import { useVolta } from '../context/VoltaContext';
+import { TUNISIAN_CITIES, TUNIS_METRO_STATIONS } from '../data/locationOptions';
 import { formatTnd } from '../services/formatters';
+import { validateLocationPair } from '../services/locationValidation';
+import { normalizeText } from '../services/normalizeText';
 import { Screen, TransportLine, TransportMode } from '../types';
 
 interface TransitSectionScreenProps {
@@ -14,45 +18,55 @@ const SECTION_CONFIG = {
   bus: {
     screen: 'bus' as const,
     title: 'Bus Tunisie',
-    subtitle: 'Lignes regulieres, passages et billets digitaux',
+    subtitle: 'Lignes régulières, passages et billets digitaux',
     icon: 'directions_bus',
     accent: '#0040a1',
     accentSoft: 'rgba(0,64,161,0.12)',
-    departureLabel: 'Arret depart',
-    destinationLabel: 'Arret arrivee',
-    queryLabel: 'Numero ou axe',
-    defaultDeparture: 'Passage',
+    departureLabel: 'Ville de départ',
+    destinationLabel: 'Ville de destination',
+    placeholder: '-- Choisissez une ville --',
+    searchLabel: 'Recherche de ligne',
+    queryPlaceholder: 'Ex : B32, Ariana, Marine',
+    locationSearchPlaceholder: 'Rechercher une ville',
+    emptyLocationLabel: 'Aucune ville ne correspond à votre recherche.',
+    validationType: 'ville' as const,
+    locationOptions: TUNISIAN_CITIES,
+    defaultDeparture: '',
     defaultDestination: '',
-    searchPlaceholder: 'Ex: B32, Ariana, Marine',
     summaryTitle: 'Service bus',
     summaryItems: [
-      'Validation ticket mobile avant montee a bord.',
-      'Suivi des prochains passages sur les arrets majeurs.',
-      'Frequence et duree estimee visibles avant achat.',
-      'Basculer vers le detail ligne pour voir tous les arrets.',
+      'Validation ticket mobile avant montée à bord.',
+      'Suivi des prochains passages sur les arrêts majeurs.',
+      'Fréquence et durée estimée visibles avant achat.',
+      'Basculer vers le détail ligne pour voir tous les arrêts.',
     ],
-    sidebarTitle: 'Lignes frequentes',
+    sidebarTitle: 'Lignes fréquentes',
     serviceHours: '05:30 - 21:30',
   },
   metro: {
     screen: 'metro' as const,
-    title: 'Metro Tunis',
-    subtitle: 'Lignes, directions et correspondances simplifiees',
+    title: 'Métro Tunis',
+    subtitle: 'Lignes, directions et correspondances simplifiées',
     icon: 'tram',
     accent: '#0f766e',
     accentSoft: 'rgba(15,118,110,0.12)',
-    departureLabel: 'Station depart',
-    destinationLabel: 'Station arrivee',
-    queryLabel: 'Ligne ou station',
-    defaultDeparture: 'Tunis Marine',
+    departureLabel: 'Station de départ',
+    destinationLabel: 'Station de destination',
+    placeholder: '-- Choisissez une station --',
+    searchLabel: 'Recherche de ligne',
+    queryPlaceholder: 'Ex : M4, Bardo, Barcelone',
+    locationSearchPlaceholder: 'Rechercher une station',
+    emptyLocationLabel: 'Aucune station ne correspond à votre recherche.',
+    validationType: 'station' as const,
+    locationOptions: TUNIS_METRO_STATIONS,
+    defaultDeparture: '',
     defaultDestination: '',
-    searchPlaceholder: 'Ex: M4, Bardo, Barcelone',
-    summaryTitle: 'Service metro',
+    summaryTitle: 'Service métro',
     summaryItems: [
       'Directions et terminus visibles sur chaque carte.',
       'Temps de passage et correspondances sur les stations majeures.',
-      'Achat ticket en un geste depuis la ligne souhaitee.',
-      'Couleur de ligne preservee entre liste et detail.',
+      'Achat ticket en un geste depuis la ligne souhaitée.',
+      'Couleur de ligne préservée entre liste et détail.',
     ],
     sidebarTitle: 'Stations majeures',
     serviceHours: '05:00 - 22:30',
@@ -60,24 +74,27 @@ const SECTION_CONFIG = {
 } as const;
 
 function matchesLine(line: TransportLine, filters: { departure: string; destination: string; query: string }) {
-  const departure = filters.departure.trim().toLowerCase();
-  const destination = filters.destination.trim().toLowerCase();
-  const query = filters.query.trim().toLowerCase();
-  const stopNames = line.stops.map((stop) => stop.name.toLowerCase());
+  const departure = normalizeText(filters.departure);
+  const destination = normalizeText(filters.destination);
+  const query = normalizeText(filters.query);
+  const stopNames = line.stops.map((stop) => normalizeText(stop.name));
+  const origin = normalizeText(line.origin);
+  const lineDestination = normalizeText(line.destination);
+  const code = normalizeText(line.code);
+  const name = normalizeText(line.name);
+  const routeLabel = normalizeText(line.routeLabel);
 
   const matchesDeparture =
-    departure.length === 0 ||
-    line.origin.toLowerCase().includes(departure) ||
-    stopNames.some((stop) => stop.includes(departure));
+    departure.length === 0 || origin.includes(departure) || stopNames.some((stop) => stop.includes(departure));
   const matchesDestination =
     destination.length === 0 ||
-    line.destination.toLowerCase().includes(destination) ||
+    lineDestination.includes(destination) ||
     stopNames.some((stop) => stop.includes(destination));
   const matchesQuery =
     query.length === 0 ||
-    line.code.toLowerCase().includes(query) ||
-    line.name.toLowerCase().includes(query) ||
-    line.routeLabel.toLowerCase().includes(query) ||
+    code.includes(query) ||
+    name.includes(query) ||
+    routeLabel.includes(query) ||
     stopNames.some((stop) => stop.includes(query));
 
   return matchesDeparture && matchesDestination && matchesQuery;
@@ -99,6 +116,11 @@ export default function TransitSectionScreen({
     destination: config.defaultDestination,
     query: '',
   });
+  const [showValidation, setShowValidation] = useState(false);
+
+  const validationMessage = showValidation
+    ? validateLocationPair(filters.departure, filters.destination, config.validationType)
+    : '';
 
   const lines = useMemo(
     () => state.lines.filter((line) => line.mode === mode && matchesLine(line, filters)),
@@ -115,11 +137,29 @@ export default function TransitSectionScreen({
     navigate('line-details');
   };
 
-  const buyTicket = (lineId: string) => {
-    const result = startLinePayment(lineId);
+  const buyTicket = async (lineId: string) => {
+    const result = await startLinePayment(lineId);
     if (result.ok) {
       navigate('payment');
     }
+  };
+
+  const updateDeparture = (departure: string) => {
+    setShowValidation(false);
+    setFilters((current) => ({
+      ...current,
+      departure,
+      destination: current.destination === departure ? '' : current.destination,
+    }));
+  };
+
+  const updateDestination = (destination: string) => {
+    setShowValidation(false);
+    setFilters((current) => ({
+      ...current,
+      destination,
+      departure: current.departure === destination ? '' : current.departure,
+    }));
   };
 
   return (
@@ -131,45 +171,45 @@ export default function TransitSectionScreen({
 
         <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="grid gap-4 md:grid-cols-4">
+            <LocationSelect
+              label={config.departureLabel}
+              placeholder={config.placeholder}
+              value={filters.departure}
+              options={config.locationOptions}
+              searchPlaceholder={config.locationSearchPlaceholder}
+              emptyStateLabel={config.emptyLocationLabel}
+              excludedValue={filters.destination || undefined}
+              invalid={Boolean(validationMessage)}
+              onChange={updateDeparture}
+            />
+            <LocationSelect
+              label={config.destinationLabel}
+              placeholder={config.placeholder}
+              value={filters.destination}
+              options={config.locationOptions}
+              searchPlaceholder={config.locationSearchPlaceholder}
+              emptyStateLabel={config.emptyLocationLabel}
+              excludedValue={filters.departure || undefined}
+              invalid={Boolean(validationMessage)}
+              onChange={updateDestination}
+            />
             <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>{config.departureLabel}</span>
-              <input
-                value={filters.departure}
-                onChange={(event) =>
-                  setFilters((current) => ({ ...current, departure: event.target.value }))
-                }
-                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                placeholder={config.departureLabel}
-                type="text"
-              />
-            </label>
-            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>{config.destinationLabel}</span>
-              <input
-                value={filters.destination}
-                onChange={(event) =>
-                  setFilters((current) => ({ ...current, destination: event.target.value }))
-                }
-                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                placeholder={config.destinationLabel}
-                type="text"
-              />
-            </label>
-            <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>{config.queryLabel}</span>
+              <span>{config.searchLabel}</span>
               <input
                 value={filters.query}
-                onChange={(event) =>
-                  setFilters((current) => ({ ...current, query: event.target.value }))
-                }
-                className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                placeholder={config.searchPlaceholder}
+                onChange={(event) => {
+                  setShowValidation(false);
+                  setFilters((current) => ({ ...current, query: event.target.value }));
+                }}
+                className="rounded-[1.4rem] border border-slate-200 bg-slate-100 px-4 py-4 text-slate-900 outline-none"
+                placeholder={config.queryPlaceholder}
                 type="text"
               />
             </label>
             <div className="flex flex-col justify-end">
               <button
                 type="button"
+                onClick={() => setShowValidation(true)}
                 className="rounded-[1.4rem] px-5 py-4 text-sm font-bold text-white"
                 style={{ backgroundColor: config.accent }}
               >
@@ -177,6 +217,10 @@ export default function TransitSectionScreen({
               </button>
             </div>
           </div>
+
+          {validationMessage ? (
+            <p className="mt-4 text-sm font-medium text-red-600">{validationMessage}</p>
+          ) : null}
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -204,7 +248,7 @@ export default function TransitSectionScreen({
                               color: '#ffffff',
                             }}
                           >
-                            {mode === 'bus' ? 'Bus' : 'Metro'} {line.code}
+                            {mode === 'bus' ? 'Bus' : 'Métro'} {line.code}
                           </span>
                           <span
                             className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.22em]"
@@ -213,7 +257,7 @@ export default function TransitSectionScreen({
                               color: config.accent,
                             }}
                           >
-                            {line.stops.length} arrets
+                            {line.stops.length} arrêts
                           </span>
                         </div>
 
@@ -221,45 +265,52 @@ export default function TransitSectionScreen({
                           {line.origin} -&gt; {line.destination}
                         </h2>
                         <p className="mt-2 text-sm leading-6 text-slate-500">{line.routeLabel}</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-700">
+                          {line.operatorName ?? 'Opérateur non renseigné'}
+                        </p>
+                        {line.servicePattern && (
+                          <p className="mt-1 text-sm text-slate-500">{line.servicePattern}</p>
+                        )}
+                        {line.verificationNotes && (
+                          <p className="mt-1 text-xs leading-5 text-amber-700">{line.verificationNotes}</p>
+                        )}
 
                         <div className="mt-5 grid gap-3 md:grid-cols-3">
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              {mode === 'bus' ? 'Prochain depart' : 'Service'}
+                              {mode === 'bus' ? 'Prochain départ' : 'Service'}
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {mode === 'bus' ? line.stops[0]?.plannedTime ?? '--:--' : config.serviceHours}
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
-                              {mode === 'bus'
-                                ? `Depuis ${line.origin}`
-                                : `Vers ${line.destination}`}
+                              {mode === 'bus' ? `Depuis ${line.origin}` : `Vers ${line.destination}`}
                             </p>
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Frequence
+                              Fréquence
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.intervalMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {vehicle && nextStop
-                                ? `${vehicle.label} arrive a ${nextStop.name} dans ${vehicle.etaMinutes} min`
-                                : 'Suivi live disponible sur le detail ligne'}
+                                ? `${vehicle.label} arrive à ${nextStop.name} dans ${vehicle.etaMinutes} min`
+                                : 'Suivi live disponible sur le détail ligne'}
                             </p>
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Duree estimee
+                              Durée estimée
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.durationMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {mode === 'bus'
-                                ? 'Arrets principaux visibles ci-dessous'
-                                : 'Stations clefs et correspondances simplifiees'}
+                                ? 'Arrêts principaux visibles ci-dessous'
+                                : 'Stations clefs et correspondances simplifiées'}
                             </p>
                           </div>
                         </div>
@@ -318,11 +369,11 @@ export default function TransitSectionScreen({
                   </div>
                   <div>
                     <h2 className="font-headline text-2xl font-extrabold text-slate-950">
-                      Aucun resultat pour ce filtre
+                      Aucun résultat pour ce filtre
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Ajustez le depart, la destination ou la recherche de ligne pour afficher
-                      les services {mode === 'bus' ? 'bus' : 'metro'} disponibles.
+                      Ajustez le départ, la destination ou la recherche de ligne pour afficher
+                      les services {mode === 'bus' ? 'bus' : 'métro'} disponibles.
                     </p>
                   </div>
                 </div>
@@ -368,7 +419,7 @@ export default function TransitSectionScreen({
                           {line.code} - {line.origin} -&gt; {line.destination}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          {line.intervalMinutes} min - {line.stops.length} arrets
+                          {line.intervalMinutes} min - {line.stops.length} arrêts
                         </p>
                       </div>
                       <span className="material-symbols-outlined text-slate-400">arrow_forward</span>

@@ -10,6 +10,24 @@ interface LineDetailsScreenProps {
 export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) {
   const { state, setLine, startLinePayment } = useVolta();
   const line = state.lines.find((candidate) => candidate.id === state.selectedLineId) ?? state.lines[0];
+
+  if (!line) {
+    return (
+      <div className="min-h-screen bg-background pb-36 sm:pb-32">
+        <TopAppBar
+          title="Lignes live"
+          subtitle="Chargement des lignes..."
+          onBack={() => navigate('explore')}
+        />
+        <main className="mx-auto max-w-4xl px-6 py-8">
+          <div className="rounded-[2rem] bg-white p-6 text-sm text-slate-500 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+            Les lignes se synchronisent avec Firestore.
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const vehicles = state.liveVehicles.filter((vehicle) => vehicle.lineId === line.id);
   const backScreen = line.mode === 'bus' ? 'bus' : 'metro';
   const primaryVehicle = vehicles[0];
@@ -23,8 +41,8 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
     gridTemplateColumns: `repeat(${Math.max(line.stops.length, 1)}, minmax(0, 1fr))`,
   };
 
-  const buyTicket = () => {
-    const result = startLinePayment(line.id);
+  const buyTicket = async () => {
+    const result = await startLinePayment(line.id);
     if (result.ok) {
       navigate('payment');
     }
@@ -69,6 +87,17 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
                   {line.name} {line.code}
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{line.routeLabel}</p>
+                <p className="mt-3 text-sm font-semibold text-slate-700">
+                  {line.operatorName ?? 'Operateur non renseigne'}
+                </p>
+                {line.servicePattern && (
+                  <p className="mt-1 text-sm text-slate-500">{line.servicePattern}</p>
+                )}
+                {line.verificationNotes && (
+                  <p className="mt-2 max-w-2xl text-xs leading-5 text-amber-700">
+                    {line.verificationNotes}
+                  </p>
+                )}
               </div>
               <button
                 type="button"

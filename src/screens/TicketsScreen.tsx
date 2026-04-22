@@ -100,9 +100,9 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                       {booking.status === 'awaiting_passenger_confirmation' && (
                         <button
                           type="button"
-                          onClick={() => {
-                            confirmBookingCompletion(booking.id);
-                            setFeedback('Trajet confirme.');
+                          onClick={async () => {
+                            const result = await confirmBookingCompletion(booking.id);
+                            setFeedback(result.message ?? '');
                           }}
                           className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-white"
                         >
@@ -112,7 +112,10 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                       {['confirmed', 'awaiting_passenger_confirmation'].includes(booking.status) && (
                         <button
                           type="button"
-                          onClick={() => setFeedback(cancelBooking(booking.id).message ?? '')}
+                          onClick={async () => {
+                            const result = await cancelBooking(booking.id);
+                            setFeedback(result.message ?? '');
+                          }}
                           className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
                         >
                           Annuler

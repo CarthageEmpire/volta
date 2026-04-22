@@ -62,11 +62,11 @@ export function validateSignupInput(input: SignupInput) {
     return 'Ville invalide.';
   }
 
-  if (email.length === 0 && phone.length === 0) {
-    return 'Email ou telephone requis pour creer un compte.';
+  if (email.length === 0) {
+    return 'Email requis pour creer un compte.';
   }
 
-  if (email.length > 0 && !EMAIL_PATTERN.test(email)) {
+  if (!EMAIL_PATTERN.test(email)) {
     return 'Format email invalide.';
   }
 

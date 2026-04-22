@@ -166,7 +166,7 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
           <p className="mt-3 text-sm leading-6 text-slate-500">
             {mode === 'login'
               ? 'Connexion simplifiee, sans support/help center inutile sur cette page.'
-              : 'Inscription par email ou telephone avec choix du role passager ou conducteur.'}
+              : 'Inscription par email avec choix du role passager ou conducteur.'}
           </p>
 
           {feedback && (

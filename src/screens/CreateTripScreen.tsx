@@ -20,16 +20,17 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
     vehicleModel: 'Toyota Hiace',
     plateNumber: '',
     vehiclePhotoName: '',
+    vehiclePhoto: null as File | null,
   });
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (isSubmitting) {
       return;
     }
 
     setIsSubmitting(true);
-    const result = createDriverRide({
+    const result = await createDriverRide({
       ...form,
       departureAt: new Date(form.departureAt).toISOString(),
     });
@@ -175,6 +176,7 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
                     setForm((current) => ({
                       ...current,
                       vehiclePhotoName: event.target.files?.[0]?.name ?? '',
+                      vehiclePhoto: event.target.files?.[0] ?? null,
                     }))
                   }
                 />

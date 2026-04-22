@@ -22,7 +22,7 @@ const TRANSPORT_TABS = [
   },
   {
     screen: 'metro' as const,
-    label: 'Metro',
+    label: 'Métro',
     caption: 'Stations et directions',
     icon: 'tram',
     activeClass: 'bg-[rgba(15,118,110,0.12)] text-[#0f766e]',

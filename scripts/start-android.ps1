@@ -1,7 +1,8 @@
 param(
-  [string]$AvdName = 'Pixel_6_API_35',
+  [string]$AvdName = 'Pixel_5',
   [string]$AppId = 'com.kineticsanctuary.app',
-  [switch]$BootOnly
+  [switch]$BootOnly,
+  [int]$BootTimeoutSeconds = 180
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,6 +41,140 @@ function Get-BootCompleted {
   }
 }
 
+function Get-AvailableAvds {
+  param(
+    [string]$EmulatorPath
+  )
+
+  $avds = & $EmulatorPath -list-avds 2>$null
+  if ($LASTEXITCODE -ne 0 -or $null -eq $avds) {
+    return @()
+  }
+
+  return @($avds | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+}
+
+function Resolve-AvdName {
+  param(
+    [string]$DesiredAvdName,
+    [string[]]$AvailableAvds
+  )
+
+  if ($AvailableAvds -contains $DesiredAvdName) {
+    return $DesiredAvdName
+  }
+
+  if ($AvailableAvds.Count -eq 1) {
+    $fallback = $AvailableAvds[0]
+    Write-Host "AVD '$DesiredAvdName' was not found. Using the only installed emulator: $fallback"
+    return $fallback
+  }
+
+  if ($AvailableAvds.Count -gt 1) {
+    $fallback = $AvailableAvds[0]
+    Write-Host "AVD '$DesiredAvdName' was not found. Using '$fallback'. Available AVDs: $($AvailableAvds -join ', ')"
+    return $fallback
+  }
+
+  throw 'No Android Virtual Devices were found. Create an emulator in Android Studio Device Manager first.'
+}
+
+function Get-RunningEmulatorSerial {
+  param(
+    [string]$AdbPath
+  )
+
+  $devices = & $AdbPath devices
+  $match = $devices | Select-String -Pattern '^(emulator-\d+)\s+device'
+  if ($match.Count -gt 0) {
+    return $match[0].Matches[0].Groups[1].Value
+  }
+
+  return $null
+}
+
+function Stop-RunningEmulators {
+  param(
+    [string]$AdbPath
+  )
+
+  $serial = Get-RunningEmulatorSerial -AdbPath $AdbPath
+  if ($serial) {
+    try {
+      & $AdbPath -s $serial emu kill | Out-Null
+      Start-Sleep -Seconds 5
+    }
+    catch {
+    }
+  }
+
+  Get-Process emulator,qemu-system-x86_64,qemu-system-x86_64-headless -ErrorAction SilentlyContinue |
+    Stop-Process -Force -ErrorAction SilentlyContinue
+}
+
+function Start-EmulatorInstance {
+  param(
+    [string]$EmulatorPath,
+    [string]$SelectedAvdName,
+    [switch]$WipeData
+  )
+
+  $arguments = @('-avd', $SelectedAvdName, '-no-snapshot', '-gpu', 'swiftshader_indirect')
+  if ($WipeData) {
+    $arguments += '-wipe-data'
+  }
+
+  if ($WipeData) {
+    Write-Host "Starting emulator with a clean data image: $SelectedAvdName"
+  }
+  else {
+    Write-Host "Starting emulator: $SelectedAvdName"
+  }
+
+  Start-Process -FilePath $EmulatorPath -ArgumentList $arguments | Out-Null
+}
+
+function Wait-ForBootCompletion {
+  param(
+    [string]$AdbPath,
+    [int]$TimeoutSeconds
+  )
+
+  $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+  Write-Host 'Waiting for emulator device...'
+  & $AdbPath wait-for-device | Out-Null
+
+  Write-Host 'Waiting for Android boot completion...'
+  while ((Get-Date) -lt $deadline) {
+    if ((Get-BootCompleted -AdbPath $AdbPath) -eq '1') {
+      return $true
+    }
+
+    Start-Sleep -Seconds 3
+  }
+
+  return $false
+}
+
+function Test-BootCorruption {
+  param(
+    [string]$AdbPath
+  )
+
+  try {
+    $logs = & $AdbPath logcat -d -b all 2>$null
+    if ($null -eq $logs) {
+      return $false
+    }
+
+    $text = $logs | Out-String
+    return $text.Contains('No fallback file found for: /data/system/users/0/settings_global.xml')
+  }
+  catch {
+    return $false
+  }
+}
+
 $sdkRoot = if ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { Join-Path $env:LOCALAPPDATA 'Android\Sdk' }
 if (-not (Test-Path $sdkRoot)) {
   throw "Android SDK not found at $sdkRoot"
@@ -67,22 +202,34 @@ $env:Path = "$javaHome\bin;$sdkRoot\platform-tools;$sdkRoot\emulator;$sdkRoot\cm
 Write-Host "Using JAVA_HOME: $javaHome"
 Write-Host "Using ANDROID_SDK_ROOT: $sdkRoot"
 
+$availableAvds = Get-AvailableAvds -EmulatorPath $emulatorExe
+$selectedAvd = Resolve-AvdName -DesiredAvdName $AvdName -AvailableAvds $availableAvds
+
 & $adbExe start-server | Out-Null
 
-$devicesOutput = & $adbExe devices
-$runningEmulator = ($devicesOutput | Select-String -Pattern '^emulator-\d+\s+device').Length -gt 0
+$runningEmulatorSerial = Get-RunningEmulatorSerial -AdbPath $adbExe
 
-if (-not $runningEmulator) {
-  Write-Host "Starting emulator: $AvdName"
-  Start-Process -FilePath $emulatorExe -ArgumentList @('-avd', $AvdName, '-no-snapshot', '-gpu', 'swiftshader_indirect') | Out-Null
+if (-not $runningEmulatorSerial) {
+  Start-EmulatorInstance -EmulatorPath $emulatorExe -SelectedAvdName $selectedAvd
+}
+else {
+  Write-Host "Using running emulator: $runningEmulatorSerial"
 }
 
-Write-Host 'Waiting for emulator device...'
-& $adbExe wait-for-device | Out-Null
+$bootCompleted = Wait-ForBootCompletion -AdbPath $adbExe -TimeoutSeconds $BootTimeoutSeconds
 
-Write-Host 'Waiting for Android boot completion...'
-while ((Get-BootCompleted -AdbPath $adbExe) -ne '1') {
-  Start-Sleep -Seconds 3
+if (-not $bootCompleted) {
+  if (Test-BootCorruption -AdbPath $adbExe) {
+    Write-Host 'Detected corrupted emulator user data. Recreating the AVD data partition and booting again.'
+    Stop-RunningEmulators -AdbPath $adbExe
+    Start-Sleep -Seconds 3
+    Start-EmulatorInstance -EmulatorPath $emulatorExe -SelectedAvdName $selectedAvd -WipeData
+    $bootCompleted = Wait-ForBootCompletion -AdbPath $adbExe -TimeoutSeconds $BootTimeoutSeconds
+  }
+
+  if (-not $bootCompleted) {
+    throw "Android emulator did not finish booting within $BootTimeoutSeconds seconds."
+  }
 }
 
 if ($BootOnly) {

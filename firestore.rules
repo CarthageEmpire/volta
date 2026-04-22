@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    match /verificationRequests/{requestId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /lines/{lineId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /liveVehicles/{vehicleId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /rides/{rideId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /nearbyTransport/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && (
+          resource.data.passengerUserId == request.auth.uid
+          || resource.data.driverUserId == request.auth.uid
+        ));
+      allow write: if false;
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && (
+          resource.data.userId == request.auth.uid
+          || resource.data.driverUserId == request.auth.uid
+        ));
+      allow write: if false;
+    }
+
+    match /favorites/{favoriteId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow write: if false;
+    }
+  }
+}

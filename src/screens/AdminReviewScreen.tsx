@@ -45,18 +45,16 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
           <div className="space-y-4">
             {pendingRequests.length > 0 ? (
               pendingRequests.map((request) => {
-                const user = state.users.find((candidate) => candidate.id === request.userId);
-
                 return (
                   <article
                     key={request.id}
                     className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
                   >
                     <h3 className="font-headline text-2xl font-extrabold text-slate-950">
-                      {user?.fullName ?? 'Conducteur'}
+                      {request.applicantName ?? 'Conducteur'}
                     </h3>
                     <p className="mt-2 text-sm text-slate-500">
-                      {user?.email} - {request.cityOfResidence}
+                      {request.applicantEmail} - {request.cityOfResidence}
                     </p>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       {request.documents.map((document) => (
@@ -71,8 +69,8 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
                     <div className="mt-5 flex flex-wrap gap-3">
                       <button
                         type="button"
-                        onClick={() => {
-                          const result = reviewDriverRequest(request.id, 'approved');
+                        onClick={async () => {
+                          const result = await reviewDriverRequest(request.id, 'approved');
                           setFeedback(result.message ?? '');
                         }}
                         className="rounded-full bg-secondary px-5 py-3 text-sm font-bold text-white"
@@ -81,12 +79,14 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
                       </button>
                       <button
                         type="button"
-                        onClick={() =>
+                        onClick={async () =>
                           setFeedback(
-                            reviewDriverRequest(
-                              request.id,
-                              'rejected',
-                              'Documents incomplets ou illisibles',
+                            (
+                              await reviewDriverRequest(
+                                request.id,
+                                'rejected',
+                                'Documents incomplets ou illisibles',
+                              )
                             ).message ?? '',
                           )
                         }

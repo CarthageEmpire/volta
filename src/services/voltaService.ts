@@ -39,6 +39,7 @@ import {
   validateLoginInput,
   validateSignupInput,
 } from './validationService';
+import { normalizeText } from './normalizeText';
 
 const STORAGE_KEY = 'volta-app-state-v2';
 
@@ -618,7 +619,8 @@ export function normalizeState(raw: unknown) {
   }
 
   const users = sanitizeUsers(raw.users, initial.users);
-  const lines = sanitizeLines(raw.lines, initial.lines);
+  // Keep the transit catalog authoritative so app updates replace stale local demo data.
+  const lines = initial.lines;
 
   const normalized: AppState = {
     users,
@@ -641,7 +643,7 @@ export function normalizeState(raw: unknown) {
     tickets: sanitizeTickets(raw.tickets, initial.tickets),
     payments: sanitizePayments(raw.payments, initial.payments),
     favorites: sanitizeFavorites(raw.favorites, initial.favorites),
-    nearbyTransport: sanitizeNearbyTransport(raw.nearbyTransport, initial.nearbyTransport),
+    nearbyTransport: initial.nearbyTransport,
     selectedLineId:
       typeof raw.selectedLineId === 'string' && lines.some((line) => line.id === raw.selectedLineId)
         ? raw.selectedLineId
@@ -1198,8 +1200,8 @@ export function confirmPayment(
 }
 
 export function getSearchResults(state: AppState, filters: SearchFilters) {
-  const departure = filters.departure.trim().toLowerCase();
-  const destination = filters.destination.trim().toLowerCase();
+  const departure = normalizeText(filters.departure);
+  const destination = normalizeText(filters.destination);
   const searchDate = filters.date;
   const baseDeparture = !Number.isNaN(new Date(searchDate).getTime())
     ? new Date(searchDate)
@@ -1208,11 +1210,14 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
   const lineResults: SearchResult[] = state.lines
     .filter((line) => {
       const matchesDeparture =
-        departure.length === 0 || line.origin.toLowerCase().includes(departure);
+        departure.length === 0 ||
+        normalizeText(line.origin).includes(departure) ||
+        line.stops.some((stop) => normalizeText(stop.name).includes(departure));
       const matchesDestination =
         destination.length === 0 ||
-        line.destination.toLowerCase().includes(destination) ||
-        line.routeLabel.toLowerCase().includes(destination);
+        normalizeText(line.destination).includes(destination) ||
+        normalizeText(line.routeLabel).includes(destination) ||
+        line.stops.some((stop) => normalizeText(stop.name).includes(destination));
 
       return matchesDeparture && matchesDestination;
     })
@@ -1227,7 +1232,7 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
       durationMinutes: line.durationMinutes,
       priceTnd: line.fareTnd,
       lineCode: line.code,
-      providerLabel: `Intervalle ${line.intervalMinutes} min`,
+      providerLabel: `${line.operatorName ?? 'Operateur non renseigne'} • ${line.servicePattern ?? `Intervalle ${line.intervalMinutes} min`}`,
       ctaLabel: 'Acheter ticket',
     }));
 
@@ -1238,9 +1243,9 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
       }
 
       const matchesDeparture =
-        departure.length === 0 || ride.departureCity.toLowerCase().includes(departure);
+        departure.length === 0 || normalizeText(ride.departureCity).includes(departure);
       const matchesDestination =
-        destination.length === 0 || ride.destinationCity.toLowerCase().includes(destination);
+        destination.length === 0 || normalizeText(ride.destinationCity).includes(destination);
       const matchesDate =
         searchDate.length === 0 ||
         new Date(ride.departureAt).toISOString().slice(0, 10) === searchDate.slice(0, 10);
