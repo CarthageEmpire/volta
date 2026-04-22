@@ -1,26 +1,32 @@
+import { TRANSIT_CITIES, TRANSIT_LINES } from './transitCatalog';
+
 const frenchCollator = new Intl.Collator('fr', { sensitivity: 'base' });
 
 function sortAlphabetically(values: readonly string[]) {
   return [...values].sort((left, right) => frenchCollator.compare(left, right));
 }
 
-export const TUNISIAN_CITIES = sortAlphabetically([
+function uniqueSorted(values: readonly string[]) {
+  return sortAlphabetically(Array.from(new Set(values.filter((value) => value.trim().length > 0))));
+}
+
+export const TUNISIAN_CITIES = uniqueSorted([
   'Ariana',
-  'Béja',
+  'Beja',
   'Ben Arous',
   'Bizerte',
-  'Gabès',
+  'Gabes',
   'Gafsa',
   'Hammamet',
   'Houmt Souk',
   'Jendouba',
   'Kairouan',
   'Kasserine',
-  'Kébili',
+  'Kebili',
   'La Manouba',
   'Le Kef',
   'Mahdia',
-  'Médenine',
+  'Medenine',
   'Monastir',
   'Nabeul',
   'Sfax',
@@ -34,43 +40,37 @@ export const TUNISIAN_CITIES = sortAlphabetically([
   'Zarzis',
 ]);
 
-export const TUNIS_METRO_STATIONS = sortAlphabetically([
-  'Ariana',
-  'Bab Alioua',
-  'Bab El Khadra',
-  'Bab Laassal',
-  'Bab Saadoun',
-  'Bardo',
-  'Ben Arous',
-  'Bouchoucha',
-  'Campus Universitaire El Manar',
-  'Cité des Sciences',
-  'Cité El Intilaka',
-  'Cité El Khadhra',
-  'Cité Sportive',
-  'Den Den',
-  'El Mourouj 1',
-  'El Mourouj 2',
-  'El Mourouj 3',
-  'El Mourouj 4',
-  'Ettahrir',
-  'Farhat Hached',
-  'Ibn Khaldoun',
-  'Indépendance',
-  'Khaznadar',
-  'Khaireddine',
-  'La Jeunesse',
-  'Les Jasmins',
-  'Mohamed V',
-  'Nelson Mandela',
-  'Palestine',
-  'Place Barcelone Nord',
-  'Place Barcelone Sud',
-  'Place de la République',
-  'Tunis Marine',
-  'Tunis Marine Nord',
+export const REGIONAL_SEARCH_AREAS = uniqueSorted([
+  'Grand Tunis',
+  'Cap Bon',
+  'Sahel',
+  'Nord-Ouest',
+  'Centre-Ouest',
+  'Sud',
+  'Sud-Est',
+  'Sud-Ouest',
 ]);
 
-export const SMART_SEARCH_LOCATIONS = sortAlphabetically(
-  Array.from(new Set([...TUNISIAN_CITIES, ...TUNIS_METRO_STATIONS])),
+export const BUS_SEARCH_LOCATIONS = uniqueSorted([
+  ...TUNISIAN_CITIES,
+  ...REGIONAL_SEARCH_AREAS,
+  ...TRANSIT_CITIES,
+]);
+
+export const LOUAGE_SEARCH_LOCATIONS = uniqueSorted([
+  ...TUNISIAN_CITIES,
+  ...REGIONAL_SEARCH_AREAS,
+]);
+
+export const TUNIS_METRO_STATIONS = uniqueSorted(
+  TRANSIT_LINES.filter((line) => line.mode === 'metro').flatMap((line) => [
+    line.origin,
+    line.destination,
+    ...line.stops.map((stop) => stop.name),
+  ]),
 );
+
+export const SMART_SEARCH_LOCATIONS = uniqueSorted([
+  ...BUS_SEARCH_LOCATIONS,
+  ...TUNIS_METRO_STATIONS,
+]);

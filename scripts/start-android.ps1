@@ -7,6 +7,27 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Invoke-CommandWithTimeout {
+  param(
+    [scriptblock]$ScriptBlock,
+    [object[]]$ArgumentList = @(),
+    [int]$TimeoutSeconds = 15
+  )
+
+  $job = Start-Job -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
+  try {
+    if (Wait-Job -Job $job -Timeout $TimeoutSeconds) {
+      return Receive-Job -Job $job
+    }
+
+    Stop-Job -Job $job -ErrorAction SilentlyContinue | Out-Null
+    return $null
+  }
+  finally {
+    Remove-Job -Job $job -Force -ErrorAction SilentlyContinue | Out-Null
+  }
+}
+
 function Resolve-JavaHome {
   $candidates = @(
     'C:\Program Files\Microsoft\jdk-21.0.10.7-hotspot',
@@ -29,7 +50,10 @@ function Get-BootCompleted {
   )
 
   try {
-    $output = & $AdbPath shell getprop sys.boot_completed 2>$null
+    $output = Invoke-CommandWithTimeout -TimeoutSeconds 10 -ArgumentList @($AdbPath) -ScriptBlock {
+      param($ResolvedAdbPath)
+      & $ResolvedAdbPath shell getprop sys.boot_completed 2>$null
+    }
     if ($null -eq $output) {
       return ''
     }
@@ -156,6 +180,19 @@ function Wait-ForBootCompletion {
   return $false
 }
 
+function Restart-Emulator {
+  param(
+    [string]$AdbPath,
+    [string]$EmulatorPath,
+    [string]$SelectedAvdName,
+    [switch]$WipeData
+  )
+
+  Stop-RunningEmulators -AdbPath $AdbPath
+  Start-Sleep -Seconds 3
+  Start-EmulatorInstance -EmulatorPath $EmulatorPath -SelectedAvdName $SelectedAvdName -WipeData:$WipeData
+}
+
 function Test-BootCorruption {
   param(
     [string]$AdbPath
@@ -219,11 +256,15 @@ else {
 $bootCompleted = Wait-ForBootCompletion -AdbPath $adbExe -TimeoutSeconds $BootTimeoutSeconds
 
 if (-not $bootCompleted) {
+  Write-Host 'Existing emulator did not finish booting in time. Restarting it with a cold boot.'
+  Restart-Emulator -AdbPath $adbExe -EmulatorPath $emulatorExe -SelectedAvdName $selectedAvd
+  $bootCompleted = Wait-ForBootCompletion -AdbPath $adbExe -TimeoutSeconds $BootTimeoutSeconds
+}
+
+if (-not $bootCompleted) {
   if (Test-BootCorruption -AdbPath $adbExe) {
     Write-Host 'Detected corrupted emulator user data. Recreating the AVD data partition and booting again.'
-    Stop-RunningEmulators -AdbPath $adbExe
-    Start-Sleep -Seconds 3
-    Start-EmulatorInstance -EmulatorPath $emulatorExe -SelectedAvdName $selectedAvd -WipeData
+    Restart-Emulator -AdbPath $adbExe -EmulatorPath $emulatorExe -SelectedAvdName $selectedAvd -WipeData
     $bootCompleted = Wait-ForBootCompletion -AdbPath $adbExe -TimeoutSeconds $BootTimeoutSeconds
   }
 

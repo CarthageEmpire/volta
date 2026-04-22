@@ -1,6 +1,6 @@
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { adminDb } from '../lib/firebase.js';
-import { normalizePhone, nowIso, requireRole } from '../lib/helpers.js';
+import { calculateAge, normalizePhone, nowIso, requireRole } from '../lib/helpers.js';
 import { reviewVerificationSchema, verificationSubmissionSchema } from '../schemas.js';
 
 export const submitDriverVerification = onCall(async (request) => {
@@ -12,6 +12,10 @@ export const submitDriverVerification = onCall(async (request) => {
 
   if (!user || user.role !== 'driver') {
     throw new HttpsError('failed-precondition', 'Only drivers can submit verification.');
+  }
+
+  if (calculateAge(input.dateOfBirth) < 21) {
+    throw new HttpsError('failed-precondition', 'Driver must be at least 21 years old.');
   }
 
   const requestId = `verification-${actor.uid}`;
@@ -60,6 +64,17 @@ export const reviewDriverVerification = onCall(async (request) => {
 
   if (!verification) {
     throw new HttpsError('not-found', 'Verification request not found.');
+  }
+
+  if (input.decision === 'approved') {
+    const documents = Array.isArray(verification.documents) ? verification.documents : [];
+    const documentTypes = new Set(
+      documents.map((document) => String((document as { type?: string }).type ?? '')),
+    );
+
+    if (documentTypes.size !== 4) {
+      throw new HttpsError('failed-precondition', 'All required driver documents must be present before approval.');
+    }
   }
 
   const reviewedAt = nowIso();

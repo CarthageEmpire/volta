@@ -76,29 +76,59 @@ export const toggleDriverLiveSharing = onCall(async (request) => {
   }
 
   const lineId = user.driverLineId;
-  if (!lineId) {
-    throw new HttpsError('failed-precondition', 'No active line is linked to this driver.');
+  const ridesSnapshot = await adminDb
+    .collection('rides')
+    .where('driverUserId', '==', actor.uid)
+    .where('status', '==', 'scheduled')
+    .get();
+  const nextRide = ridesSnapshot.docs
+    .map((doc) => doc.data())
+    .sort((left, right) => String(left.departureAt).localeCompare(String(right.departureAt)))[0];
+  let mode: 'bus' | 'metro' | 'louage';
+  let resolvedLineId = '';
+  let nextStopId = '';
+  let rideId = '';
+  let label = `${String(user.fullName).split(' ')[0]} Live`;
+  let etaMinutes = 2;
+
+  if (lineId) {
+    const lineSnapshot = await adminDb.collection('lines').doc(lineId).get();
+    const line = lineSnapshot.data();
+    if (!line) {
+      throw new HttpsError('not-found', 'The linked transit line could not be found.');
+    }
+
+    const stops = Array.isArray(line.stops) ? line.stops : [];
+    mode = line.mode;
+    resolvedLineId = lineId;
+    nextStopId = stops[0]?.id ?? '';
+    etaMinutes = Number(stops[0]?.etaMinutes ?? 2);
+  } else if (nextRide) {
+    mode = 'louage';
+    rideId = String(nextRide.id ?? '');
+    label = `${String(user.fullName).split(' ')[0]} Louage Live`;
+  } else {
+    throw new HttpsError('failed-precondition', 'No active line or scheduled ride is linked to this driver.');
   }
 
-  const lineSnapshot = await adminDb.collection('lines').doc(lineId).get();
-  const line = lineSnapshot.data();
-  if (!line) {
-    throw new HttpsError('not-found', 'The linked transit line could not be found.');
-  }
-
-  const stops = Array.isArray(line.stops) ? line.stops : [];
-  const nextStopId = stops[0]?.id ?? '';
   const vehicleId = `live-${actor.uid}`;
+  const existingSnapshot = await adminDb.collection('liveVehicles').doc(vehicleId).get();
+  const existing = existingSnapshot.data() ?? {};
   const vehicle = {
     id: vehicleId,
-    lineId,
-    mode: line.mode,
-    label: `${String(user.fullName).split(' ')[0]} Live`,
-    positionIndex: 0,
-    nextStopId,
-    etaMinutes: stops[0]?.etaMinutes ?? 2,
+    lineId: resolvedLineId,
+    mode,
+    label,
+    positionIndex: Number(existing.positionIndex ?? 0),
+    nextStopId: String(existing.nextStopId ?? nextStopId),
+    etaMinutes,
     sharingEnabled: input.enabled,
     operatorUserId: actor.uid,
+    rideId,
+    latitude: typeof input.latitude === 'number' ? input.latitude : existing.latitude,
+    longitude: typeof input.longitude === 'number' ? input.longitude : existing.longitude,
+    accuracyMeters:
+      typeof input.accuracyMeters === 'number' ? input.accuracyMeters : existing.accuracyMeters,
     updatedAt: nowIso(),
   };
 

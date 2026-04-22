@@ -1,6 +1,6 @@
 import TopAppBar from '../components/TopAppBar';
 import { useVolta } from '../context/VoltaContext';
-import { formatTnd } from '../services/formatters';
+import { formatDateTime, formatTnd } from '../services/formatters';
 import { Screen } from '../types';
 
 interface LineDetailsScreenProps {
@@ -37,9 +37,11 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
         line.stops.findIndex((stop) => stop.id === primaryVehicle.nextStopId),
       )
     : -1;
+  const stopCount = Math.max(line.stops.length, 1);
   const stopGridStyle = {
-    gridTemplateColumns: `repeat(${Math.max(line.stops.length, 1)}, minmax(0, 1fr))`,
+    gridTemplateColumns: `repeat(${stopCount}, minmax(6.5rem, 1fr))`,
   };
+  const stopMapMinWidth = `${Math.max(stopCount * 104, 320)}px`;
 
   const buyTicket = async () => {
     const result = await startLinePayment(line.id);
@@ -113,8 +115,20 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
               <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-400">
                 Carte simplifiee
               </p>
-              <div className="mt-5 overflow-hidden rounded-[1.6rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(226,232,240,0.95))] px-4 py-5 sm:px-6 sm:py-6">
-                <div className="space-y-5">
+              {primaryVehicle?.updatedAt ? (
+                <div className="mt-4 rounded-[1.2rem] bg-white px-4 py-3 text-sm text-slate-600">
+                  <span className="font-semibold text-slate-900">Derniere mise a jour live:</span>{' '}
+                  {formatDateTime(primaryVehicle.updatedAt, state.locale)}
+                  {primaryVehicle.latitude !== undefined && primaryVehicle.longitude !== undefined ? (
+                    <span>
+                      {' '}
+                      - {primaryVehicle.latitude.toFixed(4)}, {primaryVehicle.longitude.toFixed(4)}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className="mt-5 overflow-x-auto rounded-[1.6rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(226,232,240,0.95))] px-4 py-5 sm:px-6 sm:py-6">
+                <div className="space-y-5" style={{ minWidth: stopMapMinWidth }}>
                   {primaryVehicle && (
                     <div className="grid gap-3" style={stopGridStyle}>
                       {line.stops.map((stop, index) => (
@@ -174,9 +188,12 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
 
                   <div className="grid items-start gap-3" style={stopGridStyle}>
                     {line.stops.map((stop, index) => (
-                      <div key={stop.id} className="flex min-h-[78px] flex-col items-center px-1 text-center">
+                      <div
+                        key={stop.id}
+                        className="flex min-h-[78px] flex-col items-center px-1 text-center"
+                      >
                         <p
-                          className={`max-w-[5.75rem] text-sm font-bold leading-5 text-slate-900 sm:max-w-none ${
+                          className={`max-w-[6.5rem] text-sm font-bold leading-5 text-slate-900 ${
                             index === activeStopIndex ? 'text-slate-950' : ''
                           }`}
                         >
@@ -193,6 +210,17 @@ export default function LineDetailsScreen({ navigate }: LineDetailsScreenProps) 
 
           <div className="rounded-[2.2rem] bg-white p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:p-6">
             <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Arrets</p>
+            {primaryVehicle ? (
+              <div className="mt-4 rounded-[1.4rem] bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                <p className="font-semibold text-slate-900">
+                  {primaryVehicle.label} partage actuellement sa position.
+                </p>
+                <p className="mt-1">
+                  ETA courant: {primaryVehicle.etaMinutes} min
+                  {primaryVehicle.updatedAt ? ` - maj ${formatDateTime(primaryVehicle.updatedAt, state.locale)}` : ''}
+                </p>
+              </div>
+            ) : null}
             <div className="mt-5 space-y-4">
               {line.stops.map((stop) => (
                 <div key={stop.id} className="rounded-[1.5rem] bg-slate-50 p-4">

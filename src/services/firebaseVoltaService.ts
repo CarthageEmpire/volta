@@ -40,11 +40,51 @@ import {
   UserAccount,
   VerificationDocument,
 } from '../types';
-import { auth, db, functions, storage } from './firebaseApp';
+import { auth, db, firebaseSetupIssue, functions, storage } from './firebaseApp';
 import { normalizeEmail, normalizePhone } from './validationService';
 
 function optionalString(value: unknown) {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function titleCaseWords(value: string) {
+  return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function deriveFallbackFullName(email: string, preferredName?: string) {
+  if (preferredName && preferredName.trim().length >= 2) {
+    return preferredName.trim();
+  }
+
+  const localPart = email.split('@')[0] ?? 'utilisateur';
+  const cleaned = localPart.replace(/[._-]+/g, ' ').trim();
+  return cleaned.length >= 2 ? titleCaseWords(cleaned) : 'Utilisateur Volta';
+}
+
+function createFallbackUserAccount(params: {
+  userId: string;
+  email: string;
+  role?: UserAccount['role'];
+  phone?: string;
+  fullName?: string;
+  city?: string;
+}): UserAccount {
+  return {
+    id: params.userId,
+    role: params.role ?? 'passenger',
+    email: normalizeEmail(params.email),
+    phone: params.phone ? normalizePhone(params.phone) : undefined,
+    fullName: deriveFallbackFullName(params.email, params.fullName),
+    city: params.city?.trim() || 'Tunis',
+    locale: 'fr-TN',
+    createdAt: new Date().toISOString(),
+    dateOfBirth: undefined,
+    gender: undefined,
+    phoneVerified: Boolean(params.phone),
+    verificationStatus: 'not_started',
+    driverLineId: undefined,
+    avatarColor: '#0040a1',
+  };
 }
 
 function asUserAccount(data: Record<string, unknown>, id: string): UserAccount {
@@ -63,6 +103,9 @@ function asUserAccount(data: Record<string, unknown>, id: string): UserAccount {
     verificationStatus: String(data.verificationStatus ?? 'not_started') as UserAccount['verificationStatus'],
     driverLineId: optionalString(data.driverLineId),
     avatarColor: optionalString(data.avatarColor),
+    rating: typeof data.rating === 'number' ? data.rating : undefined,
+    completedTrips: typeof data.completedTrips === 'number' ? data.completedTrips : undefined,
+    penaltyCount: typeof data.penaltyCount === 'number' ? data.penaltyCount : undefined,
   };
 }
 
@@ -135,6 +178,11 @@ function asLiveVehicle(data: Record<string, unknown>, id: string): LiveVehicle {
     etaMinutes: Number(data.etaMinutes ?? 0),
     sharingEnabled: Boolean(data.sharingEnabled),
     operatorUserId: optionalString(data.operatorUserId),
+    rideId: optionalString(data.rideId),
+    latitude: typeof data.latitude === 'number' ? data.latitude : undefined,
+    longitude: typeof data.longitude === 'number' ? data.longitude : undefined,
+    accuracyMeters: typeof data.accuracyMeters === 'number' ? data.accuracyMeters : undefined,
+    updatedAt: optionalString(data.updatedAt),
   };
 }
 
@@ -213,6 +261,11 @@ function asPayment(data: Record<string, unknown>, id: string): Payment {
     status: String(data.status ?? 'pending') as Payment['status'],
     payoutStatus: String(data.payoutStatus ?? 'n/a') as Payment['payoutStatus'],
     summary: String(data.summary ?? ''),
+    providerReference: optionalString(data.providerReference),
+    processor:
+      data.processor === 'gateway' || data.processor === 'internal'
+        ? data.processor
+        : undefined,
   };
 }
 
@@ -244,6 +297,10 @@ function mapSnapshot<T>(
 }
 
 function mapAuthError(error: unknown) {
+  if (firebaseSetupIssue) {
+    return firebaseSetupIssue;
+  }
+
   const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
   switch (code) {
     case 'auth/email-already-in-use':
@@ -262,6 +319,34 @@ function mapAuthError(error: unknown) {
       }
       return 'Une erreur Firebase est survenue.';
   }
+}
+
+async function ensureRemoteUserProfile(input?: Partial<Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>>) {
+  const callable = httpsCallable<
+    Partial<Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>>,
+    UserAccount
+  >(functions, 'ensureUserProfile');
+  const result = await callable(input ?? {});
+  return result.data;
+}
+
+export async function getAuthenticatedUserFallback() {
+  const currentUser = auth.currentUser;
+  if (!currentUser?.email) {
+    return null;
+  }
+
+  const tokenResult = await currentUser.getIdTokenResult().catch(() => null);
+  const roleClaim = tokenResult?.claims?.role;
+  const role =
+    roleClaim === 'driver' || roleClaim === 'admin' || roleClaim === 'passenger' ? roleClaim : 'passenger';
+
+  return createFallbackUserAccount({
+    userId: currentUser.uid,
+    email: currentUser.email,
+    role,
+    fullName: currentUser.displayName ?? undefined,
+  });
 }
 
 async function uploadFile(params: {
@@ -380,9 +465,29 @@ export function subscribeToFavorites(userId: string, callback: (items: FavoriteP
 }
 
 export async function loginWithFirebase(input: LoginInput) {
+  if (firebaseSetupIssue) {
+    return { ok: false as const, message: firebaseSetupIssue };
+  }
+
   try {
     const credential = await signInWithEmailAndPassword(auth, normalizeEmail(input.email), input.password);
-    return { ok: true as const, userId: credential.user.uid };
+    let profile = await fetchUserProfileOnce(credential.user.uid);
+    if (!profile) {
+      try {
+        profile = await ensureRemoteUserProfile();
+      } catch {
+        const tokenResult = await credential.user.getIdTokenResult().catch(() => null);
+        const roleClaim = tokenResult?.claims?.role;
+        profile = createFallbackUserAccount({
+          userId: credential.user.uid,
+          email: credential.user.email ?? normalizeEmail(input.email),
+          role: roleClaim === 'driver' || roleClaim === 'admin' || roleClaim === 'passenger' ? roleClaim : 'passenger',
+          fullName: credential.user.displayName ?? undefined,
+        });
+      }
+    }
+
+    return { ok: true as const, userId: credential.user.uid, profile };
   } catch (error) {
     return { ok: false as const, message: mapAuthError(error) };
   }
@@ -391,6 +496,10 @@ export async function loginWithFirebase(input: LoginInput) {
 export async function signupWithFirebase(input: SignupInput) {
   if (!input.email) {
     return { ok: false as const, message: 'Email requis pour creer un compte Firebase.' };
+  }
+
+  if (firebaseSetupIssue) {
+    return { ok: false as const, message: firebaseSetupIssue };
   }
 
   try {
@@ -403,15 +512,35 @@ export async function signupWithFirebase(input: SignupInput) {
       Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>,
       UserAccount
     >(functions, 'bootstrapUserProfile');
-    await bootstrap({
+    const profilePayload = {
       role: input.role,
       email: normalizeEmail(input.email ?? ''),
       phone: input.phone ? normalizePhone(input.phone) : undefined,
       fullName: input.fullName,
       city: input.city,
-    });
+    };
+
+    let profile: UserAccount;
+    try {
+      const result = await bootstrap(profilePayload);
+      profile = result.data;
+    } catch (bootstrapError) {
+      try {
+        profile = await ensureRemoteUserProfile(profilePayload);
+      } catch {
+        profile = createFallbackUserAccount({
+          userId: credential.user.uid,
+          email: credential.user.email ?? profilePayload.email,
+          role: input.role,
+          phone: profilePayload.phone,
+          fullName: profilePayload.fullName,
+          city: profilePayload.city,
+        });
+      }
+    }
+
     await credential.user.getIdToken(true);
-    return { ok: true as const, userId: credential.user.uid };
+    return { ok: true as const, userId: credential.user.uid, profile };
   } catch (error) {
     return { ok: false as const, message: mapAuthError(error) };
   }
@@ -475,9 +604,21 @@ export async function reviewVerificationRequest(
   });
 }
 
-export async function toggleLiveSharing(enabled: boolean) {
+export async function toggleLiveSharing(
+  enabled: boolean,
+  location?: {
+    latitude?: number;
+    longitude?: number;
+    accuracyMeters?: number;
+  },
+) {
   const callable = httpsCallable(functions, 'toggleDriverLiveSharing');
-  await callable({ enabled });
+  await callable({
+    enabled,
+    latitude: location?.latitude,
+    longitude: location?.longitude,
+    accuracyMeters: location?.accuracyMeters,
+  });
 }
 
 export async function createRideListing(userId: string, input: CreateRideInput) {
@@ -531,7 +672,13 @@ export async function createCheckoutForRide(rideId: string) {
 export async function confirmCheckout(checkout: CheckoutIntent, provider: PaymentProvider) {
   const callable = httpsCallable<
     { checkout: CheckoutIntent; provider: PaymentProvider },
-    { bookingId: string; ticketId: string }
+    {
+      bookingId: string;
+      ticketId: string;
+      paymentId: string;
+      paymentStatus: Payment['status'];
+      message: string;
+    }
   >(functions, 'confirmPayment');
   const result = await callable({ checkout, provider });
   return result.data;

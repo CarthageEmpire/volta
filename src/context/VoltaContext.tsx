@@ -9,11 +9,9 @@ import {
   LoginInput,
   PaymentProvider,
   Screen,
-  SearchFilters,
   SignupInput,
   UserAccount,
 } from '../types';
-import { getSearchResults } from '../services/voltaService';
 import {
   cancelDriverRideRemote,
   cancelPassengerBookingRemote,
@@ -23,6 +21,7 @@ import {
   createCheckoutForRide,
   createRideListing,
   fetchUserProfileOnce,
+  getAuthenticatedUserFallback,
   loginWithFirebase,
   logoutFromFirebase,
   markBookingAwaitingConfirmationRemote,
@@ -94,12 +93,20 @@ interface VoltaContextValue {
   setLine: (lineId: string) => void;
   setAppLocale: (locale: Locale) => void;
   toggleNearbyLocation: () => void;
-  toggleLiveSharing: (enabled: boolean) => Promise<{ ok: boolean; message?: string }>;
+  toggleLiveSharing: (
+    enabled: boolean,
+    location?: {
+      latitude?: number;
+      longitude?: number;
+      accuracyMeters?: number;
+    },
+  ) => Promise<{ ok: boolean; message?: string }>;
   createDriverRide: (input: CreateRideInput) => Promise<{ ok: boolean; message?: string }>;
   startLinePayment: (lineId: string) => Promise<{ ok: boolean; message?: string }>;
   startLouagePayment: (rideId: string) => Promise<{ ok: boolean; message?: string }>;
-  confirmCheckoutPayment: (provider: PaymentProvider) => Promise<{ ok: boolean; message?: string }>;
-  searchTransport: (filters: SearchFilters) => ReturnType<typeof getSearchResults>;
+  confirmCheckoutPayment: (
+    provider: PaymentProvider,
+  ) => Promise<{ ok: boolean; message?: string; paymentStatus?: AppState['payments'][number]['status'] }>;
   cancelBooking: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
   cancelRide: (rideId: string) => Promise<{ ok: boolean; message?: string }>;
   markBookingAwaitingConfirmation: (bookingId: string) => Promise<{ ok: boolean; message?: string }>;
@@ -112,6 +119,7 @@ const VoltaContext = createContext<VoltaContextValue | undefined>(undefined);
 export function VoltaProvider({ children }: { children: ReactNode }) {
   const [sessionUserId, setSessionUserId] = useState<string | null>(null);
   const [selfUser, setSelfUser] = useState<UserAccount | null>(null);
+  const [fallbackUser, setFallbackUser] = useState<UserAccount | null>(null);
   const [adminUsers, setAdminUsers] = useState<UserAccount[]>([]);
   const [verificationRequests, setVerificationRequests] = useState<AppState['verificationRequests']>([]);
   const [lines, setLines] = useState<AppState['lines']>([]);
@@ -129,12 +137,16 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return subscribeToSession((user) => {
       setSessionUserId(user?.uid ?? null);
+      if (!user) {
+        setFallbackUser(null);
+      }
     });
   }, []);
 
   useEffect(() => {
     if (!sessionUserId) {
       setSelfUser(null);
+      setFallbackUser(null);
       setAdminUsers([]);
       setVerificationRequests([]);
       setBookings([]);
@@ -148,7 +160,32 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
   }, [sessionUserId]);
 
   useEffect(() => {
-    if (selfUser?.role !== 'admin') {
+    if (!sessionUserId || selfUser || fallbackUser?.id === sessionUserId) {
+      return;
+    }
+
+    let cancelled = false;
+    void getAuthenticatedUserFallback().then((user) => {
+      if (!cancelled && user?.id === sessionUserId) {
+        setFallbackUser(user);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fallbackUser?.id, selfUser, sessionUserId]);
+
+  useEffect(() => {
+    if (selfUser && fallbackUser?.id === selfUser.id) {
+      setFallbackUser(null);
+    }
+  }, [fallbackUser?.id, selfUser]);
+
+  const effectiveUser = selfUser ?? (fallbackUser?.id === sessionUserId ? fallbackUser : null);
+
+  useEffect(() => {
+    if (effectiveUser?.role !== 'admin') {
       setAdminUsers([]);
       return;
     }
@@ -156,7 +193,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
     return subscribeToAllUsersForAdmin((users) => {
       setAdminUsers(users);
     });
-  }, [selfUser?.role]);
+  }, [effectiveUser?.role]);
 
   useEffect(() => {
     if (!sessionUserId) {
@@ -180,7 +217,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
   }, [sessionUserId]);
 
   useEffect(() => {
-    if (!sessionUserId || !selfUser) {
+    if (!sessionUserId || !effectiveUser) {
       setVerificationRequests([]);
       setBookings([]);
       setTickets([]);
@@ -190,17 +227,17 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribers = [
-      subscribeToVerificationRequests(sessionUserId, selfUser.role, setVerificationRequests),
-      subscribeToBookings(sessionUserId, selfUser.role, setBookings),
+      subscribeToVerificationRequests(sessionUserId, effectiveUser.role, setVerificationRequests),
+      subscribeToBookings(sessionUserId, effectiveUser.role, setBookings),
       subscribeToTickets(sessionUserId, setTickets),
-      subscribeToPayments(sessionUserId, selfUser.role, setPayments),
+      subscribeToPayments(sessionUserId, effectiveUser.role, setPayments),
       subscribeToFavorites(sessionUserId, setFavorites),
     ];
 
     return () => {
       unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-  }, [sessionUserId, selfUser]);
+  }, [effectiveUser, sessionUserId]);
 
   useEffect(() => {
     if (!hasWindow()) {
@@ -219,21 +256,21 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
   }, [locationEnabled]);
 
   const users = useMemo(() => {
-    if (!selfUser) {
+    if (!effectiveUser) {
       return [];
     }
 
-    if (selfUser.role !== 'admin') {
-      return [selfUser];
+    if (effectiveUser.role !== 'admin') {
+      return [effectiveUser];
     }
 
     const unique = new Map<string, UserAccount>();
-    for (const user of [selfUser, ...adminUsers]) {
+    for (const user of [effectiveUser, ...adminUsers]) {
       unique.set(user.id, user);
     }
 
     return Array.from(unique.values());
-  }, [adminUsers, selfUser]);
+  }, [adminUsers, effectiveUser]);
 
   const state = useMemo<AppState>(
     () => ({
@@ -251,7 +288,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       nearbyTransport,
       selectedLineId,
       locationEnabled,
-      locale: selfUser?.locale ?? 'fr-TN',
+      locale: effectiveUser?.locale ?? 'fr-TN',
     }),
     [
       bookings,
@@ -263,7 +300,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       nearbyTransport,
       payments,
       selectedLineId,
-      selfUser?.locale,
+      effectiveUser?.locale,
       sessionUserId,
       tickets,
       users,
@@ -273,7 +310,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
 
   const value: VoltaContextValue = {
     state,
-    currentUser: selfUser,
+    currentUser: effectiveUser,
     checkout,
     setCheckout,
     async loginWithEmail(input) {
@@ -287,7 +324,20 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
         return result;
       }
 
-      const profile = result.userId ? await fetchUserProfileOnce(result.userId) : null;
+      if (result.profile) {
+        setFallbackUser(result.profile);
+      }
+
+      const profile = result.profile ?? (result.userId ? await fetchUserProfileOnce(result.userId) : null);
+      if (!profile) {
+        await logoutFromFirebase();
+        setFallbackUser(null);
+        return {
+          ok: false,
+          message: 'Connexion reussie, mais le profil utilisateur est introuvable. Reessayez dans quelques secondes.',
+        };
+      }
+
       const role = profile?.role;
       return {
         ok: true,
@@ -306,6 +356,10 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
         return result;
       }
 
+      if (result.profile) {
+        setFallbackUser(result.profile);
+      }
+
       return {
         ok: true,
         nextScreen: input.role === 'driver' ? 'driver-verification' : 'explore',
@@ -313,10 +367,12 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
     },
     logoutSession() {
       setCheckout(null);
+      setFallbackUser(null);
       void logoutFromFirebase();
     },
     resetDemo() {
       setCheckout(null);
+      setFallbackUser(null);
       setSelectedLineId('metro-m1');
       setLocationEnabled(true);
       if (hasWindow()) {
@@ -326,7 +382,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       void logoutFromFirebase();
     },
     async submitVerification(input) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 
@@ -336,7 +392,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        await submitVerificationRequest(selfUser.id, input);
+        await submitVerificationRequest(effectiveUser.id, input);
         return { ok: true, message: 'Dossier envoye a l equipe de verification.' };
       } catch (error) {
         return {
@@ -346,7 +402,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async reviewDriverRequest(requestId, decision, rejectionReason) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion admin requise.' };
       }
 
@@ -367,25 +423,34 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       setSelectedLineId(lineId);
     },
     setAppLocale(locale) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return;
       }
 
-      setSelfUser({ ...selfUser, locale });
+      if (selfUser) {
+        setSelfUser({ ...selfUser, locale });
+      } else {
+        setFallbackUser({ ...effectiveUser, locale });
+      }
+
       void updateLocalePreference(locale).catch(() => {
-        setSelfUser(selfUser);
+        if (selfUser) {
+          setSelfUser(selfUser);
+        } else {
+          setFallbackUser(effectiveUser);
+        }
       });
     },
     toggleNearbyLocation() {
       setLocationEnabled((current) => !current);
     },
-    async toggleLiveSharing(enabled) {
-      if (!selfUser) {
+    async toggleLiveSharing(enabled, location) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 
       try {
-        await toggleLiveSharingRemote(enabled);
+        await toggleLiveSharingRemote(enabled, location);
         return { ok: true, message: 'Statut live mis a jour.' };
       } catch (error) {
         return {
@@ -395,7 +460,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async createDriverRide(input) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 
@@ -405,7 +470,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        await createRideListing(selfUser.id, input);
+        await createRideListing(effectiveUser.id, input);
         return { ok: true, message: 'Annonce louage publiee.' };
       } catch (error) {
         return {
@@ -415,7 +480,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async startLinePayment(lineId) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise pour acheter un ticket.' };
       }
 
@@ -431,7 +496,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async startLouagePayment(rideId) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise pour reserver.' };
       }
 
@@ -452,9 +517,13 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        await confirmCheckout(checkout, provider);
+        const result = await confirmCheckout(checkout, provider);
         setCheckout(null);
-        return { ok: true, message: 'Paiement confirme et ticket genere.' };
+        return {
+          ok: true,
+          message: result.message,
+          paymentStatus: result.paymentStatus,
+        };
       } catch (error) {
         return {
           ok: false,
@@ -462,11 +531,8 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
         };
       }
     },
-    searchTransport(filters) {
-      return getSearchResults(state, filters);
-    },
     async cancelBooking(bookingId) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 
@@ -481,7 +547,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async cancelRide(rideId) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 
@@ -521,7 +587,7 @@ export function VoltaProvider({ children }: { children: ReactNode }) {
       }
     },
     async reportBookingNoShow(bookingId) {
-      if (!selfUser) {
+      if (!effectiveUser) {
         return { ok: false, message: 'Connexion requise.' };
       }
 

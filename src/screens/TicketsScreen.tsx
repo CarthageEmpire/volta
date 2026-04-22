@@ -23,6 +23,9 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
   const louageBookings = state.bookings.filter(
     (booking) => booking.passengerUserId === currentUser.id && booking.mode === 'louage',
   );
+  const payments = state.payments
+    .filter((payment) => payment.userId === currentUser.id)
+    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -148,6 +151,62 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
             ) : (
               <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm text-slate-500">
                 Pas encore d'historique archive.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">
+                Paiements
+              </p>
+              <h2 className="mt-2 font-headline text-3xl font-extrabold text-slate-950">
+                Historique backend
+              </h2>
+            </div>
+            <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
+              {payments.length} paiement(s)
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {payments.length > 0 ? (
+              payments.map((payment) => {
+                const relatedBooking = state.bookings.find((booking) => booking.id === payment.bookingId);
+                return (
+                  <div key={payment.id} className="rounded-[1.5rem] bg-slate-50 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="rounded-full bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-600">
+                        {payment.provider}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-600">
+                        {payment.status}
+                      </span>
+                    </div>
+                    <p className="mt-4 font-bold text-slate-900">{payment.summary}</p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      {formatDateTime(payment.createdAt, state.locale)}
+                    </p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      Payout: {payment.payoutStatus}
+                      {relatedBooking ? ` - Reservation ${relatedBooking.status}` : ''}
+                    </p>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-sm font-semibold text-slate-700">
+                        Ref: {payment.providerReference ?? payment.id}
+                      </span>
+                      <span className="font-headline text-2xl font-extrabold text-slate-950">
+                        {formatTnd(payment.amountTnd, state.locale)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
+                Aucun paiement enregistre pour ce compte.
               </div>
             )}
           </div>

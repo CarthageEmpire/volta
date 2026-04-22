@@ -87,6 +87,11 @@ export const confirmPayment = onCall(async (request) => {
     amountTnd: input.checkout.amountTnd,
     title: input.checkout.title,
   });
+  const isPaid = paymentCharge.status === 'paid';
+
+  if (paymentCharge.status === 'failed') {
+    throw new HttpsError('failed-precondition', 'Payment could not be confirmed.');
+  }
 
   const bookingId = createId('booking');
   const paymentId = createId('pay');
@@ -126,13 +131,15 @@ export const confirmPayment = onCall(async (request) => {
         destination: ride.destinationCity,
         seatsBooked: seatsRequested,
         amountTnd: ride.priceTnd,
-        status: 'confirmed',
+        status: isPaid ? 'confirmed' : 'pending_payment',
         paymentId,
-        ticketId,
-        payoutStatus: 'held',
+        ticketId: isPaid ? ticketId : '',
+        payoutStatus: isPaid ? 'held' : 'n/a',
         refundStatus: 'none',
         penaltyPercent: 0,
-        note: '',
+        note: isPaid
+          ? 'Paiement confirme et reservation active.'
+          : 'Paiement en attente de confirmation fournisseur.',
       };
 
       const payment = {
@@ -144,43 +151,56 @@ export const confirmPayment = onCall(async (request) => {
         amountTnd: ride.priceTnd,
         createdAt,
         status: paymentCharge.status,
-        payoutStatus: 'held',
+        payoutStatus: isPaid ? 'held' : 'n/a',
         summary: paymentCharge.summary,
-      };
-
-      const validUntil = new Date(assertDate(ride.departureAt).getTime() + 6 * 60 * 60 * 1000)
-        .toISOString();
-      const ticket = {
-        id: ticketId,
-        userId: actor.uid,
-        bookingId,
-        mode: 'louage',
-        title: `Louage ${ride.departureCity} -> ${ride.destinationCity}`,
-        validFrom: createdAt,
-        validUntil,
-        priceTnd: ride.priceTnd,
-        zones: 'Interurbain',
-        qrPayload: JSON.stringify({
-          ticketId,
-          bookingId,
-          validUntil,
-          origin: ride.departureCity,
-          destination: ride.destinationCity,
-          mode: 'louage',
-        }),
-        status: 'active',
+        providerReference: paymentCharge.providerReference,
+        processor: paymentCharge.processor,
       };
 
       transaction.set(adminDb.collection('bookings').doc(bookingId), booking);
       transaction.set(adminDb.collection('payments').doc(paymentId), payment);
-      transaction.set(adminDb.collection('tickets').doc(ticketId), ticket);
+
+      if (isPaid) {
+        const validUntil = new Date(assertDate(ride.departureAt).getTime() + 6 * 60 * 60 * 1000)
+          .toISOString();
+        const ticket = {
+          id: ticketId,
+          userId: actor.uid,
+          bookingId,
+          mode: 'louage',
+          title: `Louage ${ride.departureCity} -> ${ride.destinationCity}`,
+          validFrom: createdAt,
+          validUntil,
+          priceTnd: ride.priceTnd,
+          zones: 'Interurbain',
+          qrPayload: JSON.stringify({
+            ticketId,
+            bookingId,
+            validUntil,
+            origin: ride.departureCity,
+            destination: ride.destinationCity,
+            mode: 'louage',
+          }),
+          status: 'active',
+        };
+        transaction.set(adminDb.collection('tickets').doc(ticketId), ticket);
+      }
+
       transaction.update(rideRef, {
         availableSeats: ride.availableSeats - seatsRequested,
         updatedAt: createdAt,
       });
     });
 
-    return { bookingId, ticketId };
+    return {
+      bookingId,
+      ticketId: isPaid ? ticketId : '',
+      paymentId,
+      paymentStatus: paymentCharge.status,
+      message: isPaid
+        ? 'Paiement confirme et ticket genere.'
+        : 'Paiement en attente de confirmation fournisseur.',
+    };
   }
 
   if (!input.checkout.lineId) {
@@ -208,13 +228,15 @@ export const confirmPayment = onCall(async (request) => {
     destination: line.destination,
     seatsBooked: 1,
     amountTnd: line.fareTnd,
-    status: 'confirmed',
+    status: isPaid ? 'confirmed' : 'pending_payment',
     paymentId,
-    ticketId,
+    ticketId: isPaid ? ticketId : '',
     payoutStatus: 'n/a',
     refundStatus: 'none',
     penaltyPercent: 0,
-    note: '',
+    note: isPaid
+      ? 'Paiement confirme et ticket genere.'
+      : 'Paiement en attente de confirmation fournisseur.',
   });
 
   await adminDb.collection('payments').doc(paymentId).set({
@@ -228,30 +250,42 @@ export const confirmPayment = onCall(async (request) => {
     status: paymentCharge.status,
     payoutStatus: 'n/a',
     summary: paymentCharge.summary,
+    providerReference: paymentCharge.providerReference,
+    processor: paymentCharge.processor,
   });
 
-  await adminDb.collection('tickets').doc(ticketId).set({
-    id: ticketId,
-    userId: actor.uid,
-    bookingId,
-    mode: line.mode,
-    title: `${line.name} ${line.code}`,
-    validFrom: createdAt,
-    validUntil,
-    priceTnd: line.fareTnd,
-    zones: `${line.origin} - ${line.destination}`,
-    qrPayload: JSON.stringify({
-      ticketId,
+  if (isPaid) {
+    await adminDb.collection('tickets').doc(ticketId).set({
+      id: ticketId,
+      userId: actor.uid,
       bookingId,
-      validUntil,
-      origin: line.origin,
-      destination: line.destination,
       mode: line.mode,
-    }),
-    status: 'active',
-  });
+      title: `${line.name} ${line.code}`,
+      validFrom: createdAt,
+      validUntil,
+      priceTnd: line.fareTnd,
+      zones: `${line.origin} - ${line.destination}`,
+      qrPayload: JSON.stringify({
+        ticketId,
+        bookingId,
+        validUntil,
+        origin: line.origin,
+        destination: line.destination,
+        mode: line.mode,
+      }),
+      status: 'active',
+    });
+  }
 
-  return { bookingId, ticketId };
+  return {
+    bookingId,
+    ticketId: isPaid ? ticketId : '',
+    paymentId,
+    paymentStatus: paymentCharge.status,
+    message: isPaid
+      ? 'Paiement confirme et ticket genere.'
+      : 'Paiement en attente de confirmation fournisseur.',
+  };
 });
 
 export const cancelPassengerBooking = onCall(async (request) => {
@@ -329,6 +363,9 @@ export const cancelDriverRide = onCall(async (request) => {
 
     const diffHours = (assertDate(String(ride.departureAt)).getTime() - Date.now()) / (1000 * 60 * 60);
     const penalty = diffHours < 1 ? 10 : 0;
+    const driverRef = adminDb.collection('users').doc(actor.uid);
+    const driverSnapshot = await transaction.get(driverRef);
+    const driver = driverSnapshot.data() ?? {};
     const bookingsQuery = adminDb.collection('bookings').where('rideId', '==', input.rideId);
     const bookingsSnapshot = await transaction.get(bookingsQuery);
 
@@ -336,6 +373,20 @@ export const cancelDriverRide = onCall(async (request) => {
       status: 'cancelled',
       updatedAt,
     });
+
+    if (penalty > 0) {
+      const currentPenaltyCount = Number(driver.penaltyCount ?? 0);
+      const currentRating = Number(driver.rating ?? 4.5);
+      transaction.set(
+        driverRef,
+        {
+          penaltyCount: currentPenaltyCount + 1,
+          rating: Math.max(1, Number((currentRating - 0.1).toFixed(2))),
+          updatedAt,
+        },
+        { merge: true },
+      );
+    }
 
     for (const bookingDoc of bookingsSnapshot.docs) {
       const booking = bookingDoc.data();
@@ -413,6 +464,20 @@ export const confirmRideCompletion = onCall(async (request) => {
     updatedAt: nowIso(),
   });
 
+  if (booking.driverUserId) {
+    const driverRef = adminDb.collection('users').doc(String(booking.driverUserId));
+    const driverSnapshot = await driverRef.get();
+    const driver = driverSnapshot.data() ?? {};
+    await driverRef.set(
+      {
+        completedTrips: Number(driver.completedTrips ?? 0) + 1,
+        rating: Number((driver.rating ?? 4.5).toFixed(2)),
+        updatedAt: nowIso(),
+      },
+      { merge: true },
+    );
+  }
+
   if (booking.paymentId) {
     await adminDb.collection('payments').doc(String(booking.paymentId)).set(
       {
@@ -441,14 +506,23 @@ export const reportNoShow = onCall(async (request) => {
   }
 
   const liveVehicleSnapshot = await adminDb.collection('liveVehicles').doc(`live-${actor.uid}`).get();
-  const liveProof = Boolean(liveVehicleSnapshot.data()?.sharingEnabled);
+  const liveVehicle = liveVehicleSnapshot.data() ?? {};
+  const liveUpdatedAt = liveVehicle.updatedAt ? new Date(String(liveVehicle.updatedAt)) : null;
+  const departureAt = assertDate(String(booking.departureAt));
+  const liveProofWindowMs = 90 * 60 * 1000;
+  const hasFreshShare =
+    liveUpdatedAt !== null &&
+    Math.abs(liveUpdatedAt.getTime() - departureAt.getTime()) <= liveProofWindowMs;
+  const hasCoordinates =
+    typeof liveVehicle.latitude === 'number' && typeof liveVehicle.longitude === 'number';
+  const liveProof = Boolean(liveVehicle.sharingEnabled) && hasFreshShare && hasCoordinates;
 
   await bookingRef.update({
     status: 'no_show_reported',
     payoutStatus: liveProof ? 'eligible_with_proof' : booking.payoutStatus,
     note: liveProof
-      ? 'Passenger no-show reported with live proof enabled.'
-      : 'Passenger no-show reported without sufficient live proof.',
+      ? 'Passenger no-show reported with fresh live location proof.'
+      : 'Passenger no-show reported without recent location proof.',
     updatedAt: nowIso(),
   });
 

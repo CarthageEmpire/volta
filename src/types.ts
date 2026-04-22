@@ -38,6 +38,11 @@ export type PaymentProvider = 'bank_card' | 'konnect' | 'flooss' | 'sps' | 'd17'
 export type PayoutStatus = 'n/a' | 'held' | 'released' | 'eligible_with_proof' | 'refunded';
 export type TicketStatus = 'active' | 'used' | 'expired' | 'cancelled';
 export type SearchSort = 'cheapest' | 'duration' | 'departure';
+export type SearchMatchType =
+  | 'direct'
+  | 'departure_area'
+  | 'destination_area'
+  | 'network_suggestion';
 
 export interface UserAccount {
   id: string;
@@ -54,6 +59,9 @@ export interface UserAccount {
   verificationStatus: DriverVerificationStatus;
   driverLineId?: string;
   avatarColor?: string;
+  rating?: number;
+  completedTrips?: number;
+  penaltyCount?: number;
 }
 
 export interface VerificationDocument {
@@ -110,13 +118,18 @@ export interface TransportLine {
 export interface LiveVehicle {
   id: string;
   lineId: string;
-  mode: Extract<TransportMode, 'metro' | 'bus'>;
+  mode: TransportMode;
   label: string;
   positionIndex: number;
   nextStopId: string;
   etaMinutes: number;
   sharingEnabled: boolean;
   operatorUserId?: string;
+  rideId?: string;
+  latitude?: number;
+  longitude?: number;
+  accuracyMeters?: number;
+  updatedAt?: string;
 }
 
 export interface LouageRide {
@@ -187,6 +200,8 @@ export interface Payment {
   status: PaymentStatus;
   payoutStatus: PayoutStatus;
   summary: string;
+  providerReference?: string;
+  processor?: 'internal' | 'gateway';
 }
 
 export interface FavoritePlace {
@@ -226,6 +241,8 @@ export interface SearchResult {
   lineCode?: string;
   providerLabel: string;
   ctaLabel: string;
+  matchType?: SearchMatchType;
+  matchExplanation?: string;
 }
 
 export interface CheckoutIntent {

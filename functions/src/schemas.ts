@@ -59,6 +59,24 @@ export const verificationSubmissionSchema = z.object({
   phone: z.string().min(8),
   phoneVerified: z.boolean(),
   documents: z.array(verificationDocumentSchema).min(4),
+}).superRefine((input, context) => {
+  const parsedDate = new Date(input.dateOfBirth);
+  if (Number.isNaN(parsedDate.getTime())) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'dateOfBirth must be a valid ISO date.',
+      path: ['dateOfBirth'],
+    });
+  }
+
+  const documentTypes = new Set(input.documents.map((document) => document.type));
+  if (documentTypes.size !== 4) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'All four distinct verification document types are required.',
+      path: ['documents'],
+    });
+  }
 });
 
 export const reviewVerificationSchema = z.object({
@@ -82,6 +100,9 @@ export const createRideSchema = z.object({
 
 export const toggleLiveSharingSchema = z.object({
   enabled: z.boolean(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  accuracyMeters: z.number().nonnegative().optional(),
 });
 
 export const checkoutIntentSchema = z.object({
@@ -121,6 +142,6 @@ export const rideActionSchema = z.object({
 export const searchTransportSchema = z.object({
   departure: z.string(),
   destination: z.string(),
-  date: z.string(),
+  date: z.string().optional().default(''),
   sortBy: searchSortSchema,
 });

@@ -1,5 +1,5 @@
 import { setGlobalOptions } from 'firebase-functions/v2';
-import { bootstrapUserProfile, updateUserLocale } from './handlers/auth.js';
+import { bootstrapUserProfile, ensureUserProfile, updateUserLocale } from './handlers/auth.js';
 import {
   cancelDriverRide,
   cancelPassengerBooking,
@@ -20,6 +20,7 @@ setGlobalOptions({
 
 export {
   bootstrapUserProfile,
+  ensureUserProfile,
   updateUserLocale,
   submitDriverVerification,
   reviewDriverVerification,

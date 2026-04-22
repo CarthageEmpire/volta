@@ -7,7 +7,7 @@ interface WelcomeScreenProps {
   navigate: (screen: Screen) => void;
 }
 
-export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProps) {
+export default function WelcomeScreen({ navigate }: WelcomeScreenProps) {
   const { loginWithEmail, signupAccount, resetDemo } = useVolta();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [feedback, setFeedback] = useState('');
@@ -25,7 +25,7 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
     city: 'Tunis',
   });
 
-  const fillDemoAccount = (email: string, password: string) => {
+  const fillSeedAccount = (email: string, password: string) => {
     setMode('login');
     setFeedback('');
     setLoginForm({ email, password });
@@ -45,6 +45,7 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
       return;
     }
     setFeedback('');
+    navigate(result.nextScreen ?? 'explore');
     setIsSubmitting(false);
   };
 
@@ -66,6 +67,7 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
         ? 'Compte cree. Finalisez la verification conducteur.'
         : 'Compte cree avec succes.',
     );
+    navigate(result.nextScreen ?? 'explore');
     setIsSubmitting(false);
   };
 
@@ -104,28 +106,28 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
           </div>
 
           <div className="mt-8 rounded-[2rem] bg-slate-950 p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50">Comptes demo</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50">Comptes seed</p>
             <div className="mt-4 space-y-3 text-sm">
               <button
                 type="button"
-                onClick={() => fillDemoAccount('imen@volta.tn', 'volta123')}
+                onClick={() => fillSeedAccount('imen@volta.tn', 'volta123')}
                 className="block text-left text-white/85"
               >
-                Passager demo: imen@volta.tn / volta123
+                Passager: imen@volta.tn / volta123
               </button>
               <button
                 type="button"
-                onClick={() => fillDemoAccount('hamed@volta.tn', 'volta123')}
+                onClick={() => fillSeedAccount('hamed@volta.tn', 'volta123')}
                 className="block text-left text-white/85"
               >
-                Conducteur demo: hamed@volta.tn / volta123
+                Conducteur: hamed@volta.tn / volta123
               </button>
               <button
                 type="button"
-                onClick={() => fillDemoAccount('admin@volta.tn', 'admin123')}
+                onClick={() => fillSeedAccount('admin@volta.tn', 'admin123')}
                 className="block text-left text-white/85"
               >
-                Admin demo: admin@volta.tn / admin123
+                Admin: admin@volta.tn / admin123
               </button>
             </div>
             <button
@@ -133,7 +135,7 @@ export default function WelcomeScreen({ navigate: _navigate }: WelcomeScreenProp
               onClick={resetDemo}
               className="mt-5 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-900"
             >
-              Reinitialiser la demo
+              Reinitialiser la session locale
             </button>
           </div>
         </section>

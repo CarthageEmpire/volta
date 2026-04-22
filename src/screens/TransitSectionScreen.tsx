@@ -3,11 +3,11 @@ import LocationSelect from '../components/LocationSelect';
 import TopAppBar from '../components/TopAppBar';
 import TransportSectionTabs from '../components/TransportSectionTabs';
 import { useVolta } from '../context/VoltaContext';
-import { TUNISIAN_CITIES, TUNIS_METRO_STATIONS } from '../data/locationOptions';
-import { formatTnd } from '../services/formatters';
+import { BUS_SEARCH_LOCATIONS, TUNIS_METRO_STATIONS } from '../data/locationOptions';
+import { formatDateTime, formatTnd } from '../services/formatters';
+import { rankTransitSectionLines } from '../services/sectionSearch';
 import { validateLocationPair } from '../services/locationValidation';
-import { normalizeText } from '../services/normalizeText';
-import { Screen, TransportLine, TransportMode } from '../types';
+import { Screen, SearchMatchType, TransportLine, TransportMode } from '../types';
 
 interface TransitSectionScreenProps {
   mode: Extract<TransportMode, 'bus' | 'metro'>;
@@ -18,86 +18,85 @@ const SECTION_CONFIG = {
   bus: {
     screen: 'bus' as const,
     title: 'Bus Tunisie',
-    subtitle: 'Lignes régulières, passages et billets digitaux',
+    subtitle: 'Lignes regulieres, passages live et billets digitaux',
     icon: 'directions_bus',
     accent: '#0040a1',
     accentSoft: 'rgba(0,64,161,0.12)',
-    departureLabel: 'Ville de départ',
+    departureLabel: 'Ville de depart',
     destinationLabel: 'Ville de destination',
     placeholder: '-- Choisissez une ville --',
     searchLabel: 'Recherche de ligne',
     queryPlaceholder: 'Ex : B32, Ariana, Marine',
     locationSearchPlaceholder: 'Rechercher une ville',
-    emptyLocationLabel: 'Aucune ville ne correspond à votre recherche.',
+    emptyLocationLabel: 'Aucune ville ne correspond a votre recherche.',
     validationType: 'ville' as const,
-    locationOptions: TUNISIAN_CITIES,
+    locationOptions: BUS_SEARCH_LOCATIONS,
     defaultDeparture: '',
     defaultDestination: '',
     summaryTitle: 'Service bus',
     summaryItems: [
-      'Validation ticket mobile avant montée à bord.',
-      'Suivi des prochains passages sur les arrêts majeurs.',
-      'Fréquence et durée estimée visibles avant achat.',
-      'Basculer vers le détail ligne pour voir tous les arrêts.',
+      'Validation ticket mobile avant montee a bord.',
+      'Suivi des prochains passages sur les arrets majeurs.',
+      'Frequence et duree estimee visibles avant achat.',
+      'Basculer vers le detail ligne pour voir tous les arrets.',
     ],
-    sidebarTitle: 'Lignes fréquentes',
+    sidebarTitle: 'Lignes frequentes',
     serviceHours: '05:30 - 21:30',
   },
   metro: {
     screen: 'metro' as const,
-    title: 'Métro Tunis',
-    subtitle: 'Lignes, directions et correspondances simplifiées',
+    title: 'Metro Tunis',
+    subtitle: 'Lignes, directions et correspondances simplifiees',
     icon: 'tram',
     accent: '#0f766e',
     accentSoft: 'rgba(15,118,110,0.12)',
-    departureLabel: 'Station de départ',
+    departureLabel: 'Station de depart',
     destinationLabel: 'Station de destination',
     placeholder: '-- Choisissez une station --',
     searchLabel: 'Recherche de ligne',
     queryPlaceholder: 'Ex : M4, Bardo, Barcelone',
     locationSearchPlaceholder: 'Rechercher une station',
-    emptyLocationLabel: 'Aucune station ne correspond à votre recherche.',
+    emptyLocationLabel: 'Aucune station ne correspond a votre recherche.',
     validationType: 'station' as const,
     locationOptions: TUNIS_METRO_STATIONS,
     defaultDeparture: '',
     defaultDestination: '',
-    summaryTitle: 'Service métro',
+    summaryTitle: 'Service metro',
     summaryItems: [
       'Directions et terminus visibles sur chaque carte.',
       'Temps de passage et correspondances sur les stations majeures.',
-      'Achat ticket en un geste depuis la ligne souhaitée.',
-      'Couleur de ligne préservée entre liste et détail.',
+      'Achat ticket en un geste depuis la ligne souhaitee.',
+      'Couleur de ligne preservee entre liste et detail.',
     ],
     sidebarTitle: 'Stations majeures',
     serviceHours: '05:00 - 22:30',
   },
 } as const;
 
-function matchesLine(line: TransportLine, filters: { departure: string; destination: string; query: string }) {
-  const departure = normalizeText(filters.departure);
-  const destination = normalizeText(filters.destination);
-  const query = normalizeText(filters.query);
-  const stopNames = line.stops.map((stop) => normalizeText(stop.name));
-  const origin = normalizeText(line.origin);
-  const lineDestination = normalizeText(line.destination);
-  const code = normalizeText(line.code);
-  const name = normalizeText(line.name);
-  const routeLabel = normalizeText(line.routeLabel);
+function validateOptionalLocationPair(
+  departure: string,
+  destination: string,
+  type: 'ville' | 'station' | 'lieu',
+) {
+  if (!departure || !destination) {
+    return '';
+  }
 
-  const matchesDeparture =
-    departure.length === 0 || origin.includes(departure) || stopNames.some((stop) => stop.includes(departure));
-  const matchesDestination =
-    destination.length === 0 ||
-    lineDestination.includes(destination) ||
-    stopNames.some((stop) => stop.includes(destination));
-  const matchesQuery =
-    query.length === 0 ||
-    code.includes(query) ||
-    name.includes(query) ||
-    routeLabel.includes(query) ||
-    stopNames.some((stop) => stop.includes(query));
+  return validateLocationPair(departure, destination, type);
+}
 
-  return matchesDeparture && matchesDestination && matchesQuery;
+function getMatchChipLabel(matchType: SearchMatchType) {
+  switch (matchType) {
+    case 'direct':
+      return 'Trajet direct';
+    case 'departure_area':
+      return 'Depart proche';
+    case 'destination_area':
+      return 'Arrivee proche';
+    case 'network_suggestion':
+    default:
+      return 'Option probable';
+  }
 }
 
 function getMajorStops(line: TransportLine) {
@@ -105,10 +104,7 @@ function getMajorStops(line: TransportLine) {
   return (highlighted.length > 0 ? highlighted : line.stops).slice(0, 4);
 }
 
-export default function TransitSectionScreen({
-  mode,
-  navigate,
-}: TransitSectionScreenProps) {
+export default function TransitSectionScreen({ mode, navigate }: TransitSectionScreenProps) {
   const { state, setLine, startLinePayment } = useVolta();
   const config = SECTION_CONFIG[mode];
   const [filters, setFilters] = useState({
@@ -119,17 +115,22 @@ export default function TransitSectionScreen({
   const [showValidation, setShowValidation] = useState(false);
 
   const validationMessage = showValidation
-    ? validateLocationPair(filters.departure, filters.destination, config.validationType)
+    ? validateOptionalLocationPair(filters.departure, filters.destination, config.validationType)
     : '';
 
+  const availableLines = useMemo(
+    () => state.lines.filter((line) => line.mode === mode),
+    [mode, state.lines],
+  );
+
   const lines = useMemo(
-    () => state.lines.filter((line) => line.mode === mode && matchesLine(line, filters)),
-    [filters, mode, state.lines],
+    () => rankTransitSectionLines(availableLines, filters, mode),
+    [availableLines, filters, mode],
   );
 
   const sidebarLines = useMemo(
-    () => state.lines.filter((line) => line.mode === mode).slice(0, 4),
-    [mode, state.lines],
+    () => lines.slice(0, 4).map((item) => item.line),
+    [lines],
   );
 
   const openLine = (lineId: string) => {
@@ -226,7 +227,8 @@ export default function TransitSectionScreen({
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-4">
             {lines.length > 0 ? (
-              lines.map((line) => {
+              lines.map((result) => {
+                const line = result.line;
                 const vehicle = state.liveVehicles.find(
                   (candidate) => candidate.lineId === line.id && candidate.sharingEnabled,
                 );
@@ -248,7 +250,7 @@ export default function TransitSectionScreen({
                               color: '#ffffff',
                             }}
                           >
-                            {mode === 'bus' ? 'Bus' : 'Métro'} {line.code}
+                            {mode === 'bus' ? 'Bus' : 'Metro'} {line.code}
                           </span>
                           <span
                             className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.22em]"
@@ -257,7 +259,10 @@ export default function TransitSectionScreen({
                               color: config.accent,
                             }}
                           >
-                            {line.stops.length} arrêts
+                            {line.stops.length} arrets
+                          </span>
+                          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">
+                            {getMatchChipLabel(result.matchType)}
                           </span>
                         </div>
 
@@ -266,19 +271,24 @@ export default function TransitSectionScreen({
                         </h2>
                         <p className="mt-2 text-sm leading-6 text-slate-500">{line.routeLabel}</p>
                         <p className="mt-2 text-sm font-semibold text-slate-700">
-                          {line.operatorName ?? 'Opérateur non renseigné'}
+                          {line.operatorName ?? 'Operateur non renseigne'}
                         </p>
                         {line.servicePattern && (
                           <p className="mt-1 text-sm text-slate-500">{line.servicePattern}</p>
                         )}
+                        <p className="mt-3 rounded-[1.2rem] bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                          {result.matchExplanation}
+                        </p>
                         {line.verificationNotes && (
-                          <p className="mt-1 text-xs leading-5 text-amber-700">{line.verificationNotes}</p>
+                          <p className="mt-1 text-xs leading-5 text-amber-700">
+                            {line.verificationNotes}
+                          </p>
                         )}
 
                         <div className="mt-5 grid gap-3 md:grid-cols-3">
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              {mode === 'bus' ? 'Prochain départ' : 'Service'}
+                              {mode === 'bus' ? 'Prochain depart' : 'Service'}
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {mode === 'bus' ? line.stops[0]?.plannedTime ?? '--:--' : config.serviceHours}
@@ -289,28 +299,33 @@ export default function TransitSectionScreen({
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Fréquence
+                              Frequence
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.intervalMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {vehicle && nextStop
-                                ? `${vehicle.label} arrive à ${nextStop.name} dans ${vehicle.etaMinutes} min`
-                                : 'Suivi live disponible sur le détail ligne'}
+                                ? `${vehicle.label} arrive a ${nextStop.name} dans ${vehicle.etaMinutes} min`
+                                : 'Suivi live disponible sur le detail ligne'}
                             </p>
+                            {vehicle?.updatedAt ? (
+                              <p className="mt-2 text-xs text-slate-500">
+                                Maj backend {formatDateTime(vehicle.updatedAt, state.locale)}
+                              </p>
+                            ) : null}
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Durée estimée
+                              Duree estimee
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.durationMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {mode === 'bus'
-                                ? 'Arrêts principaux visibles ci-dessous'
-                                : 'Stations clefs et correspondances simplifiées'}
+                                ? 'Arrets principaux visibles ci-dessous'
+                                : 'Stations clefs et correspondances simplifiees'}
                             </p>
                           </div>
                         </div>
@@ -346,7 +361,7 @@ export default function TransitSectionScreen({
                           </button>
                           <button
                             type="button"
-                            onClick={() => buyTicket(line.id)}
+                            onClick={() => void buyTicket(line.id)}
                             className="rounded-full px-5 py-3 text-sm font-bold text-white"
                             style={{ backgroundColor: config.accent }}
                           >
@@ -369,11 +384,10 @@ export default function TransitSectionScreen({
                   </div>
                   <div>
                     <h2 className="font-headline text-2xl font-extrabold text-slate-950">
-                      Aucun résultat pour ce filtre
+                      Aucune ligne backend active
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Ajustez le départ, la destination ou la recherche de ligne pour afficher
-                      les services {mode === 'bus' ? 'bus' : 'métro'} disponibles.
+                      Le backend ne remonte actuellement aucune ligne {mode === 'bus' ? 'bus' : 'metro'}.
                     </p>
                   </div>
                 </div>
@@ -419,10 +433,12 @@ export default function TransitSectionScreen({
                           {line.code} - {line.origin} -&gt; {line.destination}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          {line.intervalMinutes} min - {line.stops.length} arrêts
+                          {line.intervalMinutes} min - {line.stops.length} arrets
                         </p>
                       </div>
-                      <span className="material-symbols-outlined text-slate-400">arrow_forward</span>
+                      <span className="material-symbols-outlined text-slate-400">
+                        arrow_forward
+                      </span>
                     </div>
                   </button>
                 ))}

@@ -16,6 +16,19 @@ function isValidIsoDate(value: string) {
   return !Number.isNaN(new Date(value).getTime());
 }
 
+function calculateAge(dateOfBirth: string) {
+  const birth = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age -= 1;
+  }
+
+  return age;
+}
+
 export function sanitizeText(value: string) {
   return normalizeWhitespace(value);
 }
@@ -126,6 +139,7 @@ export function validateDriverVerificationInput(input: DriverVerificationInput) 
   const fullName = sanitizeText(input.fullName);
   const cityOfResidence = sanitizeText(input.cityOfResidence);
   const phone = normalizePhone(input.phone);
+  const documentTypes = new Set(input.documents.map((document) => document.type));
 
   if (fullName.length < 2) {
     return 'Nom complet requis.';
@@ -133,6 +147,10 @@ export function validateDriverVerificationInput(input: DriverVerificationInput) 
 
   if (!isValidIsoDate(input.dateOfBirth)) {
     return 'Date de naissance invalide.';
+  }
+
+  if (calculateAge(input.dateOfBirth) < 21) {
+    return 'Le conducteur doit avoir au moins 21 ans.';
   }
 
   if (cityOfResidence.length < 2) {
@@ -149,6 +167,10 @@ export function validateDriverVerificationInput(input: DriverVerificationInput) 
 
   if (input.documents.length < 4) {
     return 'Les 4 documents obligatoires doivent etre televerses.';
+  }
+
+  if (documentTypes.size !== 4) {
+    return 'Les 4 types de documents obligatoires doivent etre fournis une seule fois.';
   }
 
   return null;

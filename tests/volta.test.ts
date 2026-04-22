@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import searchTransportModule from '../functions/src/lib/searchTransport.ts';
 import { createInitialState } from '../src/constants';
 import {
   createLineCheckout,
@@ -13,6 +14,8 @@ import {
   cancelPassengerBooking,
 } from '../src/services/voltaService';
 import { resolveHashRoute } from '../src/services/routingService';
+
+const { buildTransportSearchResults } = searchTransportModule;
 
 class MemoryStorage implements Storage {
   private store = new Map<string, string>();
@@ -200,4 +203,202 @@ test('line checkout only succeeds for existing users and lines', () => {
 
   assert.ok(checkout);
   assert.equal(checkout.mode, 'metro');
+});
+
+function getSearchFixtures() {
+  const state = createInitialState();
+  const lines = state.lines.map((line) => ({
+    id: line.id,
+    mode: line.mode,
+    code: line.code,
+    name: line.name,
+    origin: line.origin,
+    destination: line.destination,
+    durationMinutes: line.durationMinutes,
+    intervalMinutes: line.intervalMinutes,
+    routeLabel: line.routeLabel,
+    fareTnd: line.fareTnd,
+    operatorName: line.operatorName,
+    servicePattern: line.servicePattern,
+    stops: line.stops.map((stop) => ({
+      name: stop.name,
+    })),
+  }));
+  const rides = state.louageRides.map((ride) => ({
+    id: ride.id,
+    departureCity: ride.departureCity,
+    destinationCity: ride.destinationCity,
+    departureAt: ride.departureAt,
+    availableSeats: ride.availableSeats,
+    priceTnd: ride.priceTnd,
+    vehicleModel: ride.vehicleModel,
+    status: ride.status,
+  }));
+
+  return {
+    lines,
+    rides,
+    state,
+  };
+}
+
+test('transport search waits for a real matching route instead of inventing a fallback', () => {
+  const { lines, rides } = getSearchFixtures();
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Bizerte',
+      destination: 'Kairouan',
+      date: '2030-04-18',
+      sortBy: 'cheapest',
+    },
+  });
+
+  assert.deepEqual(results, []);
+});
+
+test('transport search finds deterministic direct results for a valid city pair', () => {
+  const { lines, rides, state } = getSearchFixtures();
+  const requestedDate = state.louageRides.find((ride) => ride.id === 'ride-1')!.departureAt.slice(0, 10);
+
+  const firstRun = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Tunis',
+      destination: 'Sousse',
+      date: requestedDate,
+      sortBy: 'cheapest',
+    },
+  });
+  const secondRun = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Tunis',
+      destination: 'Sousse',
+      date: requestedDate,
+      sortBy: 'cheapest',
+    },
+  });
+
+  assert.deepEqual(firstRun, secondRun);
+  assert.ok(firstRun.some((result) => result.sourceId === 'ride-1'));
+  assert.ok(firstRun.every((result) => result.departure !== result.destination));
+  assert.ok(firstRun.every((result) => !['Mannouba', 'Bizerte', 'Gabes'].includes(result.destination)));
+});
+
+test('transport search can match a metro segment by ordered stops', () => {
+  const { lines, rides } = getSearchFixtures();
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Place Barcelone Sud',
+      destination: 'Ben Arous',
+      date: '2030-04-18',
+      sortBy: 'departure',
+    },
+  });
+
+  assert.ok(results.length > 0);
+  assert.ok(
+    results.some(
+      (result) =>
+        result.mode === 'metro' &&
+        result.matchType === 'direct' &&
+        result.departure === 'Place Barcelone Sud' &&
+        result.destination === 'Ben Arous',
+    ),
+  );
+});
+
+test('transport search can match a regional bus corridor by ordered stops', () => {
+  const { lines, rides } = getSearchFixtures();
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Beja',
+      destination: 'Le Kef',
+      date: '2030-04-18',
+      sortBy: 'duration',
+    },
+  });
+
+  assert.ok(
+    results.some(
+      (result) =>
+        result.mode === 'bus' &&
+        result.sourceId === 'bus-northwest-link' &&
+        result.matchType === 'direct',
+    ),
+  );
+});
+
+test('transport search can resolve Cap Bon to a matching louage route', () => {
+  const { lines, rides, state } = getSearchFixtures();
+  const requestedDate = state.louageRides.find((ride) => ride.id === 'ride-7')!.departureAt.slice(0, 10);
+
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Cap Bon',
+      destination: 'Tunis',
+      date: requestedDate,
+      sortBy: 'cheapest',
+    },
+  });
+
+  assert.ok(
+    results.some(
+      (result) =>
+        result.mode === 'louage' &&
+        result.sourceId === 'ride-7' &&
+        result.matchType === 'departure_area',
+    ),
+  );
+});
+
+test('transport search can resolve Sud to a matching south route', () => {
+  const { lines, rides, state } = getSearchFixtures();
+  const requestedDate = state.louageRides.find((ride) => ride.id === 'ride-8')!.departureAt.slice(0, 10);
+
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Sud',
+      destination: 'Sfax',
+      date: requestedDate,
+      sortBy: 'cheapest',
+    },
+  });
+
+  assert.ok(
+    results.some(
+      (result) =>
+        result.mode === 'louage' &&
+        result.sourceId === 'ride-8' &&
+        result.matchType === 'departure_area',
+    ),
+  );
+});
+
+test('transport search rejects same departure and destination', () => {
+  const { lines, rides } = getSearchFixtures();
+  const results = buildTransportSearchResults({
+    lines,
+    rides,
+    filters: {
+      departure: 'Tunis',
+      destination: 'Tunis',
+      date: '2030-04-18',
+      sortBy: 'duration',
+    },
+  });
+
+  assert.deepEqual(results, []);
 });

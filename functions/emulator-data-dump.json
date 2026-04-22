@@ -1,0 +1,3248 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "role": "admin",
+      "gender": "",
+      "city": "Tunis",
+      "verificationStatus": "approved",
+      "phoneVerified": true,
+      "penaltyCount": 0,
+      "rating": 4.9,
+      "fullName": "Equipe Admin Volta",
+      "dateOfBirth": "",
+      "avatarColor": "#0040a1",
+      "locale": "fr-TN",
+      "createdAt": "2026-04-01T08:00:00.000Z",
+      "phone": "",
+      "driverLineId": "",
+      "completedTrips": 0,
+      "email": "admin@volta.tn"
+    },
+    {
+      "id": "driver-1",
+      "role": "driver",
+      "gender": "homme",
+      "city": "Tunis",
+      "verificationStatus": "approved",
+      "phoneVerified": true,
+      "penaltyCount": 1,
+      "rating": 4.8,
+      "fullName": "Hamed Trabelsi",
+      "dateOfBirth": "1988-09-14",
+      "avatarColor": "#0891b2",
+      "locale": "fr-TN",
+      "createdAt": "2026-04-02T07:00:00.000Z",
+      "phone": "+21655123456",
+      "driverLineId": "bus-104",
+      "completedTrips": 126,
+      "email": "hamed@volta.tn"
+    },
+    {
+      "id": "driver-2",
+      "role": "driver",
+      "gender": "femme",
+      "city": "Sfax",
+      "verificationStatus": "pending",
+      "phoneVerified": true,
+      "penaltyCount": 0,
+      "rating": 4.6,
+      "fullName": "Salma Ben Ali",
+      "dateOfBirth": "1992-03-21",
+      "avatarColor": "#7c3aed",
+      "locale": "fr-TN",
+      "createdAt": "2026-04-09T12:00:00.000Z",
+      "phone": "+21699123456",
+      "driverLineId": "",
+      "completedTrips": 18,
+      "email": "salma.driver@volta.tn"
+    },
+    {
+      "id": "driver-3",
+      "role": "driver",
+      "gender": "homme",
+      "city": "Nabeul",
+      "verificationStatus": "rejected",
+      "phoneVerified": true,
+      "penaltyCount": 2,
+      "rating": 4.1,
+      "fullName": "Mourad Jlassi",
+      "dateOfBirth": "1990-11-05",
+      "avatarColor": "#d97706",
+      "locale": "fr-TN",
+      "createdAt": "2026-04-05T10:15:00.000Z",
+      "phone": "+21658111222",
+      "driverLineId": "",
+      "completedTrips": 9,
+      "email": "mourad.driver@volta.tn"
+    },
+    {
+      "id": "passenger-1",
+      "role": "passenger",
+      "gender": "",
+      "city": "Tunis",
+      "verificationStatus": "not_started",
+      "phoneVerified": true,
+      "penaltyCount": 0,
+      "rating": 0,
+      "fullName": "Imen Gharbi",
+      "dateOfBirth": "",
+      "avatarColor": "#006d36",
+      "locale": "fr-TN",
+      "createdAt": "2026-04-07T09:00:00.000Z",
+      "phone": "+21622111222",
+      "driverLineId": "",
+      "completedTrips": 0,
+      "email": "imen@volta.tn"
+    }
+  ],
+  "verificationRequests": [
+    {
+      "id": "verification-driver-1",
+      "documents": [
+        {
+          "name": "permis_hamed.pdf",
+          "uploadedAt": "2026-04-09T09:05:00.000Z",
+          "type": "driving_license"
+        },
+        {
+          "name": "cin_hamed.jpg",
+          "uploadedAt": "2026-04-09T09:06:00.000Z",
+          "type": "national_id"
+        },
+        {
+          "name": "assurance_hamed.pdf",
+          "uploadedAt": "2026-04-09T09:07:00.000Z",
+          "type": "vehicle_insurance"
+        },
+        {
+          "name": "carte_grise_hamed.pdf",
+          "uploadedAt": "2026-04-09T09:08:00.000Z",
+          "type": "vehicle_registration"
+        }
+      ],
+      "reviewedAt": "2026-04-09T13:30:00.000Z",
+      "applicantName": "Hamed Trabelsi",
+      "submittedAt": "2026-04-09T09:00:00.000Z",
+      "reviewedBy": "admin-1",
+      "applicantPhone": "+21655123456",
+      "rejectionReason": "",
+      "userId": "driver-1",
+      "applicantEmail": "hamed@volta.tn",
+      "cityOfResidence": "Tunis",
+      "status": "approved"
+    },
+    {
+      "id": "verification-driver-2",
+      "documents": [
+        {
+          "name": "permis_salma.pdf",
+          "uploadedAt": "2026-04-17T10:05:00.000Z",
+          "type": "driving_license"
+        },
+        {
+          "name": "cin_salma.jpg",
+          "uploadedAt": "2026-04-17T10:06:00.000Z",
+          "type": "national_id"
+        },
+        {
+          "name": "assurance_salma.pdf",
+          "uploadedAt": "2026-04-17T10:07:00.000Z",
+          "type": "vehicle_insurance"
+        },
+        {
+          "name": "carte_grise_salma.pdf",
+          "uploadedAt": "2026-04-17T10:08:00.000Z",
+          "type": "vehicle_registration"
+        }
+      ],
+      "reviewedAt": "",
+      "applicantName": "Salma Ben Ali",
+      "submittedAt": "2026-04-17T10:00:00.000Z",
+      "applicantPhone": "+21699123456",
+      "reviewedBy": "",
+      "rejectionReason": "",
+      "userId": "driver-2",
+      "applicantEmail": "salma.driver@volta.tn",
+      "cityOfResidence": "Sfax",
+      "status": "pending"
+    },
+    {
+      "id": "verification-driver-3",
+      "documents": [
+        {
+          "name": "permis_mourad.pdf",
+          "uploadedAt": "2026-04-12T11:25:00.000Z",
+          "type": "driving_license"
+        },
+        {
+          "name": "cin_mourad.jpg",
+          "uploadedAt": "2026-04-12T11:26:00.000Z",
+          "type": "national_id"
+        },
+        {
+          "name": "assurance_mourad.pdf",
+          "uploadedAt": "2026-04-12T11:27:00.000Z",
+          "type": "vehicle_insurance"
+        },
+        {
+          "name": "carte_grise_mourad.pdf",
+          "uploadedAt": "2026-04-12T11:28:00.000Z",
+          "type": "vehicle_registration"
+        }
+      ],
+      "reviewedAt": "2026-04-12T16:15:00.000Z",
+      "applicantName": "Mourad Jlassi",
+      "submittedAt": "2026-04-12T11:20:00.000Z",
+      "reviewedBy": "admin-1",
+      "rejectionReason": "Assurance expir ee et pieces illisibles.",
+      "applicantPhone": "+21658111222",
+      "userId": "driver-3",
+      "applicantEmail": "mourad.driver@volta.tn",
+      "cityOfResidence": "Nabeul",
+      "status": "rejected"
+    }
+  ],
+  "lines": [
+    {
+      "id": "bus-10",
+      "code": "10",
+      "color": "#97253c",
+      "verificationNotes": "Route corridor and stop sequence condensed from the Tunismapper route 703 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Avenue Carthage",
+      "destination": "Cite Ezitouna",
+      "intervalMinutes": 81,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 47,
+      "name": "Bus 10",
+      "routeLabel": "Avenue Carthage - Djebel Jelloud - SNTRI - Centre Ben Arous - Marche de Gros - Cite Ezitouna",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Avenue Carthage",
+          "plannedTime": "07:00",
+          "isMajor": true,
+          "id": "bus-10-avenue-carthage"
+        },
+        {
+          "etaMinutes": 9,
+          "name": "Djebel Jelloud GP1",
+          "plannedTime": "07:09",
+          "isMajor": false,
+          "id": "bus-10-djebel-jelloud-gp1"
+        },
+        {
+          "etaMinutes": 19,
+          "name": "SNTRI",
+          "plannedTime": "07:19",
+          "isMajor": true,
+          "id": "bus-10-sntri"
+        },
+        {
+          "etaMinutes": 28,
+          "name": "Centre Ben Arous",
+          "plannedTime": "07:28",
+          "isMajor": false,
+          "id": "bus-10-centre-ben-arous"
+        },
+        {
+          "etaMinutes": 38,
+          "name": "Marche de Gros",
+          "plannedTime": "07:38",
+          "isMajor": true,
+          "id": "bus-10-marche-de-gros"
+        },
+        {
+          "etaMinutes": 47,
+          "name": "Cite Ezitouna",
+          "plannedTime": "07:47",
+          "isMajor": true,
+          "id": "bus-10-cite-ezitouna"
+        }
+      ]
+    },
+    {
+      "id": "bus-104",
+      "code": "104",
+      "color": "#f49581",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 772 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Tunis Marine",
+      "destination": "Khaireddine Mannouba",
+      "intervalMinutes": 70,
+      "fareTnd": 1.2,
+      "servicePattern": "Long cross-city urban service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 108,
+      "name": "Bus 104",
+      "routeLabel": "Tunis Marine - Hopital Militaire - La Rabta - Bardo - Mannouba - Khaireddine",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Tunis Marine",
+          "plannedTime": "06:15",
+          "isMajor": true,
+          "id": "bus-104-tunis-marine"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Hopital Militaire",
+          "plannedTime": "06:30",
+          "isMajor": false,
+          "id": "bus-104-hopital-militaire"
+        },
+        {
+          "etaMinutes": 31,
+          "name": "La Rabta",
+          "plannedTime": "06:46",
+          "isMajor": true,
+          "id": "bus-104-la-rabta"
+        },
+        {
+          "etaMinutes": 46,
+          "name": "Bouchoucha",
+          "plannedTime": "07:01",
+          "isMajor": false,
+          "id": "bus-104-bouchoucha"
+        },
+        {
+          "etaMinutes": 62,
+          "name": "Bardo",
+          "plannedTime": "07:17",
+          "isMajor": false,
+          "id": "bus-104-bardo"
+        },
+        {
+          "etaMinutes": 77,
+          "name": "Mannouba",
+          "plannedTime": "07:32",
+          "isMajor": true,
+          "id": "bus-104-mannouba"
+        },
+        {
+          "etaMinutes": 93,
+          "name": "Faculte des Lettres Mannouba",
+          "plannedTime": "07:48",
+          "isMajor": false,
+          "id": "bus-104-faculte-des-lettres-mannouba"
+        },
+        {
+          "etaMinutes": 108,
+          "name": "Khaireddine Mannouba",
+          "plannedTime": "08:03",
+          "isMajor": true,
+          "id": "bus-104-khaireddine-mannouba"
+        }
+      ]
+    },
+    {
+      "id": "bus-10b",
+      "code": "10B",
+      "color": "#c756a6",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 780 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Station Barcelone",
+      "destination": "Lycee Ibn Mandhour",
+      "intervalMinutes": 31,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 58,
+      "name": "Bus 10B",
+      "routeLabel": "Station Barcelone - Cnss - Cite RTT Ben Arous - Medina Jedida - Lycee Ibn Mandhour",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Station Barcelone",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-10b-station-barcelone"
+        },
+        {
+          "etaMinutes": 12,
+          "name": "Cnss",
+          "plannedTime": "06:12",
+          "isMajor": false,
+          "id": "bus-10b-cnss"
+        },
+        {
+          "etaMinutes": 23,
+          "name": "Centre Ben Arous",
+          "plannedTime": "06:23",
+          "isMajor": true,
+          "id": "bus-10b-centre-ben-arous"
+        },
+        {
+          "etaMinutes": 35,
+          "name": "Cite RTT Ben Arous",
+          "plannedTime": "06:35",
+          "isMajor": false,
+          "id": "bus-10b-cite-rtt-ben-arous"
+        },
+        {
+          "etaMinutes": 46,
+          "name": "Medina Jedida",
+          "plannedTime": "06:46",
+          "isMajor": true,
+          "id": "bus-10b-medina-jedida"
+        },
+        {
+          "etaMinutes": 58,
+          "name": "Lycee Ibn Mandhour",
+          "plannedTime": "06:58",
+          "isMajor": true,
+          "id": "bus-10b-lycee-ibn-mandhour"
+        }
+      ]
+    },
+    {
+      "id": "bus-10c",
+      "code": "10C",
+      "color": "#be185d",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 781 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Station Barcelone",
+      "destination": "Hopital Regional Yesminet",
+      "intervalMinutes": 11,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 41,
+      "name": "Bus 10C",
+      "routeLabel": "Station Barcelone - SOFOMECA - Magasin General Ben Arous - Cite Hached - Yasminet - Hopital Regional Yesminet",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Station Barcelone",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-10c-station-barcelone"
+        },
+        {
+          "etaMinutes": 8,
+          "name": "SOFOMECA",
+          "plannedTime": "06:08",
+          "isMajor": false,
+          "id": "bus-10c-sofomeca"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Magasin General Ben Arous",
+          "plannedTime": "06:16",
+          "isMajor": true,
+          "id": "bus-10c-magasin-general-ben-arous"
+        },
+        {
+          "etaMinutes": 25,
+          "name": "Cite Hached",
+          "plannedTime": "06:25",
+          "isMajor": false,
+          "id": "bus-10c-cite-hached"
+        },
+        {
+          "etaMinutes": 33,
+          "name": "Yasminet Centre",
+          "plannedTime": "06:33",
+          "isMajor": true,
+          "id": "bus-10c-yasminet-centre"
+        },
+        {
+          "etaMinutes": 41,
+          "name": "Hopital Regional Yesminet",
+          "plannedTime": "06:41",
+          "isMajor": true,
+          "id": "bus-10c-hopital-regional-yesminet"
+        }
+      ]
+    },
+    {
+      "id": "bus-11",
+      "code": "11",
+      "color": "#1d4ed8",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 704 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Tunis Marine",
+      "destination": "Jbel Lahmer",
+      "intervalMinutes": 65,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 30,
+      "name": "Bus 11",
+      "routeLabel": "Tunis Marine - Moncef Bey - Bab Jdid - Kasbah - Charle Nicole - Jbel Lahmer",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Tunis Marine",
+          "plannedTime": "06:10",
+          "isMajor": true,
+          "id": "bus-11-tunis-marine"
+        },
+        {
+          "etaMinutes": 6,
+          "name": "Moncef Bey",
+          "plannedTime": "06:16",
+          "isMajor": false,
+          "id": "bus-11-moncef-bey"
+        },
+        {
+          "etaMinutes": 12,
+          "name": "Bab Jdid",
+          "plannedTime": "06:22",
+          "isMajor": true,
+          "id": "bus-11-bab-jdid"
+        },
+        {
+          "etaMinutes": 18,
+          "name": "Kasbah",
+          "plannedTime": "06:28",
+          "isMajor": false,
+          "id": "bus-11-kasbah"
+        },
+        {
+          "etaMinutes": 24,
+          "name": "Charle Nicole",
+          "plannedTime": "06:34",
+          "isMajor": true,
+          "id": "bus-11-charle-nicole"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Jbel Lahmer",
+          "plannedTime": "06:40",
+          "isMajor": true,
+          "id": "bus-11-jbel-lahmer"
+        }
+      ]
+    },
+    {
+      "id": "bus-116",
+      "code": "116",
+      "color": "#ea580c",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 773 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Bab Alioua",
+      "destination": "Tebourba",
+      "intervalMinutes": 30,
+      "fareTnd": 1.5,
+      "servicePattern": "Outer suburban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 133,
+      "name": "Bus 116",
+      "routeLabel": "Bab Alioua - La Rabta - Bardo - Oued Ellil - Djedaida - Tebourba",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Alioua",
+          "plannedTime": "05:45",
+          "isMajor": true,
+          "id": "bus-116-bab-alioua"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "La Rabta",
+          "plannedTime": "06:12",
+          "isMajor": false,
+          "id": "bus-116-la-rabta"
+        },
+        {
+          "etaMinutes": 53,
+          "name": "Bardo",
+          "plannedTime": "06:38",
+          "isMajor": true,
+          "id": "bus-116-bardo"
+        },
+        {
+          "etaMinutes": 80,
+          "name": "Oued Ellil",
+          "plannedTime": "07:05",
+          "isMajor": false,
+          "id": "bus-116-oued-ellil"
+        },
+        {
+          "etaMinutes": 106,
+          "name": "Djedaida",
+          "plannedTime": "07:31",
+          "isMajor": true,
+          "id": "bus-116-djedaida"
+        },
+        {
+          "etaMinutes": 133,
+          "name": "Tebourba",
+          "plannedTime": "07:58",
+          "isMajor": true,
+          "id": "bus-116-tebourba"
+        }
+      ]
+    },
+    {
+      "id": "bus-12",
+      "code": "12",
+      "color": "#2563eb",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 705 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Jardin Thameur",
+      "destination": "Zayatine",
+      "intervalMinutes": 22,
+      "fareTnd": 1,
+      "servicePattern": "Short urban feeder",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 17,
+      "name": "Bus 12",
+      "routeLabel": "Jardin Thameur - Cafe Kawekeb - Restaurant Bou Feres - Zayatine",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Jardin Thameur",
+          "plannedTime": "06:20",
+          "isMajor": true,
+          "id": "bus-12-jardin-thameur"
+        },
+        {
+          "etaMinutes": 6,
+          "name": "Cafe Kawekeb",
+          "plannedTime": "06:26",
+          "isMajor": true,
+          "id": "bus-12-cafe-kawekeb"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Restaurant Bou Feres",
+          "plannedTime": "06:31",
+          "isMajor": true,
+          "id": "bus-12-restaurant-bou-feres"
+        },
+        {
+          "etaMinutes": 17,
+          "name": "Zayatine",
+          "plannedTime": "06:37",
+          "isMajor": true,
+          "id": "bus-12-zayatine"
+        }
+      ]
+    },
+    {
+      "id": "bus-14a",
+      "code": "14A",
+      "color": "#7c3aed",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 782 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Ali Balahouan",
+      "destination": "Omrane Superieur",
+      "intervalMinutes": 14,
+      "fareTnd": 1,
+      "servicePattern": "Short urban feeder",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 21,
+      "name": "Bus 14A",
+      "routeLabel": "Ali Balahouan - Bab Saadoun - Gare Routiere Nord - Ettahrir Superieur - Omrane Superieur",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Ali Balahouan",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-14a-ali-balahouan"
+        },
+        {
+          "etaMinutes": 5,
+          "name": "Bab Saadoun",
+          "plannedTime": "06:05",
+          "isMajor": true,
+          "id": "bus-14a-bab-saadoun"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Gare Routiere Nord",
+          "plannedTime": "06:11",
+          "isMajor": true,
+          "id": "bus-14a-gare-routiere-nord"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Ettahrir Superieur",
+          "plannedTime": "06:16",
+          "isMajor": true,
+          "id": "bus-14a-ettahrir-superieur"
+        },
+        {
+          "etaMinutes": 21,
+          "name": "Omrane Superieur",
+          "plannedTime": "06:21",
+          "isMajor": true,
+          "id": "bus-14a-omrane-superieur"
+        }
+      ]
+    },
+    {
+      "id": "bus-14c",
+      "code": "14C",
+      "color": "#9333ea",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 783 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Ali Balahouan",
+      "destination": "Cite Elbasatine",
+      "intervalMinutes": 56,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 45,
+      "name": "Bus 14C",
+      "routeLabel": "Ali Balahouan - Bab Saadoun - Ettahrir Superieur - Intilaka - Bir Mnihla - Cite Elbasatine",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Ali Balahouan",
+          "plannedTime": "06:10",
+          "isMajor": true,
+          "id": "bus-14c-ali-balahouan"
+        },
+        {
+          "etaMinutes": 9,
+          "name": "Bab Saadoun",
+          "plannedTime": "06:19",
+          "isMajor": false,
+          "id": "bus-14c-bab-saadoun"
+        },
+        {
+          "etaMinutes": 18,
+          "name": "Ettahrir Superieur",
+          "plannedTime": "06:28",
+          "isMajor": true,
+          "id": "bus-14c-ettahrir-superieur"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "Intilaka",
+          "plannedTime": "06:37",
+          "isMajor": false,
+          "id": "bus-14c-intilaka"
+        },
+        {
+          "etaMinutes": 36,
+          "name": "Bir Mnihla",
+          "plannedTime": "06:46",
+          "isMajor": true,
+          "id": "bus-14c-bir-mnihla"
+        },
+        {
+          "etaMinutes": 45,
+          "name": "Cite Elbasatine",
+          "plannedTime": "06:55",
+          "isMajor": true,
+          "id": "bus-14c-cite-elbasatine"
+        }
+      ]
+    },
+    {
+      "id": "bus-14cg",
+      "code": "14CG",
+      "color": "#a855f7",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 784 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Kasbah",
+      "destination": "Intilaka",
+      "intervalMinutes": 58,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 27,
+      "name": "Bus 14CG",
+      "routeLabel": "Kasbah - Charle Nicole - Bab Saadoun - Ettahrir Superieur - Intilaka",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Kasbah",
+          "plannedTime": "06:15",
+          "isMajor": true,
+          "id": "bus-14cg-kasbah"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Charle Nicole",
+          "plannedTime": "06:22",
+          "isMajor": true,
+          "id": "bus-14cg-charle-nicole"
+        },
+        {
+          "etaMinutes": 14,
+          "name": "Bab Saadoun",
+          "plannedTime": "06:29",
+          "isMajor": true,
+          "id": "bus-14cg-bab-saadoun"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Ettahrir Superieur",
+          "plannedTime": "06:35",
+          "isMajor": true,
+          "id": "bus-14cg-ettahrir-superieur"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "Intilaka",
+          "plannedTime": "06:42",
+          "isMajor": true,
+          "id": "bus-14cg-intilaka"
+        }
+      ]
+    },
+    {
+      "id": "bus-15",
+      "code": "15",
+      "color": "#0f766e",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 706 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Jardin Thameur",
+      "destination": "Saidia",
+      "intervalMinutes": 57,
+      "fareTnd": 1,
+      "servicePattern": "Regular Tunis urban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 26,
+      "name": "Bus 15",
+      "routeLabel": "Jardin Thameur - Darghouth Bacha - Mellassine - Kharouba - Saidia",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Jardin Thameur",
+          "plannedTime": "06:05",
+          "isMajor": true,
+          "id": "bus-15-jardin-thameur"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Darghouth Bacha",
+          "plannedTime": "06:12",
+          "isMajor": true,
+          "id": "bus-15-darghouth-bacha"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "Stade Mellassine",
+          "plannedTime": "06:18",
+          "isMajor": true,
+          "id": "bus-15-stade-mellassine"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Kharouba",
+          "plannedTime": "06:25",
+          "isMajor": true,
+          "id": "bus-15-kharouba"
+        },
+        {
+          "etaMinutes": 26,
+          "name": "Saidia",
+          "plannedTime": "06:31",
+          "isMajor": true,
+          "id": "bus-15-saidia"
+        }
+      ]
+    },
+    {
+      "id": "bus-15a",
+      "code": "15A",
+      "color": "#0891b2",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 785 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Jardin Thameur",
+      "destination": "Cite Ezzouhour 4",
+      "intervalMinutes": 13,
+      "fareTnd": 1,
+      "servicePattern": "Frequent branch service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 29,
+      "name": "Bus 15A",
+      "routeLabel": "Jardin Thameur - Darghouth Bacha - Kharouba - Office de Huile - Cite Ezzouhour 4",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Jardin Thameur",
+          "plannedTime": "06:30",
+          "isMajor": true,
+          "id": "bus-15a-jardin-thameur"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Darghouth Bacha",
+          "plannedTime": "06:37",
+          "isMajor": true,
+          "id": "bus-15a-darghouth-bacha"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Kharouba",
+          "plannedTime": "06:45",
+          "isMajor": true,
+          "id": "bus-15a-kharouba"
+        },
+        {
+          "etaMinutes": 22,
+          "name": "Office de Huile",
+          "plannedTime": "06:52",
+          "isMajor": true,
+          "id": "bus-15a-office-de-huile"
+        },
+        {
+          "etaMinutes": 29,
+          "name": "Cite Ezzouhour 4",
+          "plannedTime": "06:59",
+          "isMajor": true,
+          "id": "bus-15a-cite-ezzouhour-4"
+        }
+      ]
+    },
+    {
+      "id": "bus-15b",
+      "code": "15B",
+      "color": "#0ea5e9",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 786 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Jardin Thameur",
+      "destination": "Cite Ezzouhour",
+      "intervalMinutes": 34,
+      "fareTnd": 1,
+      "servicePattern": "Regular branch service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 26,
+      "name": "Bus 15B",
+      "routeLabel": "Jardin Thameur - Darghouth Bacha - Kharouba - Office de Huile - Cite Ezzouhour",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Jardin Thameur",
+          "plannedTime": "06:40",
+          "isMajor": true,
+          "id": "bus-15b-jardin-thameur"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Darghouth Bacha",
+          "plannedTime": "06:47",
+          "isMajor": true,
+          "id": "bus-15b-darghouth-bacha"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "Kharouba",
+          "plannedTime": "06:53",
+          "isMajor": true,
+          "id": "bus-15b-kharouba"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Office de Huile",
+          "plannedTime": "07:00",
+          "isMajor": true,
+          "id": "bus-15b-office-de-huile"
+        },
+        {
+          "etaMinutes": 26,
+          "name": "Cite Ezzouhour",
+          "plannedTime": "07:06",
+          "isMajor": true,
+          "id": "bus-15b-cite-ezzouhour"
+        }
+      ]
+    },
+    {
+      "id": "bus-16",
+      "code": "16",
+      "color": "#1e40af",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 707 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Ali Balahouan",
+      "destination": "El Hbibia",
+      "intervalMinutes": 17,
+      "fareTnd": 1.2,
+      "servicePattern": "Outer suburban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 94,
+      "name": "Bus 16",
+      "routeLabel": "Ali Balahouan - Bouchoucha - Oued Ellil - Erriadh Mannouba - El Hbibia",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Ali Balahouan",
+          "plannedTime": "05:50",
+          "isMajor": true,
+          "id": "bus-16-ali-balahouan"
+        },
+        {
+          "etaMinutes": 24,
+          "name": "Bouchoucha",
+          "plannedTime": "06:14",
+          "isMajor": true,
+          "id": "bus-16-bouchoucha"
+        },
+        {
+          "etaMinutes": 47,
+          "name": "Oued Ellil",
+          "plannedTime": "06:37",
+          "isMajor": true,
+          "id": "bus-16-oued-ellil"
+        },
+        {
+          "etaMinutes": 71,
+          "name": "Erriadh Mannouba",
+          "plannedTime": "07:01",
+          "isMajor": true,
+          "id": "bus-16-erriadh-mannouba"
+        },
+        {
+          "etaMinutes": 94,
+          "name": "El Hbibia",
+          "plannedTime": "07:24",
+          "isMajor": true,
+          "id": "bus-16-el-hbibia"
+        }
+      ]
+    },
+    {
+      "id": "bus-17",
+      "code": "17",
+      "color": "#0f766e",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 708 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Station Barcelone",
+      "destination": "Rades ZI",
+      "intervalMinutes": 71,
+      "fareTnd": 1.2,
+      "servicePattern": "Regular southern suburban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 75,
+      "name": "Bus 17",
+      "routeLabel": "Station Barcelone - Lustreries - Centre Rades - Souk Rades - Rades Plage - Rades ZI",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Station Barcelone",
+          "plannedTime": "06:10",
+          "isMajor": true,
+          "id": "bus-17-station-barcelone"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Lustreries",
+          "plannedTime": "06:25",
+          "isMajor": false,
+          "id": "bus-17-lustreries"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Centre Rades",
+          "plannedTime": "06:40",
+          "isMajor": true,
+          "id": "bus-17-centre-rades"
+        },
+        {
+          "etaMinutes": 45,
+          "name": "Souk Rades",
+          "plannedTime": "06:55",
+          "isMajor": false,
+          "id": "bus-17-souk-rades"
+        },
+        {
+          "etaMinutes": 60,
+          "name": "Rades Plage 2",
+          "plannedTime": "07:10",
+          "isMajor": true,
+          "id": "bus-17-rades-plage-2"
+        },
+        {
+          "etaMinutes": 75,
+          "name": "Rades ZI",
+          "plannedTime": "07:25",
+          "isMajor": true,
+          "id": "bus-17-rades-zi"
+        }
+      ]
+    },
+    {
+      "id": "bus-17a",
+      "code": "17A",
+      "color": "#15803d",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 792 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Medina Jedida",
+      "destination": "Port La Goulette",
+      "intervalMinutes": 55,
+      "fareTnd": 1.2,
+      "servicePattern": "Regular coastal connector",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 60,
+      "name": "Bus 17A",
+      "routeLabel": "Medina Jedida - Centre Rades - Rades Plage - Port La Goulette",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Medina Jedida",
+          "plannedTime": "05:50",
+          "isMajor": true,
+          "id": "bus-17a-medina-jedida"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Centre Rades",
+          "plannedTime": "06:10",
+          "isMajor": true,
+          "id": "bus-17a-centre-rades"
+        },
+        {
+          "etaMinutes": 40,
+          "name": "Rades Plage 2",
+          "plannedTime": "06:30",
+          "isMajor": true,
+          "id": "bus-17a-rades-plage-2"
+        },
+        {
+          "etaMinutes": 60,
+          "name": "Port La Goulette",
+          "plannedTime": "06:50",
+          "isMajor": true,
+          "id": "bus-17a-port-la-goulette"
+        }
+      ]
+    },
+    {
+      "id": "bus-17b",
+      "code": "17B",
+      "color": "#166534",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 793 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Station Barcelone",
+      "destination": "Port de Rades",
+      "intervalMinutes": 10,
+      "fareTnd": 1.2,
+      "servicePattern": "Frequent port connector",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 70,
+      "name": "Bus 17B",
+      "routeLabel": "Station Barcelone - Lustreries - Centre Rades - Souk Rades - Port de Rades",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Station Barcelone",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-17b-station-barcelone"
+        },
+        {
+          "etaMinutes": 18,
+          "name": "Lustreries",
+          "plannedTime": "06:18",
+          "isMajor": true,
+          "id": "bus-17b-lustreries"
+        },
+        {
+          "etaMinutes": 35,
+          "name": "Centre Rades",
+          "plannedTime": "06:35",
+          "isMajor": true,
+          "id": "bus-17b-centre-rades"
+        },
+        {
+          "etaMinutes": 53,
+          "name": "Souk Rades",
+          "plannedTime": "06:53",
+          "isMajor": true,
+          "id": "bus-17b-souk-rades"
+        },
+        {
+          "etaMinutes": 70,
+          "name": "Port de Rades",
+          "plannedTime": "07:10",
+          "isMajor": true,
+          "id": "bus-17b-port-de-rades"
+        }
+      ]
+    },
+    {
+      "id": "bus-18",
+      "code": "18",
+      "color": "#7c2d12",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 709 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "10 Decembre",
+      "destination": "Mongi Slim",
+      "intervalMinutes": 114,
+      "fareTnd": 1.2,
+      "servicePattern": "Long eastern suburban bus service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 55,
+      "name": "Bus 18",
+      "routeLabel": "10 Decembre - Hamadi Abid - Chotrana - Soukra - Mongi Slim",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "10 Decembre",
+          "plannedTime": "06:20",
+          "isMajor": true,
+          "id": "bus-18-10-decembre"
+        },
+        {
+          "etaMinutes": 14,
+          "name": "Hamadi Abid",
+          "plannedTime": "06:34",
+          "isMajor": true,
+          "id": "bus-18-hamadi-abid"
+        },
+        {
+          "etaMinutes": 28,
+          "name": "Chotrana 2",
+          "plannedTime": "06:48",
+          "isMajor": true,
+          "id": "bus-18-chotrana-2"
+        },
+        {
+          "etaMinutes": 41,
+          "name": "Soukra",
+          "plannedTime": "07:01",
+          "isMajor": true,
+          "id": "bus-18-soukra"
+        },
+        {
+          "etaMinutes": 55,
+          "name": "Mongi Slim",
+          "plannedTime": "07:15",
+          "isMajor": true,
+          "id": "bus-18-mongi-slim"
+        }
+      ]
+    },
+    {
+      "id": "bus-18b",
+      "code": "18B",
+      "color": "#92400e",
+      "verificationNotes": "Key stops condensed from the Tunismapper route 794 page. Fare kept as app placeholder.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "10 Decembre",
+      "destination": "ONAS Sidi Salah",
+      "intervalMinutes": 78,
+      "fareTnd": 1.2,
+      "servicePattern": "Eastern suburban branch service",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 37,
+      "name": "Bus 18B",
+      "routeLabel": "10 Decembre - Place Sala Centre - Club de la Police Nationale - Sidi Salah - ONAS Sidi Salah",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "10 Decembre",
+          "plannedTime": "06:15",
+          "isMajor": true,
+          "id": "bus-18b-10-decembre"
+        },
+        {
+          "etaMinutes": 9,
+          "name": "Place Sala Centre",
+          "plannedTime": "06:24",
+          "isMajor": true,
+          "id": "bus-18b-place-sala-centre"
+        },
+        {
+          "etaMinutes": 19,
+          "name": "Club de la Police Nationale",
+          "plannedTime": "06:34",
+          "isMajor": true,
+          "id": "bus-18b-club-de-la-police-nationale"
+        },
+        {
+          "etaMinutes": 28,
+          "name": "Sidi Salah",
+          "plannedTime": "06:43",
+          "isMajor": true,
+          "id": "bus-18b-sidi-salah"
+        },
+        {
+          "etaMinutes": 37,
+          "name": "ONAS Sidi Salah",
+          "plannedTime": "06:52",
+          "isMajor": true,
+          "id": "bus-18b-onas-sidi-salah"
+        }
+      ]
+    },
+    {
+      "id": "bus-airport",
+      "code": "Bus Aeroport",
+      "color": "#ffcf06",
+      "verificationNotes": "Only two public stop labels were exposed on the retrieved source page. Intermediate airport transfer stops may exist [NEEDS VERIFICATION].",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Aeroport Tunis Carthage",
+      "destination": "Tunis Marine",
+      "intervalMinutes": 15,
+      "fareTnd": 1.2,
+      "servicePattern": "Frequent airport connector",
+      "operatorName": "Transtu",
+      "mode": "bus",
+      "durationMinutes": 15,
+      "name": "Bus Aeroport",
+      "routeLabel": "Aeroport Tunis Carthage - Tunis Marine",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Aeroport Tunis Carthage",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-airport-aeroport-tunis-carthage"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Tunis Marine",
+          "plannedTime": "06:15",
+          "isMajor": true,
+          "id": "bus-airport-tunis-marine"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-bouhsina-hay-riadh",
+      "code": "Sousse-Hay Riadh",
+      "color": "#0284c7",
+      "verificationNotes": "Visible Bab Bhar departures: 05:00, 06:00, 07:00, 08:25, 09:55, 11:25, 12:55, 14:25, 15:55, 17:25 and 19:00.",
+      "sourceLabel": "User photo 487308992_1049874990522984_578533596029324439_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Hay Riadh",
+      "intervalMinutes": 85,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 30,
+      "name": "Sousse - Bouhsina - Hay Riadh",
+      "routeLabel": "Bab Bhar - Bouhsina - Hay Riadh timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "05:00",
+          "isMajor": true,
+          "id": "bus-sousse-bouhsina-hay-riadh-bab-bhar"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Bouhsina",
+          "plannedTime": "05:15",
+          "isMajor": true,
+          "id": "bus-sousse-bouhsina-hay-riadh-bouhsina"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Hay Riadh",
+          "plannedTime": "05:30",
+          "isMajor": true,
+          "id": "bus-sousse-bouhsina-hay-riadh-hay-riadh"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-hay-riadh-hay-zohour",
+      "code": "Sousse-Hay Zohour",
+      "color": "#1d4ed8",
+      "verificationNotes": "Photo also shows one reinforcement departure from Hay Zohour at 07:25 and a first-row Bab Bhar field marked \"**\" [UNCLEAR].",
+      "sourceLabel": "User photo 487309876_1049874560523027_3224719956935893225_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Hay Zohour",
+      "intervalMinutes": 70,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 40,
+      "name": "Sousse - Hay Riadh - Hay Zohour",
+      "routeLabel": "Bab Bhar - Hay Riadh - Hay Zohour timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "08:40",
+          "isMajor": true,
+          "id": "bus-sousse-hay-riadh-hay-zohour-bab-bhar"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Hay Riadh",
+          "plannedTime": "09:00",
+          "isMajor": true,
+          "id": "bus-sousse-hay-riadh-hay-zohour-hay-riadh"
+        },
+        {
+          "etaMinutes": 40,
+          "name": "Hay Zohour",
+          "plannedTime": "09:20",
+          "isMajor": true,
+          "id": "bus-sousse-hay-riadh-hay-zohour-hay-zohour"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-jawhara-sahloul",
+      "code": "Sousse-Sahloul",
+      "color": "#059669",
+      "verificationNotes": "Visible Bab Bhar departures: 05:30, 06:30, 07:35, 09:00, 10:30, 12:00, 13:30, 15:00, 16:30, 18:00 and 19:30.",
+      "sourceLabel": "User photo 487308992_1049874990522984_578533596029324439_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Hopital Sahloul",
+      "intervalMinutes": 90,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 30,
+      "name": "Sousse - Jawhara - Hopital Sahloul",
+      "routeLabel": "Bab Bhar - Jawhara - Hopital Sahloul timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "05:30",
+          "isMajor": true,
+          "id": "bus-sousse-jawhara-sahloul-bab-bhar"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "Jawhara",
+          "plannedTime": "05:45",
+          "isMajor": true,
+          "id": "bus-sousse-jawhara-sahloul-jawhara"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Hopital Sahloul",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "bus-sousse-jawhara-sahloul-hopital-sahloul"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-kalaa-kebira",
+      "code": "Sousse-Kalaa Kebira",
+      "color": "#0d9488",
+      "verificationNotes": "Visible Bab Bhar departures: 05:30, 07:00, 08:45, 10:35, 12:30, 14:35, 16:30, 18:30 and 20:30.",
+      "sourceLabel": "User photo 487290693_1049874710523012_476524779994114318_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Kalaa Kebira",
+      "intervalMinutes": 90,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 45,
+      "name": "Sousse - Kalaa Kebira",
+      "routeLabel": "Bab Bhar - Kalaa Kebira timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "05:30",
+          "isMajor": true,
+          "id": "bus-sousse-kalaa-kebira-bab-bhar"
+        },
+        {
+          "etaMinutes": 45,
+          "name": "Kalaa Kebira",
+          "plannedTime": "06:15",
+          "isMajor": true,
+          "id": "bus-sousse-kalaa-kebira-kalaa-kebira"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-kalaa-seghira",
+      "code": "Sousse-Kalaa Seghira",
+      "color": "#0f766e",
+      "verificationNotes": "Visible Bab Bhar departures: 05:00, 06:30, 07:35, 08:45, 09:55, 11:05, 12:15, 14:10, 15:20, 16:35, 17:45 and 19:00.",
+      "sourceLabel": "User photo 487290693_1049874710523012_476524779994114318_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Kalaa Seghira",
+      "intervalMinutes": 65,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 40,
+      "name": "Sousse - Kalaa Seghira",
+      "routeLabel": "Bab Bhar - Kalaa Seghira timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "05:00",
+          "isMajor": true,
+          "id": "bus-sousse-kalaa-seghira-bab-bhar"
+        },
+        {
+          "etaMinutes": 40,
+          "name": "Kalaa Seghira",
+          "plannedTime": "05:40",
+          "isMajor": true,
+          "id": "bus-sousse-kalaa-seghira-kalaa-seghira"
+        }
+      ]
+    },
+    {
+      "id": "bus-sousse-msaadin",
+      "code": "Sousse-Msaadin",
+      "color": "#2563eb",
+      "verificationNotes": "Source photo shows departures from Bab Bhar at 05:20, 06:30, 07:50, 09:10, 10:30, 12:10, 13:30, 14:50, 16:10, 17:30, 18:50 and 20:10.",
+      "sourceLabel": "User photo 487309876_1049874560523027_3224719956935893225_n.jpg",
+      "origin": "Bab Bhar",
+      "destination": "Msaadin",
+      "intervalMinutes": 80,
+      "fareTnd": 1,
+      "servicePattern": "Daily timetable board photographed by user",
+      "operatorName": "[NEEDS VERIFICATION]",
+      "mode": "bus",
+      "durationMinutes": 30,
+      "name": "Sousse - Msaadin",
+      "routeLabel": "Bab Bhar - Msaadin timetable extracted from user photo",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Bab Bhar",
+          "plannedTime": "05:20",
+          "isMajor": true,
+          "id": "bus-sousse-msaadin-bab-bhar"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Msaadin",
+          "plannedTime": "05:50",
+          "isMajor": true,
+          "id": "bus-sousse-msaadin-msaadin"
+        }
+      ]
+    },
+    {
+      "id": "metro-m1",
+      "code": "M1",
+      "color": "#d9465f",
+      "verificationNotes": "Stop order verified from Tunismapper line 1 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Place Barcelone Sud",
+      "destination": "Ben Arous",
+      "intervalMinutes": 12,
+      "fareTnd": 0.8,
+      "servicePattern": "Frequent weekday urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 28,
+      "name": "Metro Ligne 1",
+      "routeLabel": "Place Barcelone Sud - Bab Alioua - Mohamed Ali - Ibn Sina - Cite Ennour - Ben Arous",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Place Barcelone Sud",
+          "plannedTime": "05:10",
+          "isMajor": true,
+          "id": "metro-m1-place-barcelone-sud"
+        },
+        {
+          "etaMinutes": 3,
+          "name": "Bab Alioua",
+          "plannedTime": "05:13",
+          "isMajor": false,
+          "id": "metro-m1-bab-alioua"
+        },
+        {
+          "etaMinutes": 6,
+          "name": "Mohamed Manachou",
+          "plannedTime": "05:16",
+          "isMajor": false,
+          "id": "metro-m1-mohamed-manachou"
+        },
+        {
+          "etaMinutes": 8,
+          "name": "13 Aout",
+          "plannedTime": "05:18",
+          "isMajor": true,
+          "id": "metro-m1-13-aout"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Mohamed Ali",
+          "plannedTime": "05:21",
+          "isMajor": false,
+          "id": "metro-m1-mohamed-ali"
+        },
+        {
+          "etaMinutes": 14,
+          "name": "Kabaria",
+          "plannedTime": "05:24",
+          "isMajor": false,
+          "id": "metro-m1-kabaria"
+        },
+        {
+          "etaMinutes": 17,
+          "name": "Ibn Sina",
+          "plannedTime": "05:27",
+          "isMajor": false,
+          "id": "metro-m1-ibn-sina"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Cite Ennour",
+          "plannedTime": "05:30",
+          "isMajor": true,
+          "id": "metro-m1-cite-ennour"
+        },
+        {
+          "etaMinutes": 22,
+          "name": "Ouerdia 6",
+          "plannedTime": "05:32",
+          "isMajor": false,
+          "id": "metro-m1-ouerdia-6"
+        },
+        {
+          "etaMinutes": 25,
+          "name": "Abou El Kacem Echebbi",
+          "plannedTime": "05:35",
+          "isMajor": false,
+          "id": "metro-m1-abou-el-kacem-echebbi"
+        },
+        {
+          "etaMinutes": 28,
+          "name": "Ben Arous",
+          "plannedTime": "05:38",
+          "isMajor": true,
+          "id": "metro-m1-ben-arous"
+        }
+      ]
+    },
+    {
+      "id": "metro-m2",
+      "code": "M2",
+      "color": "#2563eb",
+      "verificationNotes": "Stop order verified from Tunismapper line 2 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Place de la Republique",
+      "destination": "Ariana",
+      "intervalMinutes": 8,
+      "fareTnd": 0.8,
+      "servicePattern": "Frequent weekday urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 27,
+      "name": "Metro Ligne 2",
+      "routeLabel": "Place de la Republique - Mohamed V - Cite El Khadhra - Cite Sportive - Cite des Sciences - Ariana",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Place de la Republique",
+          "plannedTime": "05:00",
+          "isMajor": true,
+          "id": "metro-m2-place-de-la-republique"
+        },
+        {
+          "etaMinutes": 2,
+          "name": "Nelson Mandela",
+          "plannedTime": "05:02",
+          "isMajor": false,
+          "id": "metro-m2-nelson-mandela"
+        },
+        {
+          "etaMinutes": 5,
+          "name": "Mohamed V",
+          "plannedTime": "05:05",
+          "isMajor": false,
+          "id": "metro-m2-mohamed-v"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Palestine",
+          "plannedTime": "05:07",
+          "isMajor": false,
+          "id": "metro-m2-palestine"
+        },
+        {
+          "etaMinutes": 10,
+          "name": "Les Jardins",
+          "plannedTime": "05:10",
+          "isMajor": true,
+          "id": "metro-m2-les-jardins"
+        },
+        {
+          "etaMinutes": 12,
+          "name": "Cite El Khadhra",
+          "plannedTime": "05:12",
+          "isMajor": false,
+          "id": "metro-m2-cite-el-khadhra"
+        },
+        {
+          "etaMinutes": 15,
+          "name": "La Jeunesse",
+          "plannedTime": "05:15",
+          "isMajor": false,
+          "id": "metro-m2-la-jeunesse"
+        },
+        {
+          "etaMinutes": 17,
+          "name": "Cite Sportive",
+          "plannedTime": "05:17",
+          "isMajor": false,
+          "id": "metro-m2-cite-sportive"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "10 Decembre 1948",
+          "plannedTime": "05:20",
+          "isMajor": true,
+          "id": "metro-m2-10-decembre-1948"
+        },
+        {
+          "etaMinutes": 22,
+          "name": "Cite des Sciences",
+          "plannedTime": "05:22",
+          "isMajor": false,
+          "id": "metro-m2-cite-des-sciences"
+        },
+        {
+          "etaMinutes": 25,
+          "name": "Independance",
+          "plannedTime": "05:25",
+          "isMajor": false,
+          "id": "metro-m2-independance"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "Ariana",
+          "plannedTime": "05:27",
+          "isMajor": true,
+          "id": "metro-m2-ariana"
+        }
+      ]
+    },
+    {
+      "id": "metro-m3",
+      "code": "M3",
+      "color": "#0891b2",
+      "verificationNotes": "Stop order verified from Tunismapper line 3 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Tunis Marine",
+      "destination": "Ibn Khaldoun",
+      "intervalMinutes": 15,
+      "fareTnd": 0.8,
+      "servicePattern": "Regular urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 35,
+      "name": "Metro Ligne 3",
+      "routeLabel": "Tunis Marine - Place Barcelone Nord - Bab Saadoun - El Manar - 14 Janvier - Ibn Khaldoun",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Tunis Marine",
+          "plannedTime": "05:15",
+          "isMajor": true,
+          "id": "metro-m3-tunis-marine"
+        },
+        {
+          "etaMinutes": 3,
+          "name": "Farhat Hached",
+          "plannedTime": "05:18",
+          "isMajor": false,
+          "id": "metro-m3-farhat-hached"
+        },
+        {
+          "etaMinutes": 5,
+          "name": "Place Barcelone Nord",
+          "plannedTime": "05:20",
+          "isMajor": false,
+          "id": "metro-m3-place-barcelone-nord"
+        },
+        {
+          "etaMinutes": 8,
+          "name": "Habib Thameur",
+          "plannedTime": "05:23",
+          "isMajor": false,
+          "id": "metro-m3-habib-thameur"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Place de la Republique",
+          "plannedTime": "05:26",
+          "isMajor": true,
+          "id": "metro-m3-place-de-la-republique"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "Bab El Khadhra",
+          "plannedTime": "05:28",
+          "isMajor": false,
+          "id": "metro-m3-bab-el-khadhra"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Bab Laassal",
+          "plannedTime": "05:31",
+          "isMajor": false,
+          "id": "metro-m3-bab-laassal"
+        },
+        {
+          "etaMinutes": 19,
+          "name": "Bab Saadoun",
+          "plannedTime": "05:34",
+          "isMajor": false,
+          "id": "metro-m3-bab-saadoun"
+        },
+        {
+          "etaMinutes": 22,
+          "name": "Meftah Saadallah",
+          "plannedTime": "05:37",
+          "isMajor": false,
+          "id": "metro-m3-meftah-saadallah"
+        },
+        {
+          "etaMinutes": 24,
+          "name": "Rommana",
+          "plannedTime": "05:39",
+          "isMajor": true,
+          "id": "metro-m3-rommana"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "Campus Universitaire El Manar",
+          "plannedTime": "05:42",
+          "isMajor": false,
+          "id": "metro-m3-campus-universitaire-el-manar"
+        },
+        {
+          "etaMinutes": 30,
+          "name": "Station Metro 14 Janvier",
+          "plannedTime": "05:45",
+          "isMajor": false,
+          "id": "metro-m3-station-metro-14-janvier"
+        },
+        {
+          "etaMinutes": 32,
+          "name": "Les Jasmins",
+          "plannedTime": "05:47",
+          "isMajor": false,
+          "id": "metro-m3-les-jasmins"
+        },
+        {
+          "etaMinutes": 35,
+          "name": "Ibn Khaldoun",
+          "plannedTime": "05:50",
+          "isMajor": true,
+          "id": "metro-m3-ibn-khaldoun"
+        }
+      ]
+    },
+    {
+      "id": "metro-m4",
+      "code": "M4",
+      "color": "#0f766e",
+      "verificationNotes": "Stop order verified from Tunismapper line 4 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Place Barcelone Nord",
+      "destination": "Khaireddine Mannouba",
+      "intervalMinutes": 20,
+      "fareTnd": 0.8,
+      "servicePattern": "Regular urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 52,
+      "name": "Metro Ligne 4",
+      "routeLabel": "Place Barcelone Nord - Bab Saadoun - Bardo - Den Den - Mannouba - Khaireddine",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Place Barcelone Nord",
+          "plannedTime": "05:05",
+          "isMajor": true,
+          "id": "metro-m4-place-barcelone-nord"
+        },
+        {
+          "etaMinutes": 3,
+          "name": "Habib Thameur",
+          "plannedTime": "05:08",
+          "isMajor": false,
+          "id": "metro-m4-habib-thameur"
+        },
+        {
+          "etaMinutes": 5,
+          "name": "Place de la Republique",
+          "plannedTime": "05:10",
+          "isMajor": false,
+          "id": "metro-m4-place-de-la-republique"
+        },
+        {
+          "etaMinutes": 8,
+          "name": "Bab El Khadhra",
+          "plannedTime": "05:13",
+          "isMajor": false,
+          "id": "metro-m4-bab-el-khadhra"
+        },
+        {
+          "etaMinutes": 10,
+          "name": "Bab Laassal",
+          "plannedTime": "05:15",
+          "isMajor": false,
+          "id": "metro-m4-bab-laassal"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "Bab Saadoun",
+          "plannedTime": "05:18",
+          "isMajor": false,
+          "id": "metro-m4-bab-saadoun"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Bouchoucha",
+          "plannedTime": "05:21",
+          "isMajor": false,
+          "id": "metro-m4-bouchoucha"
+        },
+        {
+          "etaMinutes": 18,
+          "name": "20 Mars",
+          "plannedTime": "05:23",
+          "isMajor": true,
+          "id": "metro-m4-20-mars"
+        },
+        {
+          "etaMinutes": 21,
+          "name": "Bardo",
+          "plannedTime": "05:26",
+          "isMajor": false,
+          "id": "metro-m4-bardo"
+        },
+        {
+          "etaMinutes": 23,
+          "name": "Essaidia",
+          "plannedTime": "05:28",
+          "isMajor": false,
+          "id": "metro-m4-essaidia"
+        },
+        {
+          "etaMinutes": 26,
+          "name": "Khaznadar",
+          "plannedTime": "05:31",
+          "isMajor": false,
+          "id": "metro-m4-khaznadar"
+        },
+        {
+          "etaMinutes": 29,
+          "name": "Artisanat",
+          "plannedTime": "05:34",
+          "isMajor": false,
+          "id": "metro-m4-artisanat"
+        },
+        {
+          "etaMinutes": 31,
+          "name": "Den Den",
+          "plannedTime": "05:36",
+          "isMajor": false,
+          "id": "metro-m4-den-den"
+        },
+        {
+          "etaMinutes": 34,
+          "name": "Mannouba",
+          "plannedTime": "05:39",
+          "isMajor": false,
+          "id": "metro-m4-mannouba"
+        },
+        {
+          "etaMinutes": 36,
+          "name": "Slimene Kehia",
+          "plannedTime": "05:41",
+          "isMajor": true,
+          "id": "metro-m4-slimene-kehia"
+        },
+        {
+          "etaMinutes": 39,
+          "name": "Moncef Bey",
+          "plannedTime": "05:44",
+          "isMajor": false,
+          "id": "metro-m4-moncef-bey"
+        },
+        {
+          "etaMinutes": 42,
+          "name": "Aboubaker Errazi",
+          "plannedTime": "05:47",
+          "isMajor": false,
+          "id": "metro-m4-aboubaker-errazi"
+        },
+        {
+          "etaMinutes": 44,
+          "name": "Pole Technologique",
+          "plannedTime": "05:49",
+          "isMajor": false,
+          "id": "metro-m4-pole-technologique"
+        },
+        {
+          "etaMinutes": 47,
+          "name": "Ksar El Warda",
+          "plannedTime": "05:52",
+          "isMajor": false,
+          "id": "metro-m4-ksar-el-warda"
+        },
+        {
+          "etaMinutes": 49,
+          "name": "Campus Universitaire Mannouba",
+          "plannedTime": "05:54",
+          "isMajor": false,
+          "id": "metro-m4-campus-universitaire-mannouba"
+        },
+        {
+          "etaMinutes": 52,
+          "name": "Khaireddine",
+          "plannedTime": "05:57",
+          "isMajor": true,
+          "id": "metro-m4-khaireddine"
+        }
+      ]
+    },
+    {
+      "id": "metro-m5",
+      "code": "M5",
+      "color": "#f59e0b",
+      "verificationNotes": "Stop order verified from Tunismapper line 5 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Place Barcelone Nord",
+      "destination": "Cite El Intilaka",
+      "intervalMinutes": 18,
+      "fareTnd": 0.8,
+      "servicePattern": "Regular urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 40,
+      "name": "Metro Ligne 5",
+      "routeLabel": "Place Barcelone Nord - Bab Saadoun - El Manar - Ettahrir - El Omrane Superieur - Intilaka",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Place Barcelone Nord",
+          "plannedTime": "05:20",
+          "isMajor": true,
+          "id": "metro-m5-place-barcelone-nord"
+        },
+        {
+          "etaMinutes": 3,
+          "name": "Habib Thameur",
+          "plannedTime": "05:23",
+          "isMajor": false,
+          "id": "metro-m5-habib-thameur"
+        },
+        {
+          "etaMinutes": 6,
+          "name": "Place de la Republique",
+          "plannedTime": "05:26",
+          "isMajor": false,
+          "id": "metro-m5-place-de-la-republique"
+        },
+        {
+          "etaMinutes": 9,
+          "name": "Bab El Khadhra",
+          "plannedTime": "05:29",
+          "isMajor": false,
+          "id": "metro-m5-bab-el-khadhra"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Bab Laassal",
+          "plannedTime": "05:31",
+          "isMajor": false,
+          "id": "metro-m5-bab-laassal"
+        },
+        {
+          "etaMinutes": 14,
+          "name": "Bab Saadoun",
+          "plannedTime": "05:34",
+          "isMajor": true,
+          "id": "metro-m5-bab-saadoun"
+        },
+        {
+          "etaMinutes": 17,
+          "name": "Meftah Saadallah",
+          "plannedTime": "05:37",
+          "isMajor": false,
+          "id": "metro-m5-meftah-saadallah"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Rommana",
+          "plannedTime": "05:40",
+          "isMajor": false,
+          "id": "metro-m5-rommana"
+        },
+        {
+          "etaMinutes": 23,
+          "name": "Campus Universitaire El Manar",
+          "plannedTime": "05:43",
+          "isMajor": false,
+          "id": "metro-m5-campus-universitaire-el-manar"
+        },
+        {
+          "etaMinutes": 26,
+          "name": "Station Metro 14 Janvier",
+          "plannedTime": "05:46",
+          "isMajor": false,
+          "id": "metro-m5-station-metro-14-janvier"
+        },
+        {
+          "etaMinutes": 29,
+          "name": "Les Jasmins",
+          "plannedTime": "05:49",
+          "isMajor": true,
+          "id": "metro-m5-les-jasmins"
+        },
+        {
+          "etaMinutes": 31,
+          "name": "Ettahrir",
+          "plannedTime": "05:51",
+          "isMajor": false,
+          "id": "metro-m5-ettahrir"
+        },
+        {
+          "etaMinutes": 34,
+          "name": "El Omrane Superieur",
+          "plannedTime": "05:54",
+          "isMajor": false,
+          "id": "metro-m5-el-omrane-superieur"
+        },
+        {
+          "etaMinutes": 37,
+          "name": "Ettadhamen",
+          "plannedTime": "05:57",
+          "isMajor": false,
+          "id": "metro-m5-ettadhamen"
+        },
+        {
+          "etaMinutes": 40,
+          "name": "Cite El Intilaka",
+          "plannedTime": "06:00",
+          "isMajor": true,
+          "id": "metro-m5-cite-el-intilaka"
+        }
+      ]
+    },
+    {
+      "id": "metro-m6",
+      "code": "M6",
+      "color": "#8b5cf6",
+      "verificationNotes": "Stop order verified from Tunismapper line 6 page on 2026-04-19.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Tunis Marine",
+      "destination": "El Mourouj 4",
+      "intervalMinutes": 14,
+      "fareTnd": 0.8,
+      "servicePattern": "Frequent weekday urban service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 45,
+      "name": "Metro Ligne 6",
+      "routeLabel": "Tunis Marine - Place Barcelone Sud - Mohamed Ali - El Montazah - El Mourouj 1 - El Mourouj 4",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Tunis Marine",
+          "plannedTime": "05:00",
+          "isMajor": true,
+          "id": "metro-m6-tunis-marine"
+        },
+        {
+          "etaMinutes": 3,
+          "name": "Farhat Hached",
+          "plannedTime": "05:03",
+          "isMajor": false,
+          "id": "metro-m6-farhat-hached"
+        },
+        {
+          "etaMinutes": 5,
+          "name": "Place Barcelone Sud",
+          "plannedTime": "05:05",
+          "isMajor": false,
+          "id": "metro-m6-place-barcelone-sud"
+        },
+        {
+          "etaMinutes": 8,
+          "name": "Bab Alioua",
+          "plannedTime": "05:08",
+          "isMajor": false,
+          "id": "metro-m6-bab-alioua"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Mohamed Manachou",
+          "plannedTime": "05:11",
+          "isMajor": false,
+          "id": "metro-m6-mohamed-manachou"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "13 Aout",
+          "plannedTime": "05:13",
+          "isMajor": false,
+          "id": "metro-m6-13-aout"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Mohamed Ali",
+          "plannedTime": "05:16",
+          "isMajor": true,
+          "id": "metro-m6-mohamed-ali"
+        },
+        {
+          "etaMinutes": 19,
+          "name": "Taher El Haddad",
+          "plannedTime": "05:19",
+          "isMajor": false,
+          "id": "metro-m6-taher-el-haddad"
+        },
+        {
+          "etaMinutes": 21,
+          "name": "El Ghazeli",
+          "plannedTime": "05:21",
+          "isMajor": false,
+          "id": "metro-m6-el-ghazeli"
+        },
+        {
+          "etaMinutes": 24,
+          "name": "Cite Municipale",
+          "plannedTime": "05:24",
+          "isMajor": false,
+          "id": "metro-m6-cite-municipale"
+        },
+        {
+          "etaMinutes": 26,
+          "name": "Ennesri",
+          "plannedTime": "05:26",
+          "isMajor": false,
+          "id": "metro-m6-ennesri"
+        },
+        {
+          "etaMinutes": 29,
+          "name": "El Montazah",
+          "plannedTime": "05:29",
+          "isMajor": false,
+          "id": "metro-m6-el-montazah"
+        },
+        {
+          "etaMinutes": 32,
+          "name": "El Mourouj 2",
+          "plannedTime": "05:32",
+          "isMajor": true,
+          "id": "metro-m6-el-mourouj-2"
+        },
+        {
+          "etaMinutes": 34,
+          "name": "El Mourouj 1",
+          "plannedTime": "05:34",
+          "isMajor": false,
+          "id": "metro-m6-el-mourouj-1"
+        },
+        {
+          "etaMinutes": 37,
+          "name": "Environnement",
+          "plannedTime": "05:37",
+          "isMajor": false,
+          "id": "metro-m6-environnement"
+        },
+        {
+          "etaMinutes": 40,
+          "name": "El Mourouj 3",
+          "plannedTime": "05:40",
+          "isMajor": false,
+          "id": "metro-m6-el-mourouj-3"
+        },
+        {
+          "etaMinutes": 42,
+          "name": "Les Martyrs",
+          "plannedTime": "05:42",
+          "isMajor": false,
+          "id": "metro-m6-les-martyrs"
+        },
+        {
+          "etaMinutes": 45,
+          "name": "El Mourouj 4",
+          "plannedTime": "05:45",
+          "isMajor": true,
+          "id": "metro-m6-el-mourouj-4"
+        }
+      ]
+    },
+    {
+      "id": "metro-tgm",
+      "code": "TGM",
+      "color": "#0284c7",
+      "verificationNotes": "Ordered stop list verified from Tunismapper TGM page on 2026-04-19. App keeps TGM under metro mode for now.",
+      "sourceLabel": "Tunismapper line detail pages cross-checked with Transtu line directory",
+      "origin": "Tunis Marine Nord",
+      "destination": "Marsa Plage",
+      "intervalMinutes": 12,
+      "fareTnd": 0.9,
+      "servicePattern": "Frequent coastal rail-metro service",
+      "operatorName": "Transtu",
+      "mode": "metro",
+      "durationMinutes": 38,
+      "name": "Train Tunis Goulette Marsa",
+      "routeLabel": "Tunis Marine Nord - La Goulette - Le Kram - Carthage - Sidi Bou Said - Marsa Plage",
+      "stops": [
+        {
+          "etaMinutes": 0,
+          "name": "Tunis Marine Nord",
+          "plannedTime": "05:30",
+          "isMajor": true,
+          "id": "metro-tgm-tunis-marine-nord"
+        },
+        {
+          "etaMinutes": 2,
+          "name": "Le Bac",
+          "plannedTime": "05:32",
+          "isMajor": false,
+          "id": "metro-tgm-le-bac"
+        },
+        {
+          "etaMinutes": 4,
+          "name": "La Goulette",
+          "plannedTime": "05:34",
+          "isMajor": false,
+          "id": "metro-tgm-la-goulette"
+        },
+        {
+          "etaMinutes": 7,
+          "name": "Goulette Neuve",
+          "plannedTime": "05:37",
+          "isMajor": false,
+          "id": "metro-tgm-goulette-neuve"
+        },
+        {
+          "etaMinutes": 9,
+          "name": "Goulette Casino",
+          "plannedTime": "05:39",
+          "isMajor": false,
+          "id": "metro-tgm-goulette-casino"
+        },
+        {
+          "etaMinutes": 11,
+          "name": "Khiareddine",
+          "plannedTime": "05:41",
+          "isMajor": false,
+          "id": "metro-tgm-khiareddine"
+        },
+        {
+          "etaMinutes": 13,
+          "name": "Aeroport",
+          "plannedTime": "05:43",
+          "isMajor": true,
+          "id": "metro-tgm-aeroport"
+        },
+        {
+          "etaMinutes": 16,
+          "name": "Le Kram",
+          "plannedTime": "05:46",
+          "isMajor": false,
+          "id": "metro-tgm-le-kram"
+        },
+        {
+          "etaMinutes": 18,
+          "name": "Carthage Salambo",
+          "plannedTime": "05:48",
+          "isMajor": false,
+          "id": "metro-tgm-carthage-salambo"
+        },
+        {
+          "etaMinutes": 20,
+          "name": "Carthage Byrsa",
+          "plannedTime": "05:50",
+          "isMajor": false,
+          "id": "metro-tgm-carthage-byrsa"
+        },
+        {
+          "etaMinutes": 22,
+          "name": "Carthage Dermech",
+          "plannedTime": "05:52",
+          "isMajor": false,
+          "id": "metro-tgm-carthage-dermech"
+        },
+        {
+          "etaMinutes": 25,
+          "name": "Carthage Hannibal",
+          "plannedTime": "05:55",
+          "isMajor": false,
+          "id": "metro-tgm-carthage-hannibal"
+        },
+        {
+          "etaMinutes": 27,
+          "name": "Carthage Presidence",
+          "plannedTime": "05:57",
+          "isMajor": true,
+          "id": "metro-tgm-carthage-presidence"
+        },
+        {
+          "etaMinutes": 29,
+          "name": "Carthage Amilcar",
+          "plannedTime": "05:59",
+          "isMajor": false,
+          "id": "metro-tgm-carthage-amilcar"
+        },
+        {
+          "etaMinutes": 31,
+          "name": "Sidi Bou Said",
+          "plannedTime": "06:01",
+          "isMajor": false,
+          "id": "metro-tgm-sidi-bou-said"
+        },
+        {
+          "etaMinutes": 34,
+          "name": "Sidi Dhrif",
+          "plannedTime": "06:04",
+          "isMajor": false,
+          "id": "metro-tgm-sidi-dhrif"
+        },
+        {
+          "etaMinutes": 36,
+          "name": "La Corniche",
+          "plannedTime": "06:06",
+          "isMajor": false,
+          "id": "metro-tgm-la-corniche"
+        },
+        {
+          "etaMinutes": 38,
+          "name": "Marsa Plage",
+          "plannedTime": "06:08",
+          "isMajor": true,
+          "id": "metro-tgm-marsa-plage"
+        }
+      ]
+    }
+  ],
+  "liveVehicles": [
+    {
+      "id": "veh-b104-1",
+      "accuracyMeters": 31,
+      "latitude": 36.8067,
+      "lineId": "bus-104",
+      "label": "Bus 104-18",
+      "sharingEnabled": true,
+      "mode": "bus",
+      "operatorUserId": "",
+      "etaMinutes": 7,
+      "nextStopId": "bus-104-la-rabta",
+      "positionIndex": 2,
+      "longitude": 10.1548,
+      "updatedAt": "2026-04-22T15:12:49.414Z"
+    },
+    {
+      "id": "veh-b17b-1",
+      "accuracyMeters": 28,
+      "latitude": 36.7687,
+      "lineId": "bus-17b",
+      "label": "Bus 17B-05",
+      "sharingEnabled": true,
+      "mode": "bus",
+      "operatorUserId": "",
+      "etaMinutes": 9,
+      "nextStopId": "bus-17b-souk-rades",
+      "positionIndex": 3,
+      "longitude": 10.2674,
+      "updatedAt": "2026-04-22T15:12:49.417Z"
+    },
+    {
+      "id": "veh-m1-1",
+      "accuracyMeters": 18,
+      "latitude": 36.7896,
+      "lineId": "metro-m1",
+      "label": "Rame M1-112",
+      "sharingEnabled": true,
+      "mode": "metro",
+      "operatorUserId": "",
+      "etaMinutes": 3,
+      "nextStopId": "metro-m1-bab-alioua",
+      "positionIndex": 1,
+      "longitude": 10.1815,
+      "updatedAt": "2026-04-22T15:12:49.402Z"
+    },
+    {
+      "id": "veh-tgm-1",
+      "accuracyMeters": 24,
+      "latitude": 36.8552,
+      "lineId": "metro-tgm",
+      "label": "TGM-07",
+      "sharingEnabled": true,
+      "mode": "metro",
+      "operatorUserId": "",
+      "etaMinutes": 5,
+      "nextStopId": "metro-tgm-le-kram",
+      "positionIndex": 7,
+      "longitude": 10.3107,
+      "updatedAt": "2026-04-22T15:12:49.407Z"
+    }
+  ],
+  "rides": [
+    {
+      "id": "ride-1",
+      "vehiclePhotoName": "hiace-sousse.jpg",
+      "departureCity": "Tunis",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "226 TUN 194",
+      "totalSeats": 4,
+      "destinationCity": "Sousse",
+      "createdAt": "2026-04-22T15:12:49.423Z",
+      "departureAt": "2026-04-23T14:30:00.000Z",
+      "priceTnd": 31,
+      "vehicleModel": "Toyota Hiace",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-10",
+      "vehiclePhotoName": "transporter-tunis.jpg",
+      "departureCity": "Sousse",
+      "availableSeats": 4,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "619 TUN 302",
+      "totalSeats": 4,
+      "destinationCity": "Tunis",
+      "createdAt": "2026-04-22T15:12:49.478Z",
+      "departureAt": "2026-04-21T07:50:00.000Z",
+      "priceTnd": 29,
+      "vehicleModel": "Volkswagen Transporter",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "completed"
+    },
+    {
+      "id": "ride-11",
+      "vehiclePhotoName": "urvan-bizerte.jpg",
+      "departureCity": "Tunis",
+      "availableSeats": 4,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "421 TUN 011",
+      "totalSeats": 4,
+      "destinationCity": "Bizerte",
+      "createdAt": "2026-04-22T15:12:49.488Z",
+      "departureAt": "2026-04-23T20:10:00.000Z",
+      "priceTnd": 19,
+      "vehicleModel": "Nissan Urvan",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "cancelled"
+    },
+    {
+      "id": "ride-2",
+      "vehiclePhotoName": "boxer-sfax.jpg",
+      "departureCity": "Sousse",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "144 TUN 508",
+      "totalSeats": 4,
+      "destinationCity": "Sfax",
+      "createdAt": "2026-04-22T15:12:49.428Z",
+      "departureAt": "2026-04-23T18:15:00.000Z",
+      "priceTnd": 22,
+      "vehicleModel": "Peugeot Boxer",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-3",
+      "vehiclePhotoName": "trafic-nabeul.jpg",
+      "departureCity": "Tunis",
+      "availableSeats": 4,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "132 TUN 887",
+      "totalSeats": 4,
+      "destinationCity": "Nabeul",
+      "createdAt": "2026-04-22T15:12:49.433Z",
+      "departureAt": "2026-04-24T09:00:00.000Z",
+      "priceTnd": 14,
+      "vehicleModel": "Renault Trafic",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-4",
+      "vehiclePhotoName": "sprinter-gafsa.jpg",
+      "departureCity": "Beja",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "305 TUN 441",
+      "totalSeats": 3,
+      "destinationCity": "Gafsa",
+      "createdAt": "2026-04-22T15:12:49.439Z",
+      "departureAt": "2026-04-24T11:30:00.000Z",
+      "priceTnd": 42,
+      "vehicleModel": "Mercedes Sprinter",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-5",
+      "vehiclePhotoName": "ducato-gabes.jpg",
+      "departureCity": "Sfax",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "177 TUN 908",
+      "totalSeats": 3,
+      "destinationCity": "Gabes",
+      "createdAt": "2026-04-22T15:12:49.444Z",
+      "departureAt": "2026-04-23T16:00:00.000Z",
+      "priceTnd": 18,
+      "vehicleModel": "Fiat Ducato",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-6",
+      "vehiclePhotoName": "traveller-sousse.jpg",
+      "departureCity": "Monastir",
+      "availableSeats": 4,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "411 TUN 120",
+      "totalSeats": 4,
+      "destinationCity": "Sousse",
+      "createdAt": "2026-04-22T15:12:49.448Z",
+      "departureAt": "2026-04-24T07:15:00.000Z",
+      "priceTnd": 12,
+      "vehicleModel": "Peugeot Traveller",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-7",
+      "vehiclePhotoName": "jumper-tunis.jpg",
+      "departureCity": "Nabeul",
+      "availableSeats": 4,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "510 TUN 077",
+      "totalSeats": 4,
+      "destinationCity": "Tunis",
+      "createdAt": "2026-04-22T15:12:49.454Z",
+      "departureAt": "2026-04-25T08:30:00.000Z",
+      "priceTnd": 14,
+      "vehicleModel": "Citroen Jumper",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-8",
+      "vehiclePhotoName": "transit-sfax.jpg",
+      "departureCity": "Gabes",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "278 TUN 650",
+      "totalSeats": 3,
+      "destinationCity": "Sfax",
+      "createdAt": "2026-04-22T15:12:49.461Z",
+      "departureAt": "2026-04-25T13:45:00.000Z",
+      "priceTnd": 18,
+      "vehicleModel": "Ford Transit",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "scheduled"
+    },
+    {
+      "id": "ride-9",
+      "vehiclePhotoName": "h1-monastir.jpg",
+      "departureCity": "Tunis",
+      "availableSeats": 3,
+      "vehiclePhotoUrl": "",
+      "plateNumber": "120 TUN 204",
+      "totalSeats": 4,
+      "destinationCity": "Monastir",
+      "createdAt": "2026-04-22T15:12:49.468Z",
+      "departureAt": "2026-04-20T09:15:00.000Z",
+      "priceTnd": 27,
+      "vehicleModel": "Hyundai H1",
+      "driverName": "Hamed Trabelsi",
+      "vehiclePhotoPath": "",
+      "driverUserId": "driver-1",
+      "liveProofEnabled": true,
+      "status": "completed"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "booking-line-bus-expired",
+      "note": "Ticket bus deja archive.",
+      "origin": "Tunis Marine",
+      "destination": "Mannouba",
+      "lineId": "bus-104",
+      "payoutStatus": "n/a",
+      "refundStatus": "none",
+      "type": "line_ticket",
+      "rideId": "",
+      "mode": "bus",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-20T06:15:00.000Z",
+      "paymentId": "pay-line-bus-expired",
+      "departureAt": "2026-04-20T06:20:00.000Z",
+      "driverUserId": "",
+      "amountTnd": 1.2,
+      "ticketId": "ticket-line-bus-expired",
+      "seatsBooked": 1,
+      "status": "confirmed",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-line-metro-active",
+      "note": "Ticket metro actif pour test backend.",
+      "origin": "Tunis Marine",
+      "destination": "Ben Arous",
+      "lineId": "metro-m1",
+      "payoutStatus": "n/a",
+      "refundStatus": "none",
+      "type": "line_ticket",
+      "rideId": "",
+      "mode": "metro",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-22T14:30:00.000Z",
+      "paymentId": "pay-line-metro-active",
+      "departureAt": "2026-04-22T14:35:00.000Z",
+      "driverUserId": "",
+      "amountTnd": 0.8,
+      "ticketId": "ticket-line-metro-active",
+      "seatsBooked": 1,
+      "status": "confirmed",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-line-pending",
+      "note": "Paiement encore en attente cote fournisseur.",
+      "origin": "Rades",
+      "destination": "Tunis",
+      "lineId": "bus-17b",
+      "payoutStatus": "n/a",
+      "refundStatus": "none",
+      "type": "line_ticket",
+      "rideId": "",
+      "mode": "bus",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-24T05:45:00.000Z",
+      "paymentId": "pay-line-pending",
+      "departureAt": "2026-04-24T05:53:00.000Z",
+      "driverUserId": "",
+      "amountTnd": 1.2,
+      "ticketId": "",
+      "seatsBooked": 1,
+      "status": "pending_payment",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-ride-1-confirmed",
+      "note": "Reservation louage confirmee avec payout retenu.",
+      "origin": "Tunis",
+      "destination": "Sousse",
+      "payoutStatus": "held",
+      "refundStatus": "none",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-1",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-23T11:30:00.000Z",
+      "paymentId": "pay-ride-1",
+      "departureAt": "2026-04-23T14:30:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 31,
+      "ticketId": "ticket-ride-1",
+      "seatsBooked": 1,
+      "status": "confirmed",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-ride-10-no-show",
+      "note": "Absence voyageur validee avec preuve live recente.",
+      "origin": "Sousse",
+      "destination": "Tunis",
+      "payoutStatus": "eligible_with_proof",
+      "refundStatus": "none",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-10",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-21T03:50:00.000Z",
+      "paymentId": "pay-ride-10",
+      "departureAt": "2026-04-21T07:50:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 29,
+      "ticketId": "ticket-ride-10",
+      "seatsBooked": 1,
+      "status": "no_show_reported",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-ride-11-cancelled-driver",
+      "note": "Annulation conducteur tardive avec penalite 10%.",
+      "origin": "Tunis",
+      "destination": "Bizerte",
+      "payoutStatus": "refunded",
+      "refundStatus": "refunded",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-11",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-23T19:00:00.000Z",
+      "paymentId": "pay-ride-11-cancelled-driver",
+      "departureAt": "2026-04-23T20:10:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 19,
+      "ticketId": "ticket-ride-11-cancelled-driver",
+      "seatsBooked": 1,
+      "status": "cancelled_by_driver",
+      "penaltyPercent": 10
+    },
+    {
+      "id": "booking-ride-2-awaiting",
+      "note": "Le conducteur attend la confirmation d arrivee.",
+      "origin": "Sousse",
+      "destination": "Sfax",
+      "payoutStatus": "held",
+      "refundStatus": "none",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-2",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-23T14:45:00.000Z",
+      "paymentId": "pay-ride-2",
+      "departureAt": "2026-04-23T18:15:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 22,
+      "ticketId": "ticket-ride-2",
+      "seatsBooked": 1,
+      "status": "awaiting_passenger_confirmation",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-ride-3-cancelled-passenger",
+      "note": "Annulation passager dans le delai de grace.",
+      "origin": "Tunis",
+      "destination": "Nabeul",
+      "payoutStatus": "refunded",
+      "refundStatus": "refunded",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-3",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-24T04:00:00.000Z",
+      "paymentId": "pay-ride-3-cancelled-passenger",
+      "departureAt": "2026-04-24T09:00:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 14,
+      "ticketId": "ticket-ride-3-cancelled-passenger",
+      "seatsBooked": 1,
+      "status": "cancelled_by_passenger",
+      "penaltyPercent": 0
+    },
+    {
+      "id": "booking-ride-9-completed",
+      "note": "Trajet termine et payout libere.",
+      "origin": "Tunis",
+      "destination": "Monastir",
+      "payoutStatus": "released",
+      "refundStatus": "none",
+      "lineId": "",
+      "type": "louage",
+      "rideId": "ride-9",
+      "mode": "louage",
+      "passengerUserId": "passenger-1",
+      "createdAt": "2026-04-20T05:15:00.000Z",
+      "paymentId": "pay-ride-9",
+      "departureAt": "2026-04-20T09:15:00.000Z",
+      "driverUserId": "driver-1",
+      "amountTnd": 27,
+      "ticketId": "ticket-ride-9",
+      "seatsBooked": 1,
+      "status": "completed",
+      "penaltyPercent": 0
+    }
+  ],
+  "tickets": [
+    {
+      "id": "ticket-line-bus-expired",
+      "mode": "bus",
+      "qrPayload": "{\"ticketId\":\"ticket-line-bus-expired\",\"bookingId\":\"booking-line-bus-expired\",\"validUntil\":\"2026-04-20T07:45:00.000Z\",\"origin\":\"Tunis Marine\",\"destination\":\"Mannouba\",\"mode\":\"bus\"}",
+      "priceTnd": 1.2,
+      "validUntil": "2026-04-20T07:45:00.000Z",
+      "validFrom": "2026-04-20T06:15:00.000Z",
+      "title": "Bus 104 Tunis Marine - Mannouba",
+      "zones": "Tunis Marine - Mannouba",
+      "userId": "passenger-1",
+      "bookingId": "booking-line-bus-expired",
+      "status": "expired"
+    },
+    {
+      "id": "ticket-line-metro-active",
+      "mode": "metro",
+      "qrPayload": "{\"ticketId\":\"ticket-line-metro-active\",\"bookingId\":\"booking-line-metro-active\",\"validUntil\":\"2026-04-22T16:00:00.000Z\",\"origin\":\"Tunis Marine\",\"destination\":\"Ben Arous\",\"mode\":\"metro\"}",
+      "priceTnd": 0.8,
+      "validUntil": "2026-04-22T16:00:00.000Z",
+      "validFrom": "2026-04-22T14:30:00.000Z",
+      "title": "Metro Leger M1",
+      "zones": "Tunis Marine - Ben Arous",
+      "userId": "passenger-1",
+      "bookingId": "booking-line-metro-active",
+      "status": "active"
+    },
+    {
+      "id": "ticket-ride-1",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-1\",\"bookingId\":\"booking-ride-1-confirmed\",\"validUntil\":\"2026-04-23T20:30:00.000Z\",\"origin\":\"Tunis\",\"destination\":\"Sousse\",\"mode\":\"louage\"}",
+      "priceTnd": 31,
+      "validUntil": "2026-04-23T20:30:00.000Z",
+      "validFrom": "2026-04-23T11:30:00.000Z",
+      "title": "Louage Tunis -> Sousse",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-1-confirmed",
+      "status": "active"
+    },
+    {
+      "id": "ticket-ride-10",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-10\",\"bookingId\":\"booking-ride-10-no-show\",\"validUntil\":\"2026-04-21T13:50:00.000Z\",\"origin\":\"Sousse\",\"destination\":\"Tunis\",\"mode\":\"louage\"}",
+      "priceTnd": 29,
+      "validUntil": "2026-04-21T13:50:00.000Z",
+      "validFrom": "2026-04-21T03:50:00.000Z",
+      "title": "Louage Sousse -> Tunis",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-10-no-show",
+      "status": "cancelled"
+    },
+    {
+      "id": "ticket-ride-11-cancelled-driver",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-11-cancelled-driver\",\"bookingId\":\"booking-ride-11-cancelled-driver\",\"validUntil\":\"2026-04-24T02:10:00.000Z\",\"origin\":\"Tunis\",\"destination\":\"Bizerte\",\"mode\":\"louage\"}",
+      "priceTnd": 19,
+      "validUntil": "2026-04-24T02:10:00.000Z",
+      "validFrom": "2026-04-23T19:00:00.000Z",
+      "title": "Louage Tunis -> Bizerte",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-11-cancelled-driver",
+      "status": "cancelled"
+    },
+    {
+      "id": "ticket-ride-2",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-2\",\"bookingId\":\"booking-ride-2-awaiting\",\"validUntil\":\"2026-04-24T00:15:00.000Z\",\"origin\":\"Sousse\",\"destination\":\"Sfax\",\"mode\":\"louage\"}",
+      "priceTnd": 22,
+      "validUntil": "2026-04-24T00:15:00.000Z",
+      "validFrom": "2026-04-23T14:45:00.000Z",
+      "title": "Louage Sousse -> Sfax",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-2-awaiting",
+      "status": "active"
+    },
+    {
+      "id": "ticket-ride-3-cancelled-passenger",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-3-cancelled-passenger\",\"bookingId\":\"booking-ride-3-cancelled-passenger\",\"validUntil\":\"2026-04-24T15:00:00.000Z\",\"origin\":\"Tunis\",\"destination\":\"Nabeul\",\"mode\":\"louage\"}",
+      "priceTnd": 14,
+      "validUntil": "2026-04-24T15:00:00.000Z",
+      "validFrom": "2026-04-24T04:00:00.000Z",
+      "title": "Louage Tunis -> Nabeul",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-3-cancelled-passenger",
+      "status": "cancelled"
+    },
+    {
+      "id": "ticket-ride-9",
+      "mode": "louage",
+      "qrPayload": "{\"ticketId\":\"ticket-ride-9\",\"bookingId\":\"booking-ride-9-completed\",\"validUntil\":\"2026-04-20T15:15:00.000Z\",\"origin\":\"Tunis\",\"destination\":\"Monastir\",\"mode\":\"louage\"}",
+      "priceTnd": 27,
+      "validUntil": "2026-04-20T15:15:00.000Z",
+      "validFrom": "2026-04-20T05:15:00.000Z",
+      "title": "Louage Tunis -> Monastir",
+      "zones": "Interurbain",
+      "userId": "passenger-1",
+      "bookingId": "booking-ride-9-completed",
+      "status": "used"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay-line-bus-expired",
+      "summary": "Ticket bus 104 archive.",
+      "createdAt": "2026-04-20T06:15:00.000Z",
+      "provider": "d17",
+      "payoutStatus": "n/a",
+      "userId": "passenger-1",
+      "driverUserId": "",
+      "bookingId": "booking-line-bus-expired",
+      "amountTnd": 1.2,
+      "status": "paid"
+    },
+    {
+      "id": "pay-line-metro-active",
+      "summary": "Ticket metro M1 confirme.",
+      "createdAt": "2026-04-22T14:30:00.000Z",
+      "provider": "bank_card",
+      "payoutStatus": "n/a",
+      "userId": "passenger-1",
+      "driverUserId": "",
+      "bookingId": "booking-line-metro-active",
+      "amountTnd": 0.8,
+      "status": "paid"
+    },
+    {
+      "id": "pay-line-pending",
+      "summary": "Paiement bus en attente de confirmation Konnect.",
+      "createdAt": "2026-04-24T05:45:00.000Z",
+      "provider": "konnect",
+      "payoutStatus": "n/a",
+      "userId": "passenger-1",
+      "driverUserId": "",
+      "bookingId": "booking-line-pending",
+      "amountTnd": 1.2,
+      "status": "pending"
+    },
+    {
+      "id": "pay-ride-1",
+      "summary": "Paiement louage Tunis -> Sousse retenu.",
+      "createdAt": "2026-04-23T11:30:00.000Z",
+      "provider": "bank_card",
+      "payoutStatus": "held",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-1-confirmed",
+      "amountTnd": 31,
+      "status": "paid"
+    },
+    {
+      "id": "pay-ride-10",
+      "summary": "No-show confirme avec preuve live recente.",
+      "createdAt": "2026-04-21T03:50:00.000Z",
+      "provider": "bank_card",
+      "payoutStatus": "eligible_with_proof",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-10-no-show",
+      "amountTnd": 29,
+      "status": "paid"
+    },
+    {
+      "id": "pay-ride-11-cancelled-driver",
+      "summary": "Remboursement integral apres annulation conducteur.",
+      "createdAt": "2026-04-23T19:00:00.000Z",
+      "provider": "konnect",
+      "payoutStatus": "refunded",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-11-cancelled-driver",
+      "amountTnd": 19,
+      "status": "refunded"
+    },
+    {
+      "id": "pay-ride-2",
+      "summary": "Paiement louage Sousse -> Sfax en attente de confirmation passager.",
+      "createdAt": "2026-04-23T14:45:00.000Z",
+      "provider": "flooss",
+      "payoutStatus": "held",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-2-awaiting",
+      "amountTnd": 22,
+      "status": "paid"
+    },
+    {
+      "id": "pay-ride-3-cancelled-passenger",
+      "summary": "Remboursement passager apres annulation dans le delai.",
+      "createdAt": "2026-04-24T04:00:00.000Z",
+      "provider": "d17",
+      "payoutStatus": "refunded",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-3-cancelled-passenger",
+      "amountTnd": 14,
+      "status": "refunded"
+    },
+    {
+      "id": "pay-ride-9",
+      "summary": "Paiement libere apres trajet complete.",
+      "createdAt": "2026-04-20T05:15:00.000Z",
+      "provider": "sps",
+      "payoutStatus": "released",
+      "userId": "passenger-1",
+      "driverUserId": "driver-1",
+      "bookingId": "booking-ride-9-completed",
+      "amountTnd": 27,
+      "status": "paid"
+    }
+  ],
+  "favorites": [
+    {
+      "id": "fav-1",
+      "city": "Bardo",
+      "hint": "Rue Habib Maazoun",
+      "label": "Maison",
+      "userId": "passenger-1"
+    },
+    {
+      "id": "fav-2",
+      "city": "Lac II",
+      "hint": "Pole technologique",
+      "label": "Travail",
+      "userId": "passenger-1"
+    },
+    {
+      "id": "fav-3",
+      "city": "Tunis Marine",
+      "hint": "Correspondance TGM et metro",
+      "label": "Tunis Marine",
+      "userId": "passenger-1"
+    }
+  ],
+  "nearbyTransport": [
+    {
+      "id": "near-b104",
+      "mode": "bus",
+      "distanceMeters": 390,
+      "subtitle": "Longue desserte vers Mannouba",
+      "title": "Bus 104 - Tunis Marine"
+    },
+    {
+      "id": "near-b17b",
+      "mode": "bus",
+      "distanceMeters": 180,
+      "subtitle": "Passage estime dans moins de 10 min",
+      "title": "Bus 17B - Rades Ville"
+    },
+    {
+      "id": "near-louage",
+      "mode": "louage",
+      "distanceMeters": 510,
+      "subtitle": "Prochain depart interurbain aujourd hui",
+      "title": "Depart Louage Tunis > Sousse"
+    },
+    {
+      "id": "near-louage-nabeul",
+      "mode": "louage",
+      "distanceMeters": 460,
+      "subtitle": "Places disponibles pour depart en fin de matinee",
+      "title": "Louage Tunis > Nabeul"
+    },
+    {
+      "id": "near-m1",
+      "mode": "metro",
+      "distanceMeters": 260,
+      "subtitle": "Correspondance rapide vers Ben Arous",
+      "title": "Metro M1 - Place Barcelone Sud"
+    },
+    {
+      "id": "near-m4",
+      "mode": "metro",
+      "distanceMeters": 340,
+      "subtitle": "Direction Den Den et El Intilaka",
+      "title": "Metro M4 - Bardo"
+    },
+    {
+      "id": "near-tgm",
+      "mode": "metro",
+      "distanceMeters": 420,
+      "subtitle": "Direction La Goulette et La Marsa",
+      "title": "TGM - Tunis Marine Nord"
+    }
+  ],
+  "authUsers": [
+    {
+      "uid": "admin-1",
+      "email": "admin@volta.tn",
+      "displayName": "Equipe Admin Volta",
+      "disabled": false,
+      "customClaims": {
+        "role": "admin"
+      }
+    },
+    {
+      "uid": "driver-1",
+      "email": "hamed@volta.tn",
+      "displayName": "Hamed Trabelsi",
+      "disabled": false,
+      "customClaims": {
+        "role": "driver"
+      }
+    },
+    {
+      "uid": "driver-2",
+      "email": "salma.driver@volta.tn",
+      "displayName": "Salma Ben Ali",
+      "disabled": false,
+      "customClaims": {
+        "role": "driver"
+      }
+    },
+    {
+      "uid": "driver-3",
+      "email": "mourad.driver@volta.tn",
+      "displayName": "Mourad Jlassi",
+      "disabled": false,
+      "customClaims": {
+        "role": "driver"
+      }
+    },
+    {
+      "uid": "passenger-1",
+      "email": "imen@volta.tn",
+      "displayName": "Imen Gharbi",
+      "disabled": false,
+      "customClaims": {
+        "role": "passenger"
+      }
+    }
+  ]
+}

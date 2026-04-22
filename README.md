@@ -49,8 +49,9 @@ Volta is a Firebase-backed Tunisia transit app with passenger, driver, and admin
    `npm run firebase:emulators`
 6. In another terminal, start the frontend:
    `npm run dev`
-7. For Android emulator builds, set `VITE_FIREBASE_EMULATOR_HOST=10.0.2.2` in `.env.local` before `npm run android:run`.
+7. For Android emulator builds, set `VITE_USE_FIREBASE_EMULATORS=true` and `VITE_FIREBASE_EMULATOR_HOST=10.0.2.2` in `.env.local` before `npm run android:run`.
    If you test on a physical phone, use your computer's LAN IP instead.
+8. If you are not using emulators on Android, add real `VITE_FIREBASE_*` web app credentials in `.env.local` before building the app.
 
 The repo defaults to the demo Firebase project id `demo-volta-local`, so emulator work does not need a real Firebase project.
 
