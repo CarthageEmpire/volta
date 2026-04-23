@@ -1,4 +1,4 @@
-# Volta
+# Volta//volta
 
 Volta is a Firebase-backed Tunisia transit app with passenger, driver, and admin flows for:
 - metro and bus lines
