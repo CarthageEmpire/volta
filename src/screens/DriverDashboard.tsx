@@ -11,7 +11,7 @@ interface DriverDashboardProps {
 function requestCurrentPosition() {
   return new Promise<GeolocationPosition>((resolve, reject) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      reject(new Error('La geolocalisation navigateur est indisponible sur cet appareil.'));
+      reject(new Error('Browser geolocation is not available on this device.'));
       return;
     }
 
@@ -70,19 +70,19 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
         setFeedback(
           error instanceof Error
             ? error.message
-            : 'Impossible de recuperer la position GPS pour activer le live.',
+            : 'Could not get GPS position to enable live sharing.',
         );
         return;
       }
     }
 
     const result = await toggleLiveSharing(enabled, location);
-    setFeedback(result.message ?? (result.ok ? 'Statut live mis a jour.' : ''));
+    setFeedback(result.message ?? (result.ok ? 'Live status updated.' : ''));
   };
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <TopAppBar title="Console conducteur" subtitle="Verification, tracking et annonces" />
+      <TopAppBar title="Driver console" subtitle="Verification, tracking, and listings" />
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-8">
         {feedback && (
@@ -100,7 +100,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
               {currentUser.verificationStatus}
             </h2>
             <p className="mt-4 text-sm leading-7 text-white/75">
-              Les annonces et le live sharing restent bloques jusqu a l approbation admin.
+              Listings and live sharing stay locked until admin approval.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button
@@ -108,14 +108,14 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                 onClick={() => navigate('driver-verification')}
                 className="rounded-full bg-white px-5 py-3 text-sm font-bold text-primary"
               >
-                Gerer verification
+                Manage verification
               </button>
               <button
                 type="button"
                 onClick={() => navigate('create-trip')}
                 className="rounded-full bg-white/10 px-5 py-3 text-sm font-bold text-white"
               >
-                Publier un trajet
+                Publish a trip
               </button>
             </div>
           </div>
@@ -129,19 +129,19 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                 ? `${activeLine.code} - ${activeLine.name}`
                 : activeRide
                   ? `Louage ${activeRide.departureCity} - ${activeRide.destinationCity}`
-                  : 'Aucune ligne ou annonce live'}
+                  : 'No active line or live listing'}
             </h3>
             <p className="mt-3 text-sm text-slate-500">
               {activeLine
-                ? `Prochain arret: ${
+                ? `Next stop: ${
                     liveVehicle
                       ? activeLine.stops.find((stop) => stop.id === liveVehicle.nextStopId)?.name ??
-                        'Non determine'
-                      : 'Non partage'
+                        'Unknown'
+                      : 'Not shared'
                   }`
                 : activeRide
-                  ? `Trajet actif: ${activeRide.departureCity} -> ${activeRide.destinationCity}`
-                  : 'Le backend attend une position live depuis cet appareil.'}
+                  ? `Active trip: ${activeRide.departureCity} -> ${activeRide.destinationCity}`
+                  : 'Waiting for a live position from this device.'}
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -153,7 +153,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                   liveVehicle?.sharingEnabled ? 'bg-secondary text-white' : 'bg-slate-100 text-slate-700'
                 }`}
               >
-                Activer live
+                Enable live
               </button>
               <button
                 type="button"
@@ -161,30 +161,30 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                 disabled={!isApproved}
                 className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 disabled:opacity-50"
               >
-                Desactiver
+                Disable
               </button>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Paiements retenus</p>
+                <p className="text-sm text-slate-500">Held payouts</p>
                 <p className="mt-2 font-headline text-3xl font-extrabold text-slate-950">
                   {formatTnd(heldAmount, state.locale)}
                 </p>
               </div>
               <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Position backend</p>
+                <p className="text-sm text-slate-500">Backend position</p>
                 <p className="mt-2 text-sm font-semibold text-slate-900">
                   {liveVehicle?.latitude !== undefined && liveVehicle?.longitude !== undefined
                     ? `${liveVehicle.latitude.toFixed(4)}, ${liveVehicle.longitude.toFixed(4)}`
-                    : 'Aucune coordonnee envoyee'}
+                    : 'No coordinates sent'}
                 </p>
                 <p className="mt-2 text-xs text-slate-500">
                   {liveVehicle?.updatedAt
-                    ? `Maj ${formatDateTime(liveVehicle.updatedAt, state.locale)}`
-                    : 'Aucune mise a jour recente'}
+                    ? `Updated ${formatDateTime(liveVehicle.updatedAt, state.locale)}`
+                    : 'No recent updates'}
                   {typeof liveVehicle?.accuracyMeters === 'number'
-                    ? ` - precision ${Math.round(liveVehicle.accuracyMeters)} m`
+                    ? ` - accuracy ${Math.round(liveVehicle.accuracyMeters)} m`
                     : ''}
                 </p>
               </div>
@@ -193,10 +193,10 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
             <div className="mt-4 rounded-[1.5rem] bg-slate-50 p-4">
               <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                 <span className="font-semibold text-slate-900">
-                  Note conducteur: {currentUser.rating?.toFixed(1) ?? 'N/A'}
+                  Driver rating: {currentUser.rating?.toFixed(1) ?? 'N/A'}
                 </span>
-                <span>Trajets completes: {currentUser.completedTrips ?? 0}</span>
-                <span>Penalites: {currentUser.penaltyCount ?? 0}</span>
+                <span>Completed trips: {currentUser.completedTrips ?? 0}</span>
+                <span>Penalties: {currentUser.penaltyCount ?? 0}</span>
               </div>
             </div>
           </div>
@@ -206,14 +206,14 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="flex items-center justify-between">
               <h3 className="font-headline text-2xl font-extrabold text-slate-950">
-                Mes annonces
+                My listings
               </h3>
               <button
                 type="button"
                 onClick={() => navigate('create-trip')}
                 className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"
               >
-                Nouvelle annonce
+                New listing
               </button>
             </div>
             <div className="mt-5 space-y-4">
@@ -230,7 +230,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <span className="rounded-full bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
-                      {ride.availableSeats}/{ride.totalSeats} places
+                      {ride.availableSeats}/{ride.totalSeats} seats
                     </span>
                     <button
                       type="button"
@@ -240,7 +240,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                       }}
                       className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
                     >
-                      Annuler
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -249,7 +249,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
           </div>
 
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <h3 className="font-headline text-2xl font-extrabold text-slate-950">Reservations</h3>
+            <h3 className="font-headline text-2xl font-extrabold text-slate-950">Bookings</h3>
             <div className="mt-5 space-y-4">
               {bookings.map((booking) => (
                 <div key={booking.id} className="rounded-[1.5rem] bg-slate-50 p-4">
@@ -272,7 +272,7 @@ export default function DriverDashboard({ navigate }: DriverDashboardProps) {
                         }}
                         className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
                       >
-                        Marquer arrive
+                        Mark arrived
                       </button>
                     )}
                     <button

@@ -13,6 +13,7 @@
     "dev:emulators": "powershell -ExecutionPolicy Bypass -Command \"$env:VITE_USE_FIREBASE_EMULATORS='true'; npm run dev\"",
     "firebase:emulators": "firebase emulators:start --import=.firebase-emulator-data --export-on-exit=.firebase-emulator-data",
     "firebase:seed": "firebase emulators:exec --import=.firebase-emulator-data --export-on-exit=.firebase-emulator-data \"npm --prefix functions run seed\"",
+    "firebase:seed:prod": "npm --prefix functions run seed:prod",
     "firebase:deploy": "firebase deploy",
     "android:boot": "powershell -ExecutionPolicy Bypass -File ./scripts/start-android.ps1 -BootOnly",
     "android:run": "powershell -ExecutionPolicy Bypass -File ./scripts/start-android.ps1",

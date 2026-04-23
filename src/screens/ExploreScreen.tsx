@@ -26,24 +26,24 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <TopAppBar title="Volta" subtitle="Tableau de bord passager" />
+      <TopAppBar title="Volta" subtitle="Passenger dashboard" />
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-8">
         <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-[2.2rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#0056d2_60%,_#7fb7ff_150%)] p-8 text-white shadow-[0_24px_70px_rgba(0,64,161,0.24)]">
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70">
-              Bonjour {currentUser.fullName.split(' ')[0]}
+              Hi {currentUser.fullName.split(' ')[0]}
             </p>
             <h2 className="mt-4 font-headline text-4xl font-extrabold tracking-tight md:text-5xl">
-              Tous vos transports
+              All your
               <br />
-              tunisiens en un seul
+              transport in one
               <br />
-              tableau de bord.
+              dashboard.
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-white/75">
-              Recherchez un trajet, suivez les lignes live, retrouvez votre ticket QR et
-              reservez un louage sans sortir de l’application.
+              Search trips, track live lines, open your QR ticket, and book a louage ride in one
+              place.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <button
@@ -51,20 +51,20 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                 onClick={() => navigate('search')}
                 className="rounded-full bg-white px-5 py-3 text-sm font-bold text-primary"
               >
-                Recherche intelligente
+                Smart search
               </button>
               <button
                 type="button"
                 onClick={() => navigate('line-details')}
                 className="rounded-full bg-white/10 px-5 py-3 text-sm font-bold text-white"
               >
-                Lignes live
+                Live lines
               </button>
             </div>
           </div>
 
           <div className="rounded-[2.2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Ticket actif</p>
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Active ticket</p>
             {activeTicket ? (
               <div className="mt-4 flex flex-col items-center gap-4">
                 <TicketQrCode payload={activeTicket.qrPayload} />
@@ -73,7 +73,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                     {activeTicket.title}
                   </p>
                   <p className="mt-2 text-sm text-slate-500">
-                    Valide jusqu&apos;a {formatDateTime(activeTicket.validUntil, state.locale)}
+                    Valid until {formatDateTime(activeTicket.validUntil, state.locale)}
                   </p>
                   <p className="mt-3 text-sm font-semibold text-slate-700">
                     {formatTnd(activeTicket.priceTnd, state.locale)}
@@ -82,7 +82,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
               </div>
             ) : (
               <div className="mt-4 rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                Aucun ticket actif pour le moment.
+                No active ticket yet.
               </div>
             )}
           </div>
@@ -92,14 +92,14 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="flex items-center justify-between">
               <h3 className="font-headline text-2xl font-extrabold text-slate-950">
-                Reservations a venir
+                Upcoming bookings
               </h3>
               <button
                 type="button"
                 onClick={() => navigate('louage')}
                 className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"
               >
-                Voir louage
+                View louage
               </button>
             </div>
 
@@ -120,7 +120,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                 ))
               ) : (
                 <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                  Aucune reservation a venir.
+                  No upcoming bookings.
                 </div>
               )}
             </div>
@@ -129,7 +129,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="flex items-center justify-between">
               <h3 className="font-headline text-2xl font-extrabold text-slate-950">
-                A proximite
+                Nearby
               </h3>
               <button
                 type="button"
@@ -138,7 +138,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                   state.locationEnabled ? 'bg-secondary text-white' : 'bg-slate-100 text-slate-700'
                 }`}
               >
-                {state.locationEnabled ? 'Geo activee' : 'Activer'}
+                {state.locationEnabled ? 'Location on' : 'Turn on'}
               </button>
             </div>
 
@@ -155,7 +155,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                 ))
               ) : (
                 <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                  Activez la geolocalisation pour voir les transports a moins de 500 m.
+                  Turn on location to see transport options within 500 m.
                 </div>
               )}
             </div>
@@ -167,14 +167,14 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
-                  Modes de transport
+                  Travel modes
                 </p>
                 <h3 className="mt-2 font-headline text-2xl font-extrabold text-slate-950">
-                  Accedez a Louage, Bus et Metro avec le meme parcours
+                  Access Louage, Bus, and Metro in one flow
                 </h3>
               </div>
               <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
-                3 sections coherentes
+                3 connected sections
               </span>
             </div>
 
@@ -183,21 +183,21 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                 {
                   screen: 'louage' as const,
                   title: 'Louage',
-                  subtitle: 'Interurbain, conducteur, places et regles',
+                  subtitle: 'Intercity rides, seats, and rules',
                   icon: 'route',
                   accent: 'bg-[rgba(0,109,54,0.12)] text-[#006d36]',
                 },
                 {
                   screen: 'bus' as const,
                   title: 'Bus',
-                  subtitle: 'Numero, arrets, frequence et billet',
+                  subtitle: 'Routes, stops, frequency, and tickets',
                   icon: 'directions_bus',
                   accent: 'bg-[rgba(0,64,161,0.12)] text-[#0040a1]',
                 },
                 {
                   screen: 'metro' as const,
                   title: 'Metro',
-                  subtitle: 'Ligne, stations, direction et horaires',
+                  subtitle: 'Lines, stops, directions, and times',
                   icon: 'tram',
                   accent: 'bg-[rgba(15,118,110,0.12)] text-[#0f766e]',
                 },
@@ -221,7 +221,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
           </div>
 
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Favoris</p>
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Favorites</p>
             <div className="mt-4 grid gap-3">
               {favorites.map((favorite) => (
                 <div key={favorite.id} className="rounded-[1.4rem] bg-slate-50 p-4">
@@ -236,7 +236,7 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
 
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
-              Acces rapide
+              Quick actions
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <button
@@ -244,28 +244,28 @@ export default function ExploreScreen({ navigate }: ExploreScreenProps) {
                 onClick={() => navigate('search')}
                 className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
               >
-                Comparer metro, bus et louage
+                Compare metro, bus, and louage
               </button>
               <button
                 type="button"
                 onClick={() => navigate('line-details')}
                 className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
               >
-                Suivre les lignes en temps reel
+                Track lines in real time
               </button>
               <button
                 type="button"
                 onClick={() => navigate('louage')}
                 className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
               >
-                Reserver un louage interurbain
+                Book an intercity louage
               </button>
               <button
                 type="button"
                 onClick={() => navigate('tickets')}
                 className="rounded-[1.4rem] bg-slate-50 p-5 text-left font-semibold text-slate-800"
               >
-                Afficher mes QR codes
+                View my QR codes
               </button>
             </div>
           </div>

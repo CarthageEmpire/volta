@@ -49,15 +49,15 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
   return (
     <div className="min-h-screen bg-background pb-32">
       <TopAppBar
-        title="Publier un trajet"
-        subtitle="Annonce louage conducteur"
+        title="Publish a trip"
+        subtitle="Driver louage listing"
         onBack={() => navigate('driver-dashboard')}
       />
 
       <main className="mx-auto max-w-3xl px-6 py-8">
         {currentUser?.verificationStatus !== 'approved' && (
           <div className="mb-6 rounded-[1.5rem] bg-white p-4 text-sm font-semibold text-slate-700 shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
-            Publication bloquee tant que le dossier conducteur n'est pas approuve.
+            Publishing is blocked until your driver profile is approved.
           </div>
         )}
 
@@ -69,34 +69,34 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
 
         <form className="space-y-6" onSubmit={submit}>
           <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <h2 className="font-headline text-2xl font-extrabold text-slate-950">Trajet</h2>
+            <h2 className="font-headline text-2xl font-extrabold text-slate-950">Trip</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Ville depart</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">From city</span>
                 <input
                   value={form.departureCity}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, departureCity: event.target.value }))
                   }
                   className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                  placeholder="Ville depart"
+                  placeholder="From city"
                   type="text"
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Ville destination</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">To city</span>
                 <input
                   value={form.destinationCity}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, destinationCity: event.target.value }))
                   }
                   className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                  placeholder="Ville destination"
+                  placeholder="To city"
                   type="text"
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Depart</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Departure</span>
                 <input
                   value={form.departureAt}
                   onChange={(event) =>
@@ -107,7 +107,7 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Places disponibles</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Available seats</span>
                 <input
                   value={form.availableSeats}
                   onChange={(event) =>
@@ -126,10 +126,10 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
           </section>
 
           <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <h2 className="font-headline text-2xl font-extrabold text-slate-950">Vehicule</h2>
+            <h2 className="font-headline text-2xl font-extrabold text-slate-950">Vehicle</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Prix</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Price</span>
                 <input
                   value={form.priceTnd}
                   onChange={(event) =>
@@ -142,31 +142,31 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Modele vehicule</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Vehicle model</span>
                 <input
                   value={form.vehicleModel}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, vehicleModel: event.target.value }))
                   }
                   className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                  placeholder="Modele vehicule"
+                  placeholder="Vehicle model"
                   type="text"
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Plaque</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Plate number</span>
                 <input
                   value={form.plateNumber}
                   onChange={(event) =>
                     setForm((current) => ({ ...current, plateNumber: event.target.value }))
                   }
                   className="w-full rounded-[1.4rem] bg-slate-100 px-4 py-4 text-slate-900 outline-none"
-                  placeholder="Plaque"
+                  placeholder="Plate number"
                   type="text"
                 />
               </label>
               <label className="rounded-[1.4rem] bg-slate-100 px-4 py-4 text-sm font-semibold text-slate-600">
-                Photo optionnelle
+                Optional photo
                 <input
                   className="mt-3 block w-full text-sm"
                   type="file"
@@ -189,7 +189,7 @@ export default function CreateTripScreen({ navigate }: CreateTripScreenProps) {
             disabled={currentUser?.verificationStatus !== 'approved' || isSubmitting}
             className="w-full rounded-[1.6rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] py-5 font-headline text-xl font-extrabold text-white disabled:bg-slate-300"
           >
-            {isSubmitting ? 'Publication...' : "Publier l'annonce"}
+            {isSubmitting ? 'Publishing...' : 'Publish listing'}
           </button>
         </form>
       </main>

@@ -94,10 +94,11 @@ function AppShell() {
   const showNav = currentScreen !== 'welcome' && Boolean(currentUser);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentScreen}
+          className="min-w-0 overflow-x-hidden"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
@@ -130,7 +131,7 @@ function AppShell() {
               <span className="material-symbols-outlined text-[22px]">
                 {currentUser?.role === 'admin' ? 'admin_panel_settings' : 'home'}
               </span>
-              Accueil
+              Home
             </button>
 
             {currentUser?.role !== 'admin' && (
@@ -142,7 +143,7 @@ function AppShell() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[22px]">search</span>
-                Recherche
+                  Search
               </button>
             )}
 
@@ -189,7 +190,7 @@ function AppShell() {
                 ? 'Driver'
                 : currentUser?.role === 'admin'
                   ? 'Review'
-                  : 'Modes'}
+                  : 'Travel'}
             </button>
           </div>
         </nav>

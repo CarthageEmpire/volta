@@ -3,11 +3,38 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { createInitialState } from '../../src/constants';
 
-process.env.FIREBASE_AUTH_EMULATOR_HOST ??= '127.0.0.1:9099';
-process.env.FIRESTORE_EMULATOR_HOST ??= '127.0.0.1:8080';
+const args = new Set(process.argv.slice(2));
+const isProductionSeed = args.has('--production');
+const hasForceFlag = args.has('--force');
+
+if (isProductionSeed) {
+  delete process.env.FIREBASE_AUTH_EMULATOR_HOST;
+  delete process.env.FIRESTORE_EMULATOR_HOST;
+} else {
+  process.env.FIREBASE_AUTH_EMULATOR_HOST ??= '127.0.0.1:9099';
+  process.env.FIRESTORE_EMULATOR_HOST ??= '127.0.0.1:8080';
+}
+
+const projectId =
+  process.env.GCLOUD_PROJECT ||
+  process.env.GOOGLE_CLOUD_PROJECT ||
+  process.env.FIREBASE_PROJECT_ID ||
+  (isProductionSeed ? '' : 'demo-volta-local');
+
+if (!projectId) {
+  throw new Error(
+    'Missing project id. Set GCLOUD_PROJECT or FIREBASE_PROJECT_ID before running a production seed.',
+  );
+}
+
+if (isProductionSeed && !hasForceFlag) {
+  throw new Error(
+    'Production seed requires --force because it clears and rewrites Firestore collections.',
+  );
+}
 
 initializeApp({
-  projectId: process.env.GCLOUD_PROJECT || 'demo-volta-local',
+  projectId,
 });
 
 const auth = getAuth();
@@ -53,6 +80,10 @@ async function clearCollection(collectionName: string) {
 }
 
 async function seed() {
+  console.log(
+    `Starting ${isProductionSeed ? 'production' : 'emulator'} seed for Firebase project "${projectId}".`,
+  );
+
   const initial = createInitialState();
   const credentials = [
     {
@@ -193,7 +224,9 @@ async function seed() {
     await db.collection('nearbyTransport').doc(nearby.id).set(nearby);
   }
 
-  console.log('Firebase seed complete.');
+  console.log(
+    `Firebase seed complete for "${projectId}" (${initial.lines.length} lines, ${initial.louageRides.length} rides).`,
+  );
 }
 
 seed().catch((error) => {

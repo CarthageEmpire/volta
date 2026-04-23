@@ -5,12 +5,15 @@ import { useVolta } from '../context/VoltaContext';
 import { SMART_SEARCH_LOCATIONS } from '../data/locationOptions';
 import { formatDateTime, formatTnd } from '../services/formatters';
 import { searchTransportRemote } from '../services/firebaseVoltaService';
+import { getSearchResults } from '../services/voltaService';
 import { validateLocationPair } from '../services/locationValidation';
 import { Screen, SearchFilters, SearchResult } from '../types';
 
 interface SearchScreenProps {
   navigate: (screen: Screen) => void;
 }
+
+const functionsEnabled = import.meta.env.VITE_FIREBASE_USE_FUNCTIONS === 'true';
 
 function getModeLabel(result: SearchResult) {
   if (result.mode === 'louage') {
@@ -51,15 +54,15 @@ function getModeAccent(result: SearchResult) {
 function getMatchLabel(result: SearchResult) {
   switch (result.matchType) {
     case 'direct':
-      return 'Trajet direct';
+      return 'Direct trip';
     case 'departure_area':
-      return 'Depart via zone';
+      return 'Near departure';
     case 'destination_area':
-      return 'Arrivee via zone';
+      return 'Near destination';
     case 'network_suggestion':
-      return 'Zone correspondante';
+      return 'Suggested route';
     default:
-      return 'Resultat backend';
+      return 'Search result';
   }
 }
 
@@ -82,6 +85,21 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
     ? validateLocationPair(filters.departure, filters.destination, 'lieu')
     : '';
 
+  function getSearchErrorMessage(error: unknown) {
+    const message =
+      typeof error === 'object' && error && 'message' in error ? String(error.message) : '';
+
+    if (message === 'internal' || message.includes('internal')) {
+      return 'Search service is temporarily unavailable. Showing local routes when available.';
+    }
+
+    if (message.includes('permission-denied')) {
+      return 'Please reconnect your Firebase session and try again.';
+    }
+
+    return message || 'Could not run search. Please try again.';
+  }
+
   const runSearch = async () => {
     setShowValidation(true);
     const nextValidationMessage = validateLocationPair(filters.departure, filters.destination, 'lieu');
@@ -96,11 +114,28 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
     setFeedback('');
     try {
       const nextResults = await searchTransportRemote(filters);
-      setResults(nextResults);
+      if (nextResults.length > 0) {
+        setResults(nextResults);
+        setFeedback('');
+      } else {
+        const localResults = getSearchResults(state, filters);
+        setResults(localResults);
+        setFeedback(
+          localResults.length > 0
+            ? 'No cloud results found. Showing routes from local data.'
+            : '',
+        );
+      }
       setHasLoaded(true);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : 'Impossible de lancer la recherche.');
-      setResults([]);
+      const localResults = getSearchResults(state, filters);
+      if (localResults.length > 0) {
+        setResults(localResults);
+        setFeedback('Search service is unavailable. Showing the best local routes.');
+      } else {
+        setFeedback(getSearchErrorMessage(error));
+        setResults([]);
+      }
       setHasLoaded(true);
     } finally {
       setIsSearching(false);
@@ -117,7 +152,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
           : await startLinePayment(result.sourceId);
 
       if (!response.ok) {
-        setFeedback(response.message ?? 'Impossible de preparer le paiement.');
+        setFeedback(response.message ?? 'Could not prepare checkout. Please try again.');
         return;
       }
 
@@ -130,8 +165,12 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
   return (
     <div className="min-h-screen bg-background pb-32">
       <TopAppBar
-        title="Recherche intelligente"
-        subtitle="Resultats backend combines pour bus, metro et louage"
+        title="Smart search"
+        subtitle={
+          functionsEnabled
+            ? 'Combined cloud results for bus, metro, and louage'
+            : 'Local and Firestore search without Cloud Functions'
+        }
         onBack={() => navigate('explore')}
       />
 
@@ -143,22 +182,22 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                 Smart Search
               </p>
               <h2 className="mt-2 font-headline text-3xl font-extrabold text-slate-950">
-                Comparez les trajets reels
+                Compare real trips
               </h2>
             </div>
             <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-500">
-              Backend Firestore + Functions
+              {functionsEnabled ? 'Firestore + Functions' : 'Spark plan: Firestore + local'}
             </span>
           </div>
 
           <div className="mt-5 grid gap-4 md:grid-cols-4">
             <LocationSelect
-              label="Lieu de depart"
-              placeholder="-- Choisissez un lieu --"
+              label="From"
+              placeholder="Select a location"
               value={filters.departure}
               options={SMART_SEARCH_LOCATIONS}
-              searchPlaceholder="Rechercher une ville ou une station"
-              emptyStateLabel="Aucun lieu ne correspond a votre recherche."
+              searchPlaceholder="Search city or station"
+              emptyStateLabel="No matching locations found."
               excludedValue={filters.destination || undefined}
               invalid={Boolean(validationMessage)}
               onChange={(departure) => {
@@ -172,12 +211,12 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
             />
 
             <LocationSelect
-              label="Lieu de destination"
-              placeholder="-- Choisissez un lieu --"
+              label="To"
+              placeholder="Select a location"
               value={filters.destination}
               options={SMART_SEARCH_LOCATIONS}
-              searchPlaceholder="Rechercher une ville ou une station"
-              emptyStateLabel="Aucun lieu ne correspond a votre recherche."
+              searchPlaceholder="Search city or station"
+              emptyStateLabel="No matching locations found."
               excludedValue={filters.departure || undefined}
               invalid={Boolean(validationMessage)}
               onChange={(destination) => {
@@ -191,7 +230,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
             />
 
             <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>Date souhaitee</span>
+              <span>Date</span>
               <input
                 value={filters.date}
                 onChange={(event) => {
@@ -204,7 +243,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>Tri</span>
+              <span>Sort by</span>
               <select
                 value={filters.sortBy}
                 onChange={(event) =>
@@ -215,9 +254,9 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                 }
                 className="rounded-[1.4rem] border border-slate-200 bg-slate-100 px-4 py-4 text-slate-900 outline-none"
               >
-                <option value="cheapest">Prix le plus bas</option>
-                <option value="duration">Trajet le plus rapide</option>
-                <option value="departure">Depart le plus proche</option>
+                <option value="cheapest">Lowest price</option>
+                <option value="duration">Fastest trip</option>
+                <option value="departure">Earliest departure</option>
               </select>
             </label>
           </div>
@@ -228,7 +267,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-slate-500">
-              Les resultats restent stables tant que vous ne relancez pas la recherche.
+              Results stay fixed until you run a new search.
             </p>
             <button
               type="button"
@@ -236,7 +275,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
               disabled={isSearching}
               className="rounded-[1.4rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] px-6 py-4 text-sm font-bold text-white disabled:bg-slate-300"
             >
-              {isSearching ? 'Recherche...' : 'Rechercher'}
+              {isSearching ? 'Searching...' : 'Search'}
             </button>
           </div>
         </section>
@@ -290,7 +329,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                         <div className="mt-5 grid gap-3 md:grid-cols-2">
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                              Trajet
+                              Route
                             </p>
                             <p className="mt-2 font-semibold text-slate-900">
                               {result.departure} -&gt; {result.destination}
@@ -298,7 +337,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                              Depart
+                              Departure
                             </p>
                             <p className="mt-2 font-semibold text-slate-900">
                               {formatDateTime(result.departureAt, state.locale)}
@@ -306,7 +345,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                              Duree
+                              Duration
                             </p>
                             <p className="mt-2 font-semibold text-slate-900">
                               {result.durationMinutes} min
@@ -314,12 +353,12 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                              Disponibilite
+                              Availability
                             </p>
                             <p className="mt-2 font-semibold text-slate-900">
                               {result.mode === 'louage'
-                                ? `${result.remainingSeats ?? 0} place(s)`
-                                : result.lineCode ?? 'Ticket immediat'}
+                                ? `${result.remainingSeats ?? 0} seat(s)`
+                                : result.lineCode ?? 'Instant ticket'}
                             </p>
                           </div>
                         </div>
@@ -336,7 +375,7 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
                           className="rounded-full px-5 py-3 text-sm font-bold text-white disabled:bg-slate-300"
                           style={{ backgroundImage: accent.solid }}
                         >
-                          {activeResultId === result.id ? 'Preparation...' : result.ctaLabel}
+                          {activeResultId === result.id ? 'Preparing...' : result.ctaLabel}
                         </button>
                       </div>
                     </div>
@@ -346,11 +385,11 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
             ) : hasLoaded && !isSearching ? (
               <section className="rounded-[2rem] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
                 <h2 className="font-headline text-2xl font-extrabold text-slate-950">
-                  Aucun trajet correspondant
+                  No matching trips
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-500">
-                  Aucun bus, metro ou louage actif ne correspond exactement a cette combinaison de
-                  depart, destination et date.
+                  No active bus, metro, or louage trip matches this combination of departure,
+                  destination, and date.
                 </p>
               </section>
             ) : null}
@@ -359,29 +398,29 @@ export default function SearchScreen({ navigate }: SearchScreenProps) {
           <aside className="space-y-6">
             <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
-                Sources backend
+                Data sources
               </p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
-                <p>Bus et metro remontent depuis la collection Firestore des lignes tunisiennes.</p>
-                <p>Les louages viennent des annonces publiees par les conducteurs verifies.</p>
-                <p>Chaque resultat doit correspondre a votre depart et a votre destination.</p>
-                <p>Le bouton de reservation ouvre le vrai checkout backend de l application.</p>
+                <p>Bus and metro data comes from Firestore line collections.</p>
+                <p>Louage rides come from listings published by verified drivers.</p>
+                <p>Each result matches your departure and destination filters.</p>
+                <p>Booking buttons open the real checkout flow.</p>
               </div>
             </section>
 
             <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
-                Tri metier
+                Sorting logic
               </p>
               <div className="mt-4 grid gap-3">
                 <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm text-slate-600">
-                  Prix le plus bas compare les trois modes sans inventer de faux trajets.
+                  Lowest price compares all three modes without creating fake routes.
                 </div>
                 <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm text-slate-600">
-                  Trajet le plus rapide utilise la duree renvoyee par le backend.
+                  Fastest trip uses duration values returned by the backend.
                 </div>
                 <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm text-slate-600">
-                  Depart le plus proche trie sur l horaire reel ou estime stocke dans les resultats.
+                  Earliest departure sorts by real or estimated departure times.
                 </div>
               </div>
             </section>

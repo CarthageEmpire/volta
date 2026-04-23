@@ -17,8 +17,8 @@ export default function TopAppBar({
   const { currentUser, logoutSession, setAppLocale, state } = useVolta();
 
   return (
-    <header className="sticky top-0 z-50 bg-[rgba(248,249,251,0.88)] px-6 py-4 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 overflow-x-hidden bg-[rgba(248,249,251,0.88)] px-4 py-4 backdrop-blur-xl sm:px-6">
+      <div className="mx-auto flex max-w-6xl min-w-0 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-4">
           {onBack && (
             <button
@@ -33,12 +33,12 @@ export default function TopAppBar({
             <h1 className="truncate font-headline text-2xl font-extrabold tracking-tight text-on-surface">
               {title}
             </h1>
-            {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+            {subtitle && <p className="mt-1 break-words text-sm text-slate-500">{subtitle}</p>}
           </div>
         </div>
 
         {showSessionActions && currentUser && (
-          <div className="flex items-center gap-3">
+          <div className="shrink-0 flex items-center gap-3">
             <button
               type="button"
               onClick={() => setAppLocale(state.locale === 'fr-TN' ? 'ar-TN' : 'fr-TN')}
@@ -63,7 +63,7 @@ export default function TopAppBar({
               type="button"
               onClick={logoutSession}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-600 shadow-[0_10px_30px_rgba(15,23,42,0.06)]"
-              title="Se deconnecter"
+              title="Log out"
             >
               <span className="material-symbols-outlined">logout</span>
             </button>

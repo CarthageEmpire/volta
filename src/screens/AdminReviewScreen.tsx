@@ -15,7 +15,7 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <TopAppBar title="Back-office" subtitle="Validation documents conducteurs" />
+      <TopAppBar title="Back office" subtitle="Driver document review" />
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-8">
         {feedback && (
@@ -28,17 +28,17 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
           <div className="rounded-[2rem] bg-[linear-gradient(135deg,_#0f172a_0%,_#1e293b_100%)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.26)]">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/50">Admin workflow</p>
             <h2 className="mt-4 font-headline text-4xl font-extrabold tracking-tight">
-              Dossiers en attente: {pendingRequests.length}
+              Pending files: {pendingRequests.length}
             </h2>
             <p className="mt-4 text-sm leading-7 text-white/75">
-              Validation des permis, CIN, assurance et carte grise avant activation chauffeur.
+              Review license, ID, insurance, and registration before enabling drivers.
             </p>
             <button
               type="button"
               onClick={() => navigate('explore')}
               className="mt-6 rounded-full bg-white px-5 py-3 text-sm font-bold text-slate-900"
             >
-              Retour accueil
+              Back to home
             </button>
           </div>
 
@@ -51,7 +51,7 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
                     className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
                   >
                     <h3 className="font-headline text-2xl font-extrabold text-slate-950">
-                      {request.applicantName ?? 'Conducteur'}
+                      {request.applicantName ?? 'Driver'}
                     </h3>
                     <p className="mt-2 text-sm text-slate-500">
                       {request.applicantEmail} - {request.cityOfResidence}
@@ -75,7 +75,7 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
                         }}
                         className="rounded-full bg-secondary px-5 py-3 text-sm font-bold text-white"
                       >
-                        Approuver
+                        Approve
                       </button>
                       <button
                         type="button"
@@ -85,14 +85,14 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
                               await reviewDriverRequest(
                                 request.id,
                                 'rejected',
-                                'Documents incomplets ou illisibles',
+                                'Documents are incomplete or unreadable',
                               )
                             ).message ?? '',
                           )
                         }
                         className="rounded-full bg-slate-100 px-5 py-3 text-sm font-bold text-slate-700"
                       >
-                        Rejeter
+                        Reject
                       </button>
                     </div>
                   </article>
@@ -100,7 +100,7 @@ export default function AdminReviewScreen({ navigate }: AdminReviewScreenProps) 
               })
             ) : (
               <div className="rounded-[2rem] bg-white p-6 text-sm text-slate-500 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-                Aucun dossier en attente.
+                No pending files.
               </div>
             )}
           </div>

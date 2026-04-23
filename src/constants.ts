@@ -18,37 +18,37 @@ import { TUNISIAN_CITIES as CITY_OPTIONS } from './data/locationOptions';
 export const TUNISIAN_CITIES = CITY_OPTIONS;
 
 export const DRIVER_DOCUMENT_LABELS = {
-  driving_license: 'Permis de conduire',
-  national_id: 'Carte d identite nationale',
-  vehicle_insurance: 'Assurance vehicule',
-  vehicle_registration: 'Carte grise',
+  driving_license: 'Driver license',
+  national_id: 'National ID card',
+  vehicle_insurance: 'Vehicle insurance',
+  vehicle_registration: 'Vehicle registration card',
 } as const;
 
 export const PAYMENT_METHODS = [
   {
     id: 'bank_card',
-    label: 'Carte bancaire',
-    subtitle: 'Validation immediate via le connecteur backend',
+    label: 'Bank card',
+    subtitle: 'Instant confirmation through our secure payment connector',
   },
   {
     id: 'konnect',
     label: 'Konnect',
-    subtitle: 'Passerelle tunisienne branchable cote serveur',
+    subtitle: 'Tunisian gateway for secure server-side payments',
   },
   {
     id: 'flooss',
     label: 'Flooss',
-    subtitle: 'Wallet mobile et encaissement backend',
+    subtitle: 'Mobile wallet with backend settlement',
   },
   {
     id: 'sps',
     label: 'SPS',
-    subtitle: 'Paiement marchand avec etats persistants',
+    subtitle: 'Merchant payment with reliable status tracking',
   },
   {
     id: 'd17',
     label: 'D17',
-    subtitle: 'Paiement QR et suivi d etat backend',
+    subtitle: 'QR payment with backend status tracking',
   },
 ] as const;
 

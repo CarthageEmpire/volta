@@ -916,7 +916,7 @@ export function toggleDriverLiveSharing(state: AppState, driverId: string, enabl
   const driverVehicle = state.liveVehicles.find((vehicle) => vehicle.operatorUserId === driverId);
 
   if (!driverVehicle && !driver.driverLineId) {
-    return { error: 'Aucune ligne active n est associee a ce conducteur.' };
+    return { error: 'No active line is assigned to this driver.' };
   }
 
   const nextVehicles = driverVehicle
@@ -1100,7 +1100,7 @@ export function confirmPayment(
   if (checkout.kind === 'line_ticket') {
     const line = state.lines.find((candidate) => candidate.id === checkout.lineId);
     if (!line) {
-      return { error: 'Ligne introuvable.' };
+      return { error: 'Line not found.' };
     }
   }
 
@@ -1207,6 +1207,10 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
     ? new Date(searchDate)
     : new Date();
 
+  const sortedScheduledRides = [...state.louageRides].sort(
+    (left, right) => new Date(left.departureAt).getTime() - new Date(right.departureAt).getTime(),
+  );
+
   const lineResults: SearchResult[] = state.lines
     .filter((line) => {
       const matchesDeparture =
@@ -1232,11 +1236,11 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
       durationMinutes: line.durationMinutes,
       priceTnd: line.fareTnd,
       lineCode: line.code,
-      providerLabel: `${line.operatorName ?? 'Operateur non renseigne'} • ${line.servicePattern ?? `Intervalle ${line.intervalMinutes} min`}`,
-      ctaLabel: 'Acheter ticket',
+      providerLabel: `${line.operatorName ?? 'Operator not listed'} • ${line.servicePattern ?? `Every ${line.intervalMinutes} min`}`,
+      ctaLabel: 'Buy ticket',
     }));
 
-  const rideResults: SearchResult[] = state.louageRides
+  const exactRideResults: SearchResult[] = sortedScheduledRides
     .filter((ride) => {
       if (ride.status !== 'scheduled' || ride.availableSeats < 1) {
         return false;
@@ -1267,8 +1271,51 @@ export function getSearchResults(state: AppState, filters: SearchFilters) {
       priceTnd: ride.priceTnd,
       remainingSeats: ride.availableSeats,
       providerLabel: ride.vehicleModel,
-      ctaLabel: 'Reserver',
+      ctaLabel: 'Book now',
     }));
+
+  const rideResults =
+    exactRideResults.length > 0
+      ? exactRideResults
+      : sortedScheduledRides
+          .filter((ride) => {
+            if (ride.status !== 'scheduled' || ride.availableSeats < 1) {
+              return false;
+            }
+
+            const matchesDeparture =
+              departure.length === 0 || normalizeText(ride.departureCity).includes(departure);
+            const matchesDestination =
+              destination.length === 0 || normalizeText(ride.destinationCity).includes(destination);
+
+            if (!matchesDeparture || !matchesDestination) {
+              return false;
+            }
+
+            if (searchDate.length === 0) {
+              return true;
+            }
+
+            return new Date(ride.departureAt).getTime() >= baseDeparture.getTime();
+          })
+          .slice(0, 6)
+          .map((ride) => ({
+            id: `${ride.id}-search-flex`,
+            sourceId: ride.id,
+            mode: 'louage' as const,
+            title: `Louage ${ride.departureCity} -> ${ride.destinationCity}`,
+            departure: ride.departureCity,
+            destination: ride.destinationCity,
+            departureAt: ride.departureAt,
+            durationMinutes: Math.max(
+              120,
+              Math.round(Math.abs(new Date(ride.departureAt).getHours() - 11) * 18 + ride.priceTnd * 2),
+            ),
+            priceTnd: ride.priceTnd,
+            remainingSeats: ride.availableSeats,
+            providerLabel: `${ride.vehicleModel} - next available ride`,
+            ctaLabel: 'Book now',
+          }));
 
   const results = [...lineResults, ...rideResults];
 
@@ -1424,7 +1471,7 @@ export function confirmRideCompletion(
   }
 
   if (booking.status !== 'awaiting_passenger_confirmation') {
-    return { error: 'Aucune confirmation passager n est attendue pour ce trajet.' };
+    return { error: 'No passenger confirmation is pending for this trip.' };
   }
 
   return {

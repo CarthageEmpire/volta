@@ -4,12 +4,19 @@ export function validateLocationPair(
   noun: 'ville' | 'station' | 'lieu',
 ) {
   if (!departure || !destination) {
-    const article = noun === 'ville' ? 'une' : 'une';
-    return `Veuillez sélectionner ${article} ${noun} de départ et ${article} ${noun} de destination.`;
+    if (noun === 'station') {
+      return 'Select both departure and destination stations.';
+    }
+
+    if (noun === 'ville') {
+      return 'Select both departure and destination cities.';
+    }
+
+    return 'Select both departure and destination locations.';
   }
 
   if (departure === destination) {
-    return 'Le départ et la destination doivent être différents.';
+    return 'Departure and destination must be different.';
   }
 
   return '';

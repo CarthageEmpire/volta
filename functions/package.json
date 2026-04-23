@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "serve": "firebase emulators:start --only functions,firestore,auth,storage",
     "deploy": "firebase deploy --only functions",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "seed:prod": "tsx scripts/seed.ts --production --force"
   },
   "dependencies": {
     "firebase-admin": "^12.1.0",

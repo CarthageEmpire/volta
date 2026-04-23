@@ -28,13 +28,13 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
     return (
       <div className="min-h-screen bg-background pb-40 sm:pb-32">
         <TopAppBar
-          title="Paiement"
-          subtitle="Aucune commande selectionnee"
+          title="Payment"
+          subtitle="No order selected"
           onBack={() => navigate('explore')}
         />
         <main className="mx-auto max-w-3xl px-6 py-12">
           <div className="rounded-[2rem] bg-white p-8 text-center shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <p className="text-sm text-slate-500">Choisissez d'abord un trajet ou une ligne.</p>
+            <p className="text-sm text-slate-500">Select a trip or line first.</p>
           </div>
         </main>
       </div>
@@ -94,8 +94,8 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
     return (
       <div className="min-h-screen bg-background pb-40 sm:pb-32">
         <TopAppBar
-          title="Paiement"
-          subtitle="Etat confirme par le backend"
+          title="Payment"
+          subtitle="Status confirmed by backend"
           onBack={() => navigate('explore')}
         />
 
@@ -104,9 +104,9 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-4 py-2 text-sm font-bold uppercase tracking-[0.18em] ${badgeClasses}`}>
                 {completion.paymentStatus === 'paid'
-                  ? 'Paiement confirme'
+                  ? 'Payment confirmed'
                   : completion.paymentStatus === 'pending'
-                    ? 'Paiement en attente'
+                    ? 'Payment pending'
                     : completion.paymentStatus}
               </span>
               <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
@@ -122,7 +122,7 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <div className="rounded-[1.4rem] bg-slate-50 p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-                  Trajet
+                  Trip
                 </p>
                 <p className="mt-2 font-semibold text-slate-900">
                   {completion.origin} -&gt; {completion.destination}
@@ -130,7 +130,7 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
               </div>
               <div className="rounded-[1.4rem] bg-slate-50 p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-                  Depart
+                  Departure
                 </p>
                 <p className="mt-2 font-semibold text-slate-900">
                   {formatDateTime(completion.departureAt)}
@@ -140,8 +140,8 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
 
             <div className="mt-6 rounded-[1.5rem] bg-slate-50 p-4 text-sm leading-7 text-slate-600">
               {isPaid
-                ? 'Le ticket et la reservation ont ete enregistres. Vous pouvez ouvrir la section Tickets pour afficher le QR code et l historique de paiement.'
-                : 'La reservation et le paiement sont enregistres cote backend. Le ticket sera genere seulement apres confirmation du fournisseur.'}
+                ? 'Your ticket and booking are saved. Open Tickets to view your QR code and payment history.'
+                : 'Your booking and payment are recorded. The ticket will be issued after provider confirmation.'}
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -150,14 +150,14 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
                 onClick={() => navigate('tickets')}
                 className="rounded-full bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] px-5 py-3 text-sm font-bold text-white"
               >
-                Voir mes tickets
+                View my tickets
               </button>
               <button
                 type="button"
                 onClick={() => navigate('explore')}
                 className="rounded-full bg-slate-100 px-5 py-3 text-sm font-bold text-slate-700"
               >
-                Retour accueil
+                Back to home
               </button>
             </div>
           </section>
@@ -169,14 +169,14 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
   return (
     <div className="min-h-screen bg-background pb-40 sm:pb-32">
       <TopAppBar
-        title="Paiement"
-        subtitle="Resume, validation et generation ticket"
+        title="Payment"
+        subtitle="Review, confirm, and issue ticket"
         onBack={() => navigate('explore')}
       />
 
       <main className="mx-auto grid max-w-5xl items-start gap-6 px-6 py-8 lg:grid-cols-[1fr_0.9fr]">
         <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Commande</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Order</p>
           <h2 className="mt-3 font-headline text-3xl font-extrabold text-slate-950">
             {checkout.title}
           </h2>
@@ -185,11 +185,11 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
           <div className="mt-6 rounded-[1.5rem] bg-slate-50 p-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Depart</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">From</p>
                 <p className="mt-2 font-semibold text-slate-900">{checkout.origin}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Destination</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">To</p>
                 <p className="mt-2 font-semibold text-slate-900">{checkout.destination}</p>
               </div>
               <div>
@@ -197,7 +197,7 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
                 <p className="mt-2 font-semibold text-slate-900">{checkout.mode}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Depart estime</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Estimated departure</p>
                 <p className="mt-2 font-semibold text-slate-900">
                   {formatDateTime(checkout.departureAt)}
                 </p>
@@ -246,11 +246,11 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
         <aside className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="rounded-[1.5rem] bg-slate-50 p-5">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">Sous-total</span>
+              <span className="text-sm text-slate-500">Subtotal</span>
               <span className="font-semibold text-slate-900">{formatTnd(checkout.amountTnd)}</span>
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-sm text-slate-500">Frais</span>
+              <span className="text-sm text-slate-500">Fees</span>
               <span className="font-semibold text-slate-900">{formatTnd(0)}</span>
             </div>
             <div className="mt-5 flex items-center justify-between border-t border-slate-200 pt-4">
@@ -262,9 +262,9 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
           </div>
 
           <div className="mt-5 rounded-[1.5rem] bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-            Le backend persiste d abord le paiement puis la reservation. Le ticket n est genere
-            que si le statut fournisseur devient `paid`. Pour le louage, le payout conducteur
-            reste retenu jusqu a confirmation passager.
+            The backend records payment first, then the booking. A ticket is issued only when the
+            provider status becomes `paid`. For louage, driver payout stays held until passenger
+            confirmation.
           </div>
 
           {feedback && (
@@ -279,7 +279,7 @@ export default function PaymentScreen({ navigate }: PaymentScreenProps) {
             disabled={isSubmitting}
             className="mt-6 w-full rounded-[1.6rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] py-5 font-headline text-xl font-extrabold text-white disabled:bg-slate-300"
           >
-            {isSubmitting ? 'Paiement...' : 'Confirmer le paiement'}
+            {isSubmitting ? 'Processing payment...' : 'Confirm payment'}
           </button>
         </aside>
       </main>

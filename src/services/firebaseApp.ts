@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
@@ -15,18 +16,12 @@ const demoFirebaseConfig = {
 };
 
 function isNativeCapacitorRuntime() {
-  const capacitor = (globalThis as {
-    Capacitor?: {
-      getPlatform?: () => string;
-      isNativePlatform?: () => boolean;
-    };
-  }).Capacitor;
-
-  if (capacitor?.isNativePlatform?.()) {
+  if (Capacitor.isNativePlatform()) {
     return true;
   }
 
-  return capacitor?.getPlatform?.() === 'android' || capacitor?.getPlatform?.() === 'ios';
+  const platform = Capacitor.getPlatform();
+  return platform === 'android' || platform === 'ios';
 }
 
 function resolveEmulatorHost() {
@@ -65,6 +60,13 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app, 'us-central1');
+const functionsPreference = env.VITE_FIREBASE_USE_FUNCTIONS;
+export const firebaseRuntimeMode = {
+  shouldUseEmulators,
+  emulatorHost: shouldUseEmulators ? resolveEmulatorHost() : null,
+  isNativeRuntime: isNativeCapacitorRuntime(),
+  functionsEnabled: functionsPreference !== 'false',
+};
 
 const usingDemoFirebaseConfig = Object.entries(demoFirebaseConfig).every(
   ([key, value]) => firebaseConfig[key as keyof typeof firebaseConfig] === value,
@@ -76,7 +78,7 @@ export const firebaseSetupIssue =
     : null;
 
 if (shouldUseEmulators && !(globalThis as { __voltaFirebaseEmulatorsConnected?: boolean }).__voltaFirebaseEmulatorsConnected) {
-  const emulatorHost = resolveEmulatorHost();
+  const emulatorHost = firebaseRuntimeMode.emulatorHost ?? resolveEmulatorHost();
 
   connectAuthEmulator(auth, `http://${emulatorHost}:9099`, { disableWarnings: true });
   connectFirestoreEmulator(db, emulatorHost, 8080);

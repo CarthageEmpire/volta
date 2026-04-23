@@ -136,12 +136,12 @@ function buildLineResultFromSelection(
   return {
     line,
     matchType,
-    matchExplanation: buildSuggestionExplanation(
-      matchType,
-      selection.departure.match,
-      selection.destination.match,
-      `Meilleure ligne ${mode} disponible`,
-    ),
+      matchExplanation: buildSuggestionExplanation(
+        matchType,
+        selection.departure.match,
+        selection.destination.match,
+        `Best available ${mode} line`,
+      ),
     relevanceScore:
       selection.departure.match.score +
       selection.destination.match.score +
@@ -186,12 +186,12 @@ function buildLineResultFromPartialFilters(
   const matchType = buildSuggestionMatchType(departureMatch, destinationMatch);
   const matchExplanation =
     queryScore > 0 && departureMatch.score === 0 && destinationMatch.score === 0
-      ? `Ligne ${mode} pertinente pour la recherche "${filters.query.trim()}".`
+        ? `Relevant ${mode} line for "${filters.query.trim()}".`
       : buildSuggestionExplanation(
           matchType,
           departureMatch,
           destinationMatch,
-          `Meilleure ligne ${mode} disponible`,
+            `Best available ${mode} line`,
         );
 
   return {
@@ -280,9 +280,9 @@ export function rankTransitSectionLines(
     .map((line) => ({
       line,
       matchType: 'network_suggestion' as const,
-      matchExplanation: hasActiveFilters
-        ? `Aucune ligne ${mode} proche exacte. Voici les services les plus utiles du reseau actif.`
-        : `Lignes ${mode} actives du moment.`,
+        matchExplanation: hasActiveFilters
+          ? `No exact ${mode} line match found. Here are the most useful active routes.`
+          : `Active ${mode} lines right now.`,
       relevanceScore: 1,
     }));
 }

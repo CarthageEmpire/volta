@@ -30,8 +30,8 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
   return (
     <div className="min-h-screen bg-background pb-32">
       <TopAppBar
-        title="Tickets et QR"
-        subtitle="Titres actifs, historique et confirmations louage"
+        title="Tickets and QR"
+        subtitle="Active tickets, history, and louage confirmations"
         onBack={() => navigate('explore')}
       />
 
@@ -45,13 +45,13 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
           <div className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
             <div className="flex items-center justify-between">
-              <h2 className="font-headline text-3xl font-extrabold text-slate-950">Tickets actifs</h2>
+              <h2 className="font-headline text-3xl font-extrabold text-slate-950">Active tickets</h2>
               <button
                 type="button"
                 onClick={() => navigate('line-details')}
                 className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"
               >
-                Acheter
+                Buy
               </button>
             </div>
 
@@ -66,7 +66,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                           {ticket.title}
                         </p>
                         <p className="mt-2 text-sm text-slate-500">
-                          Valide jusqu&apos;a {formatDateTime(ticket.validUntil, state.locale)}
+                          Valid until {formatDateTime(ticket.validUntil, state.locale)}
                         </p>
                         <p className="mt-3 text-sm font-semibold text-slate-700">
                           {formatTnd(ticket.priceTnd, state.locale)} - {ticket.zones}
@@ -77,7 +77,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                 ))
               ) : (
                 <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                  Aucun ticket actif.
+                  No active tickets.
                 </div>
               )}
             </div>
@@ -96,7 +96,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                       {formatDateTime(booking.departureAt, state.locale)}
                     </p>
                     <p className="mt-2 text-sm font-semibold text-slate-700">
-                      {booking.status} - {booking.refundStatus ?? 'none'}
+                      {booking.status} - refund {booking.refundStatus ?? 'none'}
                     </p>
                     {booking.note && <p className="mt-2 text-sm text-slate-500">{booking.note}</p>}
                     <div className="mt-4 flex flex-wrap gap-3">
@@ -109,7 +109,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                           }}
                           className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-white"
                         >
-                          Confirmer trajet
+                          Confirm trip
                         </button>
                       )}
                       {['confirmed', 'awaiting_passenger_confirmation'].includes(booking.status) && (
@@ -121,7 +121,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                           }}
                           className="rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-700"
                         >
-                          Annuler
+                          Cancel
                         </button>
                       )}
                     </div>
@@ -129,7 +129,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                 ))
               ) : (
                 <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                  Aucune reservation louage.
+                  No louage bookings.
                 </div>
               )}
             </div>
@@ -137,7 +137,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
         </section>
 
         <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Historique</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">History</p>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {pastTickets.length > 0 ? (
               pastTickets.map((ticket) => (
@@ -150,7 +150,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
               ))
             ) : (
               <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm text-slate-500">
-                Pas encore d'historique archive.
+                No archived history yet.
               </div>
             )}
           </div>
@@ -160,14 +160,14 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">
-                Paiements
+                Payments
               </p>
               <h2 className="mt-2 font-headline text-3xl font-extrabold text-slate-950">
-                Historique backend
+                Backend history
               </h2>
             </div>
             <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
-              {payments.length} paiement(s)
+              {payments.length} payment(s)
             </span>
           </div>
 
@@ -191,7 +191,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
                       Payout: {payment.payoutStatus}
-                      {relatedBooking ? ` - Reservation ${relatedBooking.status}` : ''}
+                      {relatedBooking ? ` - booking ${relatedBooking.status}` : ''}
                     </p>
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                       <span className="text-sm font-semibold text-slate-700">
@@ -206,7 +206,7 @@ export default function TicketsScreen({ navigate }: TicketsScreenProps) {
               })
             ) : (
               <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
-                Aucun paiement enregistre pour ce compte.
+                No payments recorded for this account.
               </div>
             )}
           </div>

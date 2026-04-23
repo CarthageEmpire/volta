@@ -17,58 +17,58 @@ interface TransitSectionScreenProps {
 const SECTION_CONFIG = {
   bus: {
     screen: 'bus' as const,
-    title: 'Bus Tunisie',
-    subtitle: 'Lignes regulieres, passages live et billets digitaux',
+    title: 'Bus Tunisia',
+    subtitle: 'Regular routes, live arrivals, and digital tickets',
     icon: 'directions_bus',
     accent: '#0040a1',
     accentSoft: 'rgba(0,64,161,0.12)',
-    departureLabel: 'Ville de depart',
-    destinationLabel: 'Ville de destination',
-    placeholder: '-- Choisissez une ville --',
-    searchLabel: 'Recherche de ligne',
-    queryPlaceholder: 'Ex : B32, Ariana, Marine',
-    locationSearchPlaceholder: 'Rechercher une ville',
-    emptyLocationLabel: 'Aucune ville ne correspond a votre recherche.',
+    departureLabel: 'From city',
+    destinationLabel: 'To city',
+    placeholder: 'Select a city',
+    searchLabel: 'Line search',
+    queryPlaceholder: 'Ex: B32, Ariana, Marine',
+    locationSearchPlaceholder: 'Search city',
+    emptyLocationLabel: 'No matching city found.',
     validationType: 'ville' as const,
     locationOptions: BUS_SEARCH_LOCATIONS,
     defaultDeparture: '',
     defaultDestination: '',
-    summaryTitle: 'Service bus',
+    summaryTitle: 'Bus service',
     summaryItems: [
-      'Validation ticket mobile avant montee a bord.',
-      'Suivi des prochains passages sur les arrets majeurs.',
-      'Frequence et duree estimee visibles avant achat.',
-      'Basculer vers le detail ligne pour voir tous les arrets.',
+      'Validate mobile tickets before boarding.',
+      'Track upcoming arrivals at key stops.',
+      'See frequency and estimated duration before purchase.',
+      'Open line details to view all stops.',
     ],
-    sidebarTitle: 'Lignes frequentes',
+    sidebarTitle: 'Frequent lines',
     serviceHours: '05:30 - 21:30',
   },
   metro: {
     screen: 'metro' as const,
-    title: 'Metro Tunis',
-    subtitle: 'Lignes, directions et correspondances simplifiees',
+    title: 'Tunis Metro',
+    subtitle: 'Lines, directions, and simple transfers',
     icon: 'tram',
     accent: '#0f766e',
     accentSoft: 'rgba(15,118,110,0.12)',
-    departureLabel: 'Station de depart',
-    destinationLabel: 'Station de destination',
-    placeholder: '-- Choisissez une station --',
-    searchLabel: 'Recherche de ligne',
-    queryPlaceholder: 'Ex : M4, Bardo, Barcelone',
-    locationSearchPlaceholder: 'Rechercher une station',
-    emptyLocationLabel: 'Aucune station ne correspond a votre recherche.',
+    departureLabel: 'From station',
+    destinationLabel: 'To station',
+    placeholder: 'Select a station',
+    searchLabel: 'Line search',
+    queryPlaceholder: 'Ex: M4, Bardo, Barcelone',
+    locationSearchPlaceholder: 'Search station',
+    emptyLocationLabel: 'No matching station found.',
     validationType: 'station' as const,
     locationOptions: TUNIS_METRO_STATIONS,
     defaultDeparture: '',
     defaultDestination: '',
-    summaryTitle: 'Service metro',
+    summaryTitle: 'Metro service',
     summaryItems: [
-      'Directions et terminus visibles sur chaque carte.',
-      'Temps de passage et correspondances sur les stations majeures.',
-      'Achat ticket en un geste depuis la ligne souhaitee.',
-      'Couleur de ligne preservee entre liste et detail.',
+      'See directions and terminus on each line card.',
+      'View arrivals and transfer points at major stations.',
+      'Buy a ticket directly from your selected line.',
+      'Line colors stay consistent between list and details.',
     ],
-    sidebarTitle: 'Stations majeures',
+    sidebarTitle: 'Major stations',
     serviceHours: '05:00 - 22:30',
   },
 } as const;
@@ -88,14 +88,14 @@ function validateOptionalLocationPair(
 function getMatchChipLabel(matchType: SearchMatchType) {
   switch (matchType) {
     case 'direct':
-      return 'Trajet direct';
+      return 'Direct trip';
     case 'departure_area':
-      return 'Depart proche';
+      return 'Near departure';
     case 'destination_area':
-      return 'Arrivee proche';
+      return 'Near destination';
     case 'network_suggestion':
     default:
-      return 'Option probable';
+      return 'Suggested option';
   }
 }
 
@@ -214,7 +214,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                 className="rounded-[1.4rem] px-5 py-4 text-sm font-bold text-white"
                 style={{ backgroundColor: config.accent }}
               >
-                Rechercher
+                Search
               </button>
             </div>
           </div>
@@ -259,7 +259,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                               color: config.accent,
                             }}
                           >
-                            {line.stops.length} arrets
+                            {line.stops.length} stops
                           </span>
                           <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">
                             {getMatchChipLabel(result.matchType)}
@@ -271,7 +271,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                         </h2>
                         <p className="mt-2 text-sm leading-6 text-slate-500">{line.routeLabel}</p>
                         <p className="mt-2 text-sm font-semibold text-slate-700">
-                          {line.operatorName ?? 'Operateur non renseigne'}
+                          {line.operatorName ?? 'Operator not listed'}
                         </p>
                         {line.servicePattern && (
                           <p className="mt-1 text-sm text-slate-500">{line.servicePattern}</p>
@@ -288,44 +288,44 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                         <div className="mt-5 grid gap-3 md:grid-cols-3">
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              {mode === 'bus' ? 'Prochain depart' : 'Service'}
+                              {mode === 'bus' ? 'Next departure' : 'Service hours'}
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {mode === 'bus' ? line.stops[0]?.plannedTime ?? '--:--' : config.serviceHours}
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
-                              {mode === 'bus' ? `Depuis ${line.origin}` : `Vers ${line.destination}`}
+                              {mode === 'bus' ? `From ${line.origin}` : `To ${line.destination}`}
                             </p>
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Frequence
+                              Frequency
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.intervalMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {vehicle && nextStop
-                                ? `${vehicle.label} arrive a ${nextStop.name} dans ${vehicle.etaMinutes} min`
-                                : 'Suivi live disponible sur le detail ligne'}
+                                ? `${vehicle.label} arrives at ${nextStop.name} in ${vehicle.etaMinutes} min`
+                                : 'Live tracking is available in line details'}
                             </p>
                             {vehicle?.updatedAt ? (
                               <p className="mt-2 text-xs text-slate-500">
-                                Maj backend {formatDateTime(vehicle.updatedAt, state.locale)}
+                                Backend update {formatDateTime(vehicle.updatedAt, state.locale)}
                               </p>
                             ) : null}
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Duree estimee
+                              Estimated duration
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {line.durationMinutes} min
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
                               {mode === 'bus'
-                                ? 'Arrets principaux visibles ci-dessous'
-                                : 'Stations clefs et correspondances simplifiees'}
+                                ? 'Key stops shown below'
+                                : 'Key stations and simple transfers'}
                             </p>
                           </div>
                         </div>
@@ -345,7 +345,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                       <div className="flex flex-col items-start gap-3 lg:items-end">
                         <div className="rounded-[1.4rem] bg-slate-50 px-4 py-3 text-right">
                           <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                            Tarif
+                            Fare
                           </p>
                           <p className="mt-1 font-headline text-3xl font-extrabold text-slate-950">
                             {formatTnd(line.fareTnd)}
@@ -357,7 +357,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                             onClick={() => openLine(line.id)}
                             className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700"
                           >
-                            Voir ligne
+                            View line
                           </button>
                           <button
                             type="button"
@@ -365,7 +365,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                             className="rounded-full px-5 py-3 text-sm font-bold text-white"
                             style={{ backgroundColor: config.accent }}
                           >
-                            Acheter ticket
+                            Buy ticket
                           </button>
                         </div>
                       </div>
@@ -384,10 +384,10 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                   </div>
                   <div>
                     <h2 className="font-headline text-2xl font-extrabold text-slate-950">
-                      Aucune ligne backend active
+                      No active backend lines
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Le backend ne remonte actuellement aucune ligne {mode === 'bus' ? 'bus' : 'metro'}.
+                      No active {mode === 'bus' ? 'bus' : 'metro'} lines are currently available.
                     </p>
                   </div>
                 </div>
@@ -433,7 +433,7 @@ export default function TransitSectionScreen({ mode, navigate }: TransitSectionS
                           {line.code} - {line.origin} -&gt; {line.destination}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          {line.intervalMinutes} min - {line.stops.length} arrets
+                          {line.intervalMinutes} min - {line.stops.length} stops
                         </p>
                       </div>
                       <span className="material-symbols-outlined text-slate-400">

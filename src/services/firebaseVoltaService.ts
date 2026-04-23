@@ -1,7 +1,10 @@
 import {
+  GoogleAuthProvider,
   User,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithPopup,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
@@ -40,8 +43,11 @@ import {
   UserAccount,
   VerificationDocument,
 } from '../types';
-import { auth, db, firebaseSetupIssue, functions, storage } from './firebaseApp';
+import { NativeGoogleAuth, canUseNativeGoogleAuth } from '../plugins/nativeGoogleAuth';
+import { auth, db, firebaseRuntimeMode, firebaseSetupIssue, functions, storage } from './firebaseApp';
 import { normalizeEmail, normalizePhone } from './validationService';
+
+const env = import.meta.env;
 
 function optionalString(value: unknown) {
   return typeof value === 'string' && value.length > 0 ? value : undefined;
@@ -309,6 +315,30 @@ function mapAuthError(error: unknown) {
     case 'auth/wrong-password':
     case 'auth/user-not-found':
       return 'Email ou mot de passe incorrect.';
+    case 'auth/account-exists-with-different-credential':
+      return 'Un compte existe deja avec cet email via une autre methode de connexion.';
+    case 'auth/popup-blocked':
+      return 'Le navigateur a bloque la fenetre Google. Autorisez les popups puis reessayez.';
+    case 'auth/popup-closed-by-user':
+      return 'La fenetre Google a ete fermee avant la fin de la connexion.';
+    case 'auth/cancelled-popup-request':
+      return 'Une autre tentative de connexion Google est deja en cours.';
+    case 'auth/operation-not-allowed':
+      return 'Activez Google dans Firebase Authentication > Sign-in method.';
+    case 'auth/operation-not-supported-in-this-environment':
+      return firebaseRuntimeMode.isNativeRuntime
+        ? 'La connexion Google par popup n est pas prise en charge dans cette WebView Android. Il faut utiliser un plugin natif Capacitor pour Google Sign-In ou tester cette connexion sur la version web.'
+        : 'La connexion Google n est pas prise en charge dans cet environnement de build.';
+    case 'auth/unauthorized-domain':
+      return 'Ajoutez ce domaine dans Firebase Authentication > Settings > Authorized domains.';
+    case 'auth/network-request-failed':
+      if (firebaseRuntimeMode.shouldUseEmulators) {
+        const host = firebaseRuntimeMode.emulatorHost ?? '127.0.0.1';
+        return firebaseRuntimeMode.isNativeRuntime
+          ? `Firebase Auth essaie de joindre l emulateur sur ${host}:9099 mais il est inaccessible. Sur emulateur Android utilisez 10.0.2.2, sur telephone physique utilisez l IP LAN de votre PC, puis lancez npm run firebase:emulators. Sinon desactivez VITE_USE_FIREBASE_EMULATORS et rebuild l app.`
+          : `Firebase Auth essaie de joindre l emulateur sur ${host}:9099 mais il est inaccessible. Lancez npm run firebase:emulators ou desactivez VITE_USE_FIREBASE_EMULATORS.`;
+      }
+      return 'Connexion reseau vers Firebase impossible. Verifiez la connexion internet, les domaines autorises Firebase Auth et la configuration VITE_FIREBASE_*.';
     case 'auth/weak-password':
       return 'Le mot de passe est trop faible.';
     case 'auth/invalid-email':
@@ -322,6 +352,7 @@ function mapAuthError(error: unknown) {
 }
 
 async function ensureRemoteUserProfile(input?: Partial<Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>>) {
+  requireCallableFunctions();
   const callable = httpsCallable<
     Partial<Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>>,
     UserAccount
@@ -330,21 +361,49 @@ async function ensureRemoteUserProfile(input?: Partial<Pick<SignupInput, 'role' 
   return result.data;
 }
 
+async function resolveAuthenticatedUserProfile(
+  user: User,
+  fallbackInput?: Partial<Pick<SignupInput, 'role' | 'email' | 'phone' | 'fullName' | 'city'>>,
+) {
+  let profile = await fetchUserProfileOnce(user.uid);
+  if (profile) {
+    return profile;
+  }
+
+  try {
+    profile = await ensureRemoteUserProfile({
+      role: fallbackInput?.role,
+      email: user.email ?? fallbackInput?.email,
+      phone: fallbackInput?.phone,
+      fullName: user.displayName ?? fallbackInput?.fullName,
+      city: fallbackInput?.city,
+    });
+    return profile;
+  } catch {
+    const tokenResult = await user.getIdTokenResult().catch(() => null);
+    const roleClaim = tokenResult?.claims?.role;
+    return createFallbackUserAccount({
+      userId: user.uid,
+      email: user.email ?? normalizeEmail(fallbackInput?.email ?? 'utilisateur@volta.local'),
+      role:
+        roleClaim === 'driver' || roleClaim === 'admin' || roleClaim === 'passenger'
+          ? roleClaim
+          : fallbackInput?.role ?? 'passenger',
+      phone: fallbackInput?.phone,
+      fullName: user.displayName ?? fallbackInput?.fullName ?? undefined,
+      city: fallbackInput?.city,
+    });
+  }
+}
+
 export async function getAuthenticatedUserFallback() {
   const currentUser = auth.currentUser;
   if (!currentUser?.email) {
     return null;
   }
 
-  const tokenResult = await currentUser.getIdTokenResult().catch(() => null);
-  const roleClaim = tokenResult?.claims?.role;
-  const role =
-    roleClaim === 'driver' || roleClaim === 'admin' || roleClaim === 'passenger' ? roleClaim : 'passenger';
-
-  return createFallbackUserAccount({
-    userId: currentUser.uid,
+  return resolveAuthenticatedUserProfile(currentUser, {
     email: currentUser.email,
-    role,
     fullName: currentUser.displayName ?? undefined,
   });
 }
@@ -364,6 +423,16 @@ async function uploadFile(params: {
 
 function safeFileSegment(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]+/g, '-');
+}
+
+function requireCallableFunctions() {
+  if (firebaseRuntimeMode.functionsEnabled) {
+    return;
+  }
+
+  throw new Error(
+    'Mode Spark actif: Cloud Functions desactivees. L application utilise Firestore et le stockage local quand c est possible.',
+  );
 }
 
 export function subscribeToSession(callback: (user: User | null) => void) {
@@ -471,21 +540,63 @@ export async function loginWithFirebase(input: LoginInput) {
 
   try {
     const credential = await signInWithEmailAndPassword(auth, normalizeEmail(input.email), input.password);
-    let profile = await fetchUserProfileOnce(credential.user.uid);
-    if (!profile) {
-      try {
-        profile = await ensureRemoteUserProfile();
-      } catch {
-        const tokenResult = await credential.user.getIdTokenResult().catch(() => null);
-        const roleClaim = tokenResult?.claims?.role;
-        profile = createFallbackUserAccount({
-          userId: credential.user.uid,
-          email: credential.user.email ?? normalizeEmail(input.email),
-          role: roleClaim === 'driver' || roleClaim === 'admin' || roleClaim === 'passenger' ? roleClaim : 'passenger',
-          fullName: credential.user.displayName ?? undefined,
-        });
+    const profile = await resolveAuthenticatedUserProfile(credential.user, {
+      email: normalizeEmail(input.email),
+    });
+
+    return { ok: true as const, userId: credential.user.uid, profile };
+  } catch (error) {
+    return { ok: false as const, message: mapAuthError(error) };
+  }
+}
+
+export async function loginWithGoogleFirebase() {
+  if (firebaseSetupIssue) {
+    return { ok: false as const, message: firebaseSetupIssue };
+  }
+
+  if (firebaseRuntimeMode.shouldUseEmulators) {
+    return {
+      ok: false as const,
+      message: 'Connexion Google indisponible avec les emulateurs Firebase. Utilisez votre projet Firebase reel.',
+    };
+  }
+
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: 'select_account',
+  });
+
+  try {
+    if (canUseNativeGoogleAuth() || firebaseRuntimeMode.isNativeRuntime) {
+      const webClientId = env.VITE_FIREBASE_GOOGLE_WEB_CLIENT_ID;
+      if (!webClientId) {
+        return {
+          ok: false as const,
+          message:
+            'Configuration manquante: ajoutez VITE_FIREBASE_GOOGLE_WEB_CLIENT_ID dans .env.local avec votre client OAuth Web Google.',
+        };
       }
+
+      const nativeResult = await NativeGoogleAuth.signIn({
+        webClientId,
+        forcePrompt: true,
+      });
+      const credential = GoogleAuthProvider.credential(nativeResult.idToken);
+      const authResult = await signInWithCredential(auth, credential);
+      const profile = await resolveAuthenticatedUserProfile(authResult.user, {
+        email: nativeResult.email ?? authResult.user.email ?? undefined,
+        fullName: nativeResult.displayName ?? authResult.user.displayName ?? undefined,
+      });
+
+      return { ok: true as const, userId: authResult.user.uid, profile };
     }
+
+    const credential = await signInWithPopup(auth, provider);
+    const profile = await resolveAuthenticatedUserProfile(credential.user, {
+      email: credential.user.email ?? undefined,
+      fullName: credential.user.displayName ?? undefined,
+    });
 
     return { ok: true as const, userId: credential.user.uid, profile };
   } catch (error) {
@@ -525,18 +636,7 @@ export async function signupWithFirebase(input: SignupInput) {
       const result = await bootstrap(profilePayload);
       profile = result.data;
     } catch (bootstrapError) {
-      try {
-        profile = await ensureRemoteUserProfile(profilePayload);
-      } catch {
-        profile = createFallbackUserAccount({
-          userId: credential.user.uid,
-          email: credential.user.email ?? profilePayload.email,
-          role: input.role,
-          phone: profilePayload.phone,
-          fullName: profilePayload.fullName,
-          city: profilePayload.city,
-        });
-      }
+      profile = await resolveAuthenticatedUserProfile(credential.user, profilePayload);
     }
 
     await credential.user.getIdToken(true);
@@ -551,11 +651,13 @@ export async function logoutFromFirebase() {
 }
 
 export async function updateLocalePreference(locale: Locale) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ locale: Locale }, { locale: Locale }>(functions, 'updateUserLocale');
   await callable({ locale });
 }
 
 export async function submitVerificationRequest(userId: string, input: DriverVerificationInput) {
+  requireCallableFunctions();
   const documents = await Promise.all(
     input.documents.map(async (document) => {
       if (!document.file) {
@@ -596,6 +698,7 @@ export async function reviewVerificationRequest(
   decision: 'approved' | 'rejected',
   rejectionReason?: string,
 ) {
+  requireCallableFunctions();
   const callable = httpsCallable(functions, 'reviewDriverVerification');
   await callable({
     requestId,
@@ -612,6 +715,7 @@ export async function toggleLiveSharing(
     accuracyMeters?: number;
   },
 ) {
+  requireCallableFunctions();
   const callable = httpsCallable(functions, 'toggleDriverLiveSharing');
   await callable({
     enabled,
@@ -622,6 +726,7 @@ export async function toggleLiveSharing(
 }
 
 export async function createRideListing(userId: string, input: CreateRideInput) {
+  requireCallableFunctions();
   let uploadedPhoto:
     | {
         storagePath: string;
@@ -652,6 +757,7 @@ export async function createRideListing(userId: string, input: CreateRideInput) 
 }
 
 export async function createCheckoutForLine(lineId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ kind: 'line_ticket'; lineId: string }, CheckoutIntent>(
     functions,
     'createCheckoutIntent',
@@ -661,6 +767,7 @@ export async function createCheckoutForLine(lineId: string) {
 }
 
 export async function createCheckoutForRide(rideId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ kind: 'louage_booking'; rideId: string }, CheckoutIntent>(
     functions,
     'createCheckoutIntent',
@@ -670,6 +777,7 @@ export async function createCheckoutForRide(rideId: string) {
 }
 
 export async function confirmCheckout(checkout: CheckoutIntent, provider: PaymentProvider) {
+  requireCallableFunctions();
   const callable = httpsCallable<
     { checkout: CheckoutIntent; provider: PaymentProvider },
     {
@@ -685,6 +793,7 @@ export async function confirmCheckout(checkout: CheckoutIntent, provider: Paymen
 }
 
 export async function cancelPassengerBookingRemote(bookingId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ bookingId: string }, { bookingId: string }>(
     functions,
     'cancelPassengerBooking',
@@ -693,11 +802,13 @@ export async function cancelPassengerBookingRemote(bookingId: string) {
 }
 
 export async function cancelDriverRideRemote(rideId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ rideId: string }, { rideId: string }>(functions, 'cancelDriverRide');
   await callable({ rideId });
 }
 
 export async function markBookingAwaitingConfirmationRemote(bookingId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ bookingId: string }, { bookingId: string }>(
     functions,
     'markRideAwaitingConfirmation',
@@ -706,6 +817,7 @@ export async function markBookingAwaitingConfirmationRemote(bookingId: string) {
 }
 
 export async function confirmRideCompletionRemote(bookingId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ bookingId: string }, { bookingId: string }>(
     functions,
     'confirmRideCompletion',
@@ -714,11 +826,13 @@ export async function confirmRideCompletionRemote(bookingId: string) {
 }
 
 export async function reportNoShowRemote(bookingId: string) {
+  requireCallableFunctions();
   const callable = httpsCallable<{ bookingId: string }, { bookingId: string }>(functions, 'reportNoShow');
   await callable({ bookingId });
 }
 
 export async function searchTransportRemote(filters: SearchFilters) {
+  requireCallableFunctions();
   const callable = httpsCallable<SearchFilters, SearchResult[]>(functions, 'searchTransport');
   const result = await callable(filters);
   return result.data;

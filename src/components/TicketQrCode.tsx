@@ -27,7 +27,7 @@ export default function TicketQrCode({ payload }: TicketQrCodeProps) {
       }
     }).catch(() => {
       if (active) {
-        setError('QR indisponible');
+        setError('QR code unavailable');
       }
     });
 
@@ -42,7 +42,7 @@ export default function TicketQrCode({ payload }: TicketQrCodeProps) {
         <img alt="QR Ticket Volta" className="h-44 w-44 rounded-xl" src={src} />
       ) : (
         <div className="flex h-44 w-44 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-          {error || 'QR...'}
+          {error || 'Loading QR...'}
         </div>
       )}
     </div>

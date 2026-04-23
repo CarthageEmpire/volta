@@ -24,14 +24,14 @@ function validateOptionalLocationPair(departure: string, destination: string) {
 function getMatchChipLabel(matchType: SearchMatchType) {
   switch (matchType) {
     case 'direct':
-      return 'Trajet direct';
+      return 'Direct trip';
     case 'departure_area':
-      return 'Depart proche';
+      return 'Near departure';
     case 'destination_area':
-      return 'Arrivee proche';
+      return 'Near destination';
     case 'network_suggestion':
     default:
-      return 'Option probable';
+      return 'Suggested option';
   }
 }
 
@@ -74,8 +74,8 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
   return (
     <div className="min-h-screen bg-background pb-32">
       <TopAppBar
-        title="Louage Tunisie"
-        subtitle="Reservation interurbaine avec paiement et regles metier"
+        title="Louage Tunisia"
+        subtitle="Intercity booking with payment and trip rules"
         onBack={() => navigate('explore')}
       />
 
@@ -85,29 +85,29 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
         <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="grid gap-4 md:grid-cols-4">
             <LocationSelect
-              label="Ville de depart"
-              placeholder="-- Choisissez une ville --"
+              label="From city"
+              placeholder="Select a city"
               value={filters.departure}
               options={LOUAGE_SEARCH_LOCATIONS}
-              searchPlaceholder="Rechercher une ville"
-              emptyStateLabel="Aucune ville ne correspond a votre recherche."
+              searchPlaceholder="Search city"
+              emptyStateLabel="No matching city found."
               excludedValue={filters.destination || undefined}
               invalid={Boolean(validationMessage)}
               onChange={updateDeparture}
             />
             <LocationSelect
-              label="Ville de destination"
-              placeholder="-- Choisissez une ville --"
+              label="To city"
+              placeholder="Select a city"
               value={filters.destination}
               options={LOUAGE_SEARCH_LOCATIONS}
-              searchPlaceholder="Rechercher une ville"
-              emptyStateLabel="Aucune ville ne correspond a votre recherche."
+              searchPlaceholder="Search city"
+              emptyStateLabel="No matching city found."
               excludedValue={filters.departure || undefined}
               invalid={Boolean(validationMessage)}
               onChange={updateDestination}
             />
             <label className="flex flex-col gap-2 text-sm font-semibold text-slate-600">
-              <span>Date souhaitee</span>
+              <span>Date</span>
               <input
                 value={filters.date}
                 onChange={(event) => {
@@ -124,7 +124,7 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                 onClick={() => setShowValidation(true)}
                 className="rounded-[1.4rem] bg-[linear-gradient(135deg,_#0040a1_0%,_#006d36_160%)] px-5 py-4 text-sm font-bold text-white"
               >
-                Rechercher
+                Search
               </button>
             </div>
           </div>
@@ -152,14 +152,14 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                             Louage
                           </span>
                           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
-                            {ride.availableSeats}/{ride.totalSeats} places
+                            {ride.availableSeats}/{ride.totalSeats} seats
                           </span>
                           <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">
                             {getMatchChipLabel(result.matchType)}
                           </span>
                           {driver?.rating ? (
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
-                              Note {driver.rating.toFixed(1)}
+                              Rating {driver.rating.toFixed(1)}
                             </span>
                           ) : null}
                         </div>
@@ -167,7 +167,7 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                           {ride.departureCity} -&gt; {ride.destinationCity}
                         </h3>
                         <p className="mt-2 text-sm text-slate-500">
-                          Conducteur: {ride.driverName ?? driver?.fullName ?? 'Conducteur Volta'}
+                          Driver: {ride.driverName ?? driver?.fullName ?? 'Volta driver'}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
                           {ride.vehicleModel} - {ride.plateNumber}
@@ -178,7 +178,7 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                         <div className="mt-5 grid gap-3 md:grid-cols-4">
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Depart
+                              Departure
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {formatDateTime(ride.departureAt)}
@@ -186,7 +186,7 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Vehicule
+                              Vehicle
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
                               {ride.vehicleModel}
@@ -195,24 +195,24 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Disponibilite
+                              Availability
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
-                              {ride.availableSeats} places
+                              {ride.availableSeats} seats
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
-                              Paiement retenu jusqu a confirmation
+                              Payment held until trip confirmation
                             </p>
                           </div>
                           <div className="rounded-[1.4rem] bg-slate-50 p-4">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-                              Classement
+                              Driver stats
                             </p>
                             <p className="mt-2 font-headline text-xl font-extrabold text-slate-950">
-                              {driver?.completedTrips ?? 0} trajets
+                              {driver?.completedTrips ?? 0} trips
                             </p>
                             <p className="mt-1 text-sm text-slate-500">
-                              {driver?.penaltyCount ?? 0} penalite(s)
+                              {driver?.penaltyCount ?? 0} penalty(ies)
                             </p>
                           </div>
                         </div>
@@ -233,7 +233,7 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
                           }}
                           className="rounded-full bg-[linear-gradient(135deg,_#006d36_0%,_#0f9d58_100%)] px-5 py-3 text-sm font-bold text-white disabled:bg-slate-300"
                         >
-                          Reserver
+                          Book now
                         </button>
                       </div>
                     </div>
@@ -243,10 +243,10 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
             ) : (
               <section className="rounded-[2rem] bg-white p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
                 <h2 className="font-headline text-2xl font-extrabold text-slate-950">
-                  Aucun louage backend actif
+                  No active louage rides
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-slate-500">
-                  Le backend ne remonte actuellement aucune annonce louage reservable.
+                  No bookable louage listings are currently available.
                 </p>
               </section>
             )}
@@ -254,18 +254,18 @@ export default function LouageScreen({ navigate }: LouageScreenProps) {
 
           <aside className="space-y-6">
             <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Regles</p>
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">Rules</p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
-                <p>Annulation passager remboursable jusqu a 2 h avant depart.</p>
-                <p>Annulation conducteur sous 1 h : remboursement total + penalite 10 %.</p>
-                <p>Payout conducteur retenu jusqu a confirmation du trajet.</p>
-                <p>No-show passager : paiement possible seulement avec preuve live.</p>
+                <p>Passenger cancellations are refundable up to 2 hours before departure.</p>
+                <p>Driver cancellation within 1 hour: full refund plus 10% penalty.</p>
+                <p>Driver payout is held until passenger confirms trip completion.</p>
+                <p>Passenger no-show can only be charged with live proof.</p>
               </div>
             </section>
 
             <section className="rounded-[2rem] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-slate-400">
-                Routes populaires
+                Popular routes
               </p>
               <div className="mt-4 grid gap-3">
                 {['Tunis -> Sousse', 'Sousse -> Sfax', 'Tunis -> Nabeul', 'Monastir -> Sfax'].map((route) => (

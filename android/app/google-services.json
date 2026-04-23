@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1078783188644",
+    "project_id": "volta-defef",
+    "storage_bucket": "volta-defef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078783188644:android:44e816e4a4086cf5c29031",
+        "android_client_info": {
+          "package_name": "com.kineticsanctuary.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078783188644-l78a92hmcekc0hsf2gnt00h54kac4q77.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kineticsanctuary.app",
+            "certificate_hash": "de0e03daabc185a7bed523d07ae4341d29e0fb91"
+          }
+        },
+        {
+          "client_id": "1078783188644-g1ptk40lhjsg6oo99nf7emqq81b9fo02.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYhn0vQXxjuwPxhkASKm9YozPvte1s9m4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078783188644-g1ptk40lhjsg6oo99nf7emqq81b9fo02.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
